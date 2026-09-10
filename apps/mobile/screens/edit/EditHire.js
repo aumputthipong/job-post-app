@@ -16,7 +16,7 @@ import {
 } from "react-native";
 
 import * as ImagePicker from "expo-image-picker";
-import firebase from "../../database/firebaseDB";
+import { posts } from "../../api/endpoints";
 import { SelectList } from "react-native-dropdown-select-list";
 import { updateHireData } from "../../store/actions/hireAction";
 import { Ionicons } from "@expo/vector-icons";
@@ -60,32 +60,28 @@ const EditHire = ({ route, navigation }) => {
     };
 
     try {
-      // อัปเดตข้อมูลใน Firestore โดยใช้ `hireid` ของโพสต์ที่คุณต้องการแก้ไข
-      const postRef = firebase.firestore().collection("HirePosts").doc(hireid);
-      await postRef.update(updatedData);
-
-      console.log("Post updated successfully");
+      await posts.update("hire", hireid, updatedData);
       navigation.navigate("HireJobDetailScreen", { id: hireid });
-    } catch (e) {
-      console.error("Error updating data: ", e);
+    } catch (error) {
+      Alert.alert("บันทึกไม่สำเร็จ", error.message);
     }
   };
-  const deletePost = async () => {
-    try {
-      // Delete the post document from Firestore
-      await firebase.firestore().collection("HirePosts").doc(hireid).delete();
-
-      // If there is an image associated with the post, delete it from storage
-      if (imageUrl) {
-        const imageRef = firebase.storage().refFromURL(imageUrl);
-        await imageRef.delete();
-      }
-
-      console.log("Post deleted");
-      navigation.navigate("HireJobScreen");
-    } catch (error) {
-      console.error("Error deleting post:", error);
-    }
+  const deletePost = () => {
+    Alert.alert("ลบประกาศ", "ต้องการลบประกาศนี้ใช่หรือไม่? การลบไม่สามารถย้อนกลับได้", [
+      { text: "ยกเลิก", style: "cancel" },
+      {
+        text: "ลบ",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await posts.remove("hire", hireid);
+            navigation.navigate("HireJobScreen");
+          } catch (error) {
+            Alert.alert("ลบไม่สำเร็จ", error.message);
+          }
+        },
+      },
+    ]);
   };
 
   const categorydata = [

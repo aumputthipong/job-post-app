@@ -16,7 +16,8 @@ import {
 } from "react-native";
 // import { ScrollView } from 'react-native-virtualized-view'
 import * as ImagePicker from "expo-image-picker";
-import firebase from "../../database/firebaseDB";
+import { posts } from "../../api/endpoints";
+import { uploadImage } from "../../api/client";
 import { SelectList } from "react-native-dropdown-select-list";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 // Now you can use Firebase services in your component
@@ -60,68 +61,41 @@ const CreateFind = ({ route, navigation }) => {
   };
 
   const submitPost = async () => {
-    const uploadUri = image;
-    if (uploadUri) {
-      let filename = uploadUri.substring(uploadUri.lastIndexOf("/") + 1);
+    if (uploading) return;
+    setUploading(true);
 
-      try {
-        const response = await fetch(uploadUri);
-        const blob = await response.blob();
-        const uploadTask = firebase
-          .storage()
-          .ref()
-          .child(`images/${filename}`)
-          .put(blob);
-        // abcdes
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            // Handle upload progress if needed
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
-          },
-          (error) => {
-            // Handle upload error
-            console.error("Upload Error: ", error);
-          },
-          () => {
-            // Upload completed successfully, get the download URL
-            uploadTask.snapshot.ref
-              .getDownloadURL()
-              .then(async (downloadURL) => {
-                // Save the download URL to Firestore or use it as needed
-                const postById = firebase.auth().currentUser.uid;
-                console.log("File available at", downloadURL);
-                const post = {
-                  jobTitle,
-                  position,
-                  agency,
-                  attributes,
-                  welfareBenefits,
-                  imageUrl: downloadURL,
-                  wage,
-                  detail,
-                  category,
-                  employmentType,
-                  email,
-                  phone,
-                  postById,
-                  createdAt: new Date(), 
-                  // เพิ่มข้อมูลอื่น ๆ ที่คุณต้องการใน post object
-                };
-                const postRef = firebase.firestore().collection("JobPosts");
-                const docRef = await postRef.add(post);
-                console.log("Post created with ID: ", docRef.id);
-                navigation.navigate("FindJobScreen");
-              });
-          }
-        );
-      } catch (e) {
-        console.log(e);
+    try {
+      // The image is optional. It used to be mandatory by accident: with no
+      // image picked this function logged "No image to upload" and returned,
+      // so pressing Post did nothing at all and said nothing about why.
+      let media = {};
+      if (image) {
+        const uploaded = await uploadImage(image, "posts");
+        media = { imageUrl: uploaded.url, imagePublicId: uploaded.publicId };
       }
-    } else {
-      console.log("No image to upload");
+
+      // postById is not sent — the server takes it from the ID token, so a
+      // caller can no longer publish a post as somebody else.
+      await posts.create("find", {
+        jobTitle,
+        position,
+        agency,
+        attributes,
+        welfareBenefits,
+        wage,
+        detail,
+        category,
+        employmentType,
+        email,
+        phone,
+        ...media,
+      });
+
+      navigation.navigate("FindJobScreen");
+    } catch (error) {
+      Alert.alert("สร้างประกาศไม่สำเร็จ", error.message);
+    } finally {
+      setUploading(false);
     }
   };
 

@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
-import firebase from "../../database/firebaseDB";
+import { posts } from "../../api/endpoints";
 import { SelectList } from "react-native-dropdown-select-list";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from "@expo/vector-icons";
@@ -76,14 +76,12 @@ console.log(imageUrl)
   };
 
   try {
-    // อัปเดตข้อมูลใน Firestore โดยใช้ `docId` ของโพสต์ที่คุณต้องการแก้ไข
-    const postRef = firebase.firestore().collection("JobPosts").doc(postId);
-    await postRef.update(updatedData);
-
-    console.log("Post updated successfully");
-    navigation.navigate("FindJobDetailScreen",{id:postId});
-  } catch (e) {
-    console.error("Error updating data: ", e);
+    // The server checks the post belongs to the caller. Previously any signed
+    // in user could edit any post by reaching this screen with its id.
+    await posts.update("find", postId, updatedData);
+    navigation.navigate("FindJobDetailScreen", { id: postId });
+  } catch (error) {
+    Alert.alert("บันทึกไม่สำเร็จ", error.message);
   }
 };
 
@@ -133,22 +131,26 @@ console.log(imageUrl)
     newData.splice(index, 1);
     setWelfareBenefits(newData);
   };
-  const deletePost = async () => {
-    try {
-      // Delete the post document from Firestore
-      await firebase.firestore().collection("JobPosts").doc(postId).delete();
-  
-      // If there is an image associated with the post, delete it from storage
-      if (imageUrl) {
-        const imageRef = firebase.storage().refFromURL(imageUrl);
-        await imageRef.delete();
-      }
-  
-      console.log("Post deleted");
-      navigation.navigate("FindJobScreen");
-    } catch (error) {
-      console.error("Error deleting post:", error);
-    }
+  const deletePost = () => {
+    // There was no confirmation step at all: one stray tap deleted the post.
+    Alert.alert("ลบประกาศ", "ต้องการลบประกาศนี้ใช่หรือไม่? การลบไม่สามารถย้อนกลับได้", [
+      { text: "ยกเลิก", style: "cancel" },
+      {
+        text: "ลบ",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            // One request removes the post, its image, and the comments,
+            // ratings and favourites that referenced it. Deleting from the
+            // client used to leave all of those behind pointing at nothing.
+            await posts.remove("find", postId);
+            navigation.navigate("FindJobScreen");
+          } catch (error) {
+            Alert.alert("ลบไม่สำเร็จ", error.message);
+          }
+        },
+      },
+    ]);
   };
   
 return (
