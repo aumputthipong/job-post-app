@@ -17,7 +17,7 @@ packages/
 
 - [x] Phase 0 — repo restructured into a monorepo, dead dependencies removed
 - [x] Phase 1 — backend running locally against the live Firebase project
-- [~] Phase 2 — every write has an endpoint; mobile screens not yet switched over to them
+- [x] Phase 2 — every write goes through the API; no client writes to Firestore remain
 - [ ] Phase 3 — Firestore rules locked to read-only for clients
 - [ ] Phase 4 — frontend modernization (TypeScript, modular Firebase SDK, TanStack Query, Expo Router, NativeWind)
 

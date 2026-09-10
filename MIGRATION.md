@@ -45,7 +45,7 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
 ## Phase plan
 
 1. **Phase 0 — done.** Repo restructured, dead deps removed, `packages/shared` created.
-2. **Phase 1 — in progress.** Backend skeleton: Fastify + firebase-admin + Zod validation,
+2. **Phase 1 — done.** Backend skeleton: Fastify + firebase-admin + Zod validation,
    ID-token auth middleware, `/health`. `/favorites/toggle` and `/ratings` implemented as the
    first two migrated endpoints (chosen as the simplest writes to start with).
 3. **Phase 2 — backend done, client not yet switched over.** All writes now have an
@@ -62,10 +62,27 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
    | `POST /uploads` | `firebase.storage().put()` in 5 screens |
    | `POST /auth/register` | RegisterScreen |
 
-   Remaining: point the mobile screens at these endpoints instead of writing to Firestore
-   directly, one screen at a time.
-4. **Phase 3 — not started.** Lock `firestore.rules`/`storage.rules` to read-only for clients;
-   confirm no write path still goes directly from the app to Firestore.
+   **Client migrated 2026-09-10.** No screen writes to Firestore any more — an audit for
+   `.add(` / `.set(` / `.update(` / `.delete()` / `firebase.storage()` across screens, store,
+   data, navigation and components comes back empty. What is left of the Firebase client SDK
+   is `firebase.auth()` (14 uses) and three reads: HomeScreen and MyProFileScreen fetching the
+   caller's own profile, and the onSnapshot subscriptions in data/liveCollection.js. That is
+   the hybrid split we chose: realtime reads stay on the client, writes go through the API.
+
+   Bugs found and fixed while migrating the screens:
+   - Neither create screen would post without an image — the submit handler ended in
+     `else { console.log("No image to upload") }`, so the button silently did nothing.
+   - Deleting a post had no confirmation step at all.
+   - `HireJobDetailScreen.editImg` took no argument and read the `image` state that
+     `setImage()` had been given on the line above, which React had not applied yet: the
+     first image change uploaded nothing, later ones uploaded the previously picked file.
+   - `jobsReducer` imported `SET_NEW_POST_AVAILABLE`, which nothing exports.
+   - The shared schema called the avatar `photoUrl`; the data and every screen use `imageUrl`,
+     so Zod would have stripped it and avatar changes would never have saved.
+4. **Phase 3 — ready to start.** The client no longer writes, so `firestore.rules` can drop
+   its `allow create/update/delete` blocks and keep only authenticated reads. The Admin SDK
+   the API uses bypasses rules, so nothing on the server is affected. `storage.rules` is moot
+   — that bucket is unreachable regardless (see issue 2).
 5. **Phase 4 — not started.** Frontend modernization: TypeScript, modular Firebase SDK
    (replace `firebase/compat`), TanStack Query + Zustand (replace the Redux store), Expo Router
    (replace `navigation/MyNavigator.js`), NativeWind, incremental Expo SDK upgrade.
