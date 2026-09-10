@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,14 +7,22 @@ import {
   ImageBackground,
 } from "react-native";
 
+const PLACEHOLDER = require("../assets/PostPlaceholder.png");
+
 const MealItem = (props) => {
+  // Same fallback as components/PostImage.js, inline because ImageBackground
+  // wraps children and can't be swapped for that component.
+  const [failed, setFailed] = useState(false);
+  const source = !props.image || failed ? PLACEHOLDER : { uri: props.image };
+
   return (
     <View style={styles.mealItem}>
       <TouchableOpacity onPress={props.onSelectMeal}>
         <View>
           <View style={{ ...styles.mealRow, ...styles.mealHeader }}>
             <ImageBackground
-              source={{ uri: props.image }}
+              source={source}
+              onError={() => setFailed(true)}
               style={styles.bgImage}
             >
               <View style={styles.titleContainer}>

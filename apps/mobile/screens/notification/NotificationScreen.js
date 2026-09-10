@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useSelector } from "react-redux";
 import firebase from "../../database/firebaseDB";
+import PostImage from "../../components/PostImage";
 import { Ionicons } from "@expo/vector-icons";
 
 const NotificationScreen = ({ navigation }) => {
@@ -42,8 +43,8 @@ const NotificationScreen = ({ navigation }) => {
         style={styles.cardContainer}
       >
         {/* ส่วนรูปภาพ */}
-        <Image
-          source={{ uri: item.imageUrl }}
+        <PostImage
+          uri={item.imageUrl}
           style={styles.cardImage}
         />
         
