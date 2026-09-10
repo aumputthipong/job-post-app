@@ -33,10 +33,11 @@ export async function usersRoutes(app: FastifyInstance) {
     const snap = await ref.get();
 
     // Replacing the avatar? Remove the old one instead of orphaning it.
-    const previousPhotoId = snap.data()?.photoPublicId;
-    if (previousPhotoId && parsed.data.photoPublicId && previousPhotoId !== parsed.data.photoPublicId) {
-      const removed = await deleteImage(previousPhotoId);
-      if (!removed) request.log.warn({ previousPhotoId }, "old avatar not deleted");
+    const previousImageId = snap.data()?.imagePublicId;
+    const incomingImageId = parsed.data.imagePublicId;
+    if (previousImageId && incomingImageId && previousImageId !== incomingImageId) {
+      const removed = await deleteImage(previousImageId);
+      if (!removed) request.log.warn({ previousImageId }, "old avatar not deleted");
     }
 
     await ref.set(

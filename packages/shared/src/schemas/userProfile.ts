@@ -13,8 +13,10 @@ export const userProfileSchema = z.object({
   bachelor: z.string().default(""),
   master: z.string().default(""),
   doctoral: z.string().default(""),
-  photoUrl: z.string().url().optional(),
-  photoPublicId: z.string().optional(),
+  /** The avatar. Named imageUrl because that is the field the existing
+   *  documents already use — every screen reads user.imageUrl. */
+  imageUrl: z.string().url().optional(),
+  imagePublicId: z.string().optional(),
 });
 
 /** Fields a user is allowed to self-edit via PUT /users/me. */
