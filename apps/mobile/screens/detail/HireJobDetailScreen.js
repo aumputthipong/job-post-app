@@ -8,9 +8,11 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  Alert,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import firebase from "../../database/firebaseDB";
+import { comments } from "../../api/endpoints";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import ImageViewer from "react-native-image-zoom-viewer";
@@ -48,24 +50,15 @@ const HireJobDetailScreen = ({ route, navigation }) => {
     };
   });
   const currentUserImg = availableUser.find((user) => user.id == currentUserId);
-  const sentComment = () => {
-    if (commentBox.trim() !== "") {
-      // ล้าง TextInput
-      firebase
-        .firestore()
-        .collection("HireComments")
-        .add({
-          postId: hireid,
-          userId: currentUserId,
-          comment: commentBox,
-        })
-        .then(() => {
-          console.log("Job added to comment on Firebase");
-        })
-        .catch((error) => {
-          console.error("Error adding job to favorites: ", error);
-        });
+  const sentComment = async () => {
+    const text = commentBox.trim();
+    if (text === "") return;
+
+    try {
+      await comments.create("hire", hireid, text);
       setCommentBox("");
+    } catch (error) {
+      Alert.alert("ส่งความคิดเห็นไม่สำเร็จ", error.message);
     }
   };
   console.log(hireid);
@@ -195,10 +188,12 @@ const HireJobDetailScreen = ({ route, navigation }) => {
       setYourRating(null);
     }
   }, [availableRating, hireid, currentUserId]);
-  const ratingCompleted = (rating) => {
-    // jobId ควรมาจากที่ไหนก็ได้ตามที่คุณเก็บ jobId ไว้ // ต้องแก้ตามที่คุณใช้
-    dispatch(hireRating(hireid, rating));
-    console.log("Rating is: " + rating);
+  const ratingCompleted = async (rating) => {
+    try {
+      await dispatch(hireRating(hireid, rating));
+    } catch (error) {
+      Alert.alert("ให้คะแนนไม่สำเร็จ", error.message);
+    }
   };
   console.log(yourRating);
   return (

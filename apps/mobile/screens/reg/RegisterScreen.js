@@ -12,6 +12,7 @@ import {
   Platform
 } from "react-native";
 import firebase from '../../database/firebaseDB';
+import { auth } from '../../api/endpoints';
 import { Ionicons } from "@expo/vector-icons";
 
 const RegisterScreen = ({ navigation }) => {
@@ -43,24 +44,21 @@ const RegisterScreen = ({ navigation }) => {
 
     try {
       // 2. เมื่อผ่านการตรวจสอบทั้งหมด ค่อยสร้าง User
-      const response = await firebase.auth().createUserWithEmailAndPassword(email.trim(), password);
-      
-      if (response.user) {
-        const userRef = {
-          email: email.trim(),
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        };
-        
-        await firebase.firestore().collection("User Info").doc(response.user.uid).set(userRef);
-        Alert.alert("สำเร็จ", "สมัครสมาชิกเรียบร้อยแล้ว", [
-          { text: "ตกลง", onPress: () => navigation.navigate("Login") }
-        ]);
-      }
+      // One request that either creates the account and its profile, or
+      // neither. Doing this as two client-side calls used to leave accounts
+      // with no profile behind whenever the second one failed.
+      await auth.register({
+        email: email.trim(),
+        password,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      });
+
+      Alert.alert("สำเร็จ", "สมัครสมาชิกเรียบร้อยแล้ว", [
+        { text: "ตกลง", onPress: () => navigation.navigate("Login") },
+      ]);
     } catch (error) {
-      console.error("Registration Error:", error);
-      Alert.alert("เกิดข้อผิดพลาด", error.message);
+      Alert.alert("สมัครสมาชิกไม่สำเร็จ", error.message);
     }
   };
 

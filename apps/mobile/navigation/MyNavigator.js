@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { Alert, View, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -58,7 +58,13 @@ const MainStack = createNativeStackNavigator();
 
 function HomeNavigator() {
   const dispatch = useDispatch();
-  const toggleFavoriteHandler = (id) => dispatch(toggleFavorite(id));
+  const toggleFavoriteHandler = async (id) => {
+    try {
+      await dispatch(toggleFavorite(id));
+    } catch (error) {
+      Alert.alert("บันทึกไม่สำเร็จ", error.message);
+    }
+  };
 
   return (
     <HomeStack.Navigator

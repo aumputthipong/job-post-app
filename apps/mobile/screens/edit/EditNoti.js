@@ -32,12 +32,13 @@ const EditNoti = ({ navigation }) => {
 
   // const myNoti = noti.filter((noti)=> noti.notiBy == userId);
 
-  const applyFilters = () => {
-    // ส่งค่า filter ไปยัง Redux state
-    dispatch(filterJobs(selected));
-    console.log(selected)
-    
-    navigation.navigate("NotificationScreen") // กลับไปหน้า NotificationScreen
+  const applyFilters = async () => {
+    try {
+      await dispatch(filterJobs(selected));
+      navigation.navigate("NotificationScreen");
+    } catch (error) {
+      Alert.alert("บันทึกการแจ้งเตือนไม่สำเร็จ", error.message);
+    }
   };
   
   const categorydata = [

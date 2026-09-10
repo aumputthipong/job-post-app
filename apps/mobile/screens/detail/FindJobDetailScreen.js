@@ -14,6 +14,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import firebase from "../../database/firebaseDB";
+import { comments } from "../../api/endpoints";
 import * as ImagePicker from "expo-image-picker";
 import { Rating } from "react-native-ratings";
 import { scoreRating } from "../../store/actions/jobAction";
@@ -81,24 +82,24 @@ const FindJobDetailScreen = ({ route, navigation }) => {
   }, [availableRating, jobid, currentUserId]);
 
   // --- Functions ---
-  const sentComment = () => {
-    if (commentBox.trim() !== "") {
-      firebase
-        .firestore()
-        .collection("JobComments")
-        .add({
-          postId: jobid,
-          userId: currentUserId,
-          comment: commentBox.trim(),
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        })
-        .then(() => setCommentBox(""))
-        .catch((error) => console.error("Error adding comment: ", error));
+  const sentComment = async () => {
+    const text = commentBox.trim();
+    if (text === "") return;
+
+    try {
+      await comments.create("find", jobid, text);
+      setCommentBox("");
+    } catch (error) {
+      Alert.alert("ส่งความคิดเห็นไม่สำเร็จ", error.message);
     }
   };
 
-  const ratingCompleted = (rating) => {
-    dispatch(scoreRating(jobid, rating));
+  const ratingCompleted = async (rating) => {
+    try {
+      await dispatch(scoreRating(jobid, rating));
+    } catch (error) {
+      Alert.alert("ให้คะแนนไม่สำเร็จ", error.message);
+    }
   };
 
   const pickImage = async () => {

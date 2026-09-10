@@ -10,9 +10,11 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Alert,
 } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import firebase from '../../database/firebaseDB';
+import { users } from '../../api/endpoints';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from "@expo/vector-icons";
@@ -121,13 +123,11 @@ const MyProfileScreen = ({ route, navigation }) => {
       }
     }
 
-    firebase.firestore().collection('User Info').doc(userId).update(updatedData)
-      .then(() => {
-        console.log('อัพเดทข้อมูลสำเร็จ');
-        getUserData();
-      })
+    users
+      .updateMe(updatedData)
+      .then(getUserData)
       .catch((error) => {
-        console.error('เกิดข้อผิดพลาดในการอัพเดทข้อมูล:', error);
+        Alert.alert("บันทึกข้อมูลไม่สำเร็จ", error.message);
       });
   };
 
