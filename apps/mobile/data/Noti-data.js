@@ -1,26 +1,9 @@
-import firebase from "../database/firebaseDB";
+import { liveCollection } from "./liveCollection";
 
-
-export const NOTI = [];
-const notiCollection = firebase.firestore().collection('User Noti');
-
-// Create a real-time listener to fetch and update data when it changes
-notiCollection.onSnapshot((querySnapshot) => {
-  NOTI.length = 0; // Clear the existing data
-
-  querySnapshot.forEach((doc) => {
-    const notiData = doc.data();
-    const notiId = doc.id;
-    // Include the document ID as part of the data
-    const notiWithId = { id: notiId, ...notiData };
-    NOTI.push(notiWithId);
-  });
-});
-
-// Optionally, you can also handle any errors that occur during the real-time listener
-notiCollection.onSnapshot((querySnapshot) => {
-  // Handle changes as before
-}, (error) => {
-  console.error("Error getting real-time noti updates: ", error);
-});
-
+// Filtered to the signed-in user's own row. Reading the whole collection —
+// which is what this file used to do — is rejected by the security rules,
+// and rightly so: it would hand every user everyone else's notification
+// settings. The reducer only ever looks for the current user's row anyway.
+export const NOTI = liveCollection("User Noti", [], (query, user) =>
+  query.where("notiBy", "==", user.uid),
+);
