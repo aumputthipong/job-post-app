@@ -14,7 +14,9 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import firebase from "../../database/firebaseDB";
-import { comments } from "../../api/endpoints";
+import { comments, posts } from "../../api/endpoints";
+import { uploadImage } from "../../api/client";
+import PostImage from "../../components/PostImage";
 import * as ImagePicker from "expo-image-picker";
 import { Rating } from "react-native-ratings";
 import { scoreRating } from "../../store/actions/jobAction";
@@ -124,36 +126,17 @@ const FindJobDetailScreen = ({ route, navigation }) => {
 
   const editImg = async (uri) => {
     try {
-      let filename = uri.substring(uri.lastIndexOf("/") + 1);
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const uploadTask = firebase
-        .storage()
-        .ref()
-        .child(`images/${filename}`)
-        .put(blob);
-
-      uploadTask.on(
-        "state_changed",
-        null,
-        (error) => {
-          console.error("Upload Error: ", error);
-          setUploading(false);
-          Alert.alert("เกิดข้อผิดพลาด", "ไม่สามารถอัปโหลดรูปภาพได้");
-        },
-        async () => {
-          const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-          await firebase
-            .firestore()
-            .collection("JobPosts")
-            .doc(jobid)
-            .update({ imageUrl: downloadURL });
-          setUploading(false);
-          Alert.alert("สำเร็จ", "อัปเดตรูปภาพเรียบร้อยแล้ว");
-        },
-      );
-    } catch (e) {
-      console.log(e);
+      const uploaded = await uploadImage(uri, "posts");
+      // The server verifies the post is the caller's own before updating, and
+      // deletes the image being replaced instead of leaving it orphaned.
+      await posts.update("find", jobid, {
+        imageUrl: uploaded.url,
+        imagePublicId: uploaded.publicId,
+      });
+      Alert.alert("สำเร็จ", "อัปเดตรูปภาพเรียบร้อยแล้ว");
+    } catch (error) {
+      Alert.alert("เกิดข้อผิดพลาด", error.message);
+    } finally {
       setUploading(false);
     }
   };
@@ -178,8 +161,8 @@ const FindJobDetailScreen = ({ route, navigation }) => {
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Cover Image Section */}
         <View style={styles.headerImageContainer}>
-          <Image
-            source={{ uri: displayedJob.imageUrl }}
+          <PostImage
+            uri={displayedJob.imageUrl}
             style={styles.headerImage}
           />
 

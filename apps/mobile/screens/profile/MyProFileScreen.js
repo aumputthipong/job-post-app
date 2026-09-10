@@ -15,6 +15,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import firebase from '../../database/firebaseDB';
 import { users } from '../../api/endpoints';
+import { uploadImage } from '../../api/client';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from "@expo/vector-icons";
@@ -65,45 +66,18 @@ const MyProfileScreen = ({ route, navigation }) => {
   };
 
   const submitImg = async (uploadUri) => {
-    if (uploadUri) {
-      let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+    if (!uploadUri) return;
 
-      try {
-        const response = await fetch(uploadUri);
-        const blob = await response.blob();
-        const uploadTask = firebase.storage().ref().child(`profiles/${filename}`).put(blob);
-
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
-          },
-          (error) => {
-            console.error('Upload Error: ', error);
-          },
-          () => {
-            uploadTask.snapshot.ref.getDownloadURL().then(async (downloadURL) => {
-              const img = {
-                imageUrl: downloadURL,
-              };
-              const userRef = firebase.firestore().collection('User Info').doc(userId);
-              await userRef.update(img)
-              .then(() => {
-                console.log('อัพเดทข้อมูลสำเร็จ');
-                getUserData();
-              })
-              .catch((error) => {
-                console.error('เกิดข้อผิดพลาดในการอัพเดทข้อมูล:', error);
-              });
-            });
-          }
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    } else {
-      console.log('No image to upload');
+    try {
+      const uploaded = await uploadImage(uploadUri, "profiles");
+      // imageUrl, not photoUrl — that is the field every screen reads.
+      await users.updateMe({
+        imageUrl: uploaded.url,
+        imagePublicId: uploaded.publicId,
+      });
+      getUserData();
+    } catch (error) {
+      Alert.alert("อัปโหลดรูปไม่สำเร็จ", error.message);
     }
   };
 

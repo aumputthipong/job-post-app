@@ -12,7 +12,9 @@ import {
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import firebase from "../../database/firebaseDB";
-import { comments } from "../../api/endpoints";
+import { comments, posts } from "../../api/endpoints";
+import { uploadImage } from "../../api/client";
+import PostImage from "../../components/PostImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Modal from "react-native-modal";
 import ImageViewer from "react-native-image-zoom-viewer";
@@ -87,57 +89,22 @@ const HireJobDetailScreen = ({ route, navigation }) => {
     }
   };
 
-  const editImg = async () => {
-    if (image) {
-      let filename = image.substring(image.lastIndexOf("/") + 1);
+  const editImg = async (uri) => {
+    // Takes the uri from the caller. It used to read the `image` state that
+    // setImage() had been given on the line before — React had not applied it
+    // yet, so the first change uploaded nothing and every later one uploaded
+    // the previously picked file.
+    if (!uri) return;
 
-      try {
-        const response = await fetch(image);
-        const blob = await response.blob();
-        const uploadTask = firebase
-          .storage()
-          .ref()
-          .child(`images/${filename}`)
-          .put(blob);
-
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload is ${progress}% done`);
-          },
-          (error) => {
-            console.error("Upload Error: ", error);
-          },
-          () => {
-            uploadTask.snapshot.ref
-              .getDownloadURL()
-              .then(async (downloadURL) => {
-                const img = {
-                  resumeUrl: downloadURL,
-                };
-                const postRef = firebase
-                  .firestore()
-                  .collection("HirePosts")
-                  .doc(hireid);
-                await postRef
-                  .update(img)
-                  .then(() => {
-                    console.log("อัพเดทข้อมูลสำเร็จ");
-                    // getUserData();
-                  })
-                  .catch((error) => {
-                    console.error("เกิดข้อผิดพลาดในการอัพเดทข้อมูล:", error);
-                  });
-              });
-          },
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    } else {
-      console.log("No image to upload");
+    try {
+      const uploaded = await uploadImage(uri, "posts");
+      await posts.update("hire", hireid, {
+        resumeUrl: uploaded.url,
+        resumePublicId: uploaded.publicId,
+      });
+      Alert.alert("สำเร็จ", "อัปเดตรูปภาพเรียบร้อยแล้ว");
+    } catch (error) {
+      Alert.alert("เกิดข้อผิดพลาด", error.message);
     }
   };
 
@@ -303,8 +270,8 @@ const HireJobDetailScreen = ({ route, navigation }) => {
             activeOpacity={0.8}
             onPress={() => setModalVisible(true)}
           >
-            <Image
-              source={{ uri: displayedHire?.resumeUrl }}
+            <PostImage
+              uri={displayedHire?.resumeUrl}
               style={styles.resumeThumbnail}
             />
             <View style={styles.resumeOverlay}>
