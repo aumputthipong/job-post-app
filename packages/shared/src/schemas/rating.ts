@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { postKindSchema } from "./comment";
+import { postKindSchema } from "./comment.js";
 
 /** Shared shape for JobRatings / HireRatings docs (one doc per user per post). */
 export const ratingSchema = z.object({

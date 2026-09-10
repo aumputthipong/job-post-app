@@ -8,6 +8,9 @@ export const jobPostSchema = z.object({
   attributes: z.array(z.string()).default([]),
   welfareBenefits: z.array(z.string()).default([]),
   imageUrl: z.string().url().optional(),
+  /** Cloudinary public_id, needed to delete the image when the post is deleted.
+   *  Absent on posts created before the move off Firebase Storage. */
+  imagePublicId: z.string().optional(),
   wage: z.string().min(1),
   detail: z.string().min(1),
   category: z.string().min(1),

@@ -14,6 +14,7 @@ export const userProfileSchema = z.object({
   master: z.string().default(""),
   doctoral: z.string().default(""),
   photoUrl: z.string().url().optional(),
+  photoPublicId: z.string().optional(),
 });
 
 /** Fields a user is allowed to self-edit via PUT /users/me. */

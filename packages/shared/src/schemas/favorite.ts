@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { postKindSchema } from "./comment";
+import { postKindSchema } from "./comment.js";
 
 /** Shared shape for FavoriteJobs docs. */
 export const favoriteSchema = z.object({

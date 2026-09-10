@@ -4,6 +4,9 @@ import { z } from "zod";
 export const hirePostSchema = z.object({
   hireTitle: z.string().min(1),
   resumeUrl: z.string().url().optional(),
+  /** Cloudinary public_id, needed to delete the file when the post is deleted.
+   *  Absent on posts created before the move off Firebase Storage. */
+  resumePublicId: z.string().optional(),
   category: z.string().min(1),
   detail: z.string().min(1),
   postById: z.string().min(1),
