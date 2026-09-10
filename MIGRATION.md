@@ -16,8 +16,10 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
    named `"RatingJobs"` while `data/Jobs-data.js` read from `"JobRatings"` — two different
    string literals for what should have been one collection, so Find-job ratings never
    displayed. `COLLECTIONS.JOB_RATINGS` in `packages/shared` is now the only name used.
-   **Action needed:** check the live Firestore console for any docs still under the old
-   `"RatingJobs"` name and migrate them by hand if present.
+   **Resolved 2026-09-10:** the live project did have 18 orphaned rating docs under the
+   old `"RatingJobs"` name (real user ratings that never displayed). They were copied to
+   `"JobRatings"` preserving doc ids, verified, and the source docs deleted — see
+   `apps/api/scripts/migrations/001-merge-rating-jobs-into-job-ratings.ts`.
 2. No `firestore.rules` / `storage.rules` ever existed — if the project is still on Firebase's
    test-mode default rules, anyone with the app's (public) API key can read/write/delete all
    data directly. Locking this down is Phase 3, after writes are moved to the API.
