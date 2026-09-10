@@ -1,0 +1,41 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native build output (regenerate with `npx expo prebuild`)
+apps/mobile/android/
+apps/mobile/ios/
+
+# backend build output
+apps/api/dist/
+apps/api/build/
+
+# secrets — never commit real Firebase config or service account keys
+apps/mobile/database/firebaseDB.js
+apps/api/**/serviceAccountKey.json
+apps/api/**/*firebase-adminsdk*.json
+.env
+.env.*
+!.env.example
+
+# logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# editors / OS
+.idea/
+.vscode/
+.DS_Store
+*.orig.*
+
+# TypeScript
+*.tsbuildinfo
