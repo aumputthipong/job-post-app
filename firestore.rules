@@ -1,0 +1,94 @@
+rules_version = '2';
+
+// Replaces the Firebase "test mode" default that expired on 2026-04-15 and
+// had been denying every client request since. Ownership is enforced from the
+// fields the app already writes (postById / userId / notiBy / doc id == uid).
+//
+// Client writes stay allowed for now so the app works while the backend is
+// still being built. As each write moves to the API (which uses the Admin SDK
+// and bypasses rules entirely), the matching `allow create/update/delete` here
+// gets removed — see MIGRATION.md Phase 3.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    // The doc being written declares the caller as its owner.
+    function writingAsOwner(field) {
+      return signedIn() && request.resource.data[field] == uid();
+    }
+
+    // The doc already stored belongs to the caller.
+    function ownsExisting(field) {
+      return signedIn() && resource.data[field] == uid();
+    }
+
+    match /JobPosts/{postId} {
+      allow read: if signedIn();
+      allow create: if writingAsOwner('postById');
+      allow update, delete: if ownsExisting('postById');
+    }
+
+    match /HirePosts/{postId} {
+      allow read: if signedIn();
+      allow create: if writingAsOwner('postById');
+      allow update, delete: if ownsExisting('postById');
+    }
+
+    match /FavoriteJobs/{favId} {
+      allow read: if signedIn();
+      allow create: if writingAsOwner('userId');
+      allow update, delete: if ownsExisting('userId');
+    }
+
+    match /JobComments/{commentId} {
+      allow read: if signedIn();
+      allow create: if writingAsOwner('userId');
+      allow update, delete: if ownsExisting('userId');
+    }
+
+    match /HireComments/{commentId} {
+      allow read: if signedIn();
+      allow create: if writingAsOwner('userId');
+      allow update, delete: if ownsExisting('userId');
+    }
+
+    match /JobRatings/{ratingId} {
+      allow read: if signedIn();
+      allow create: if writingAsOwner('userId');
+      allow update, delete: if ownsExisting('userId');
+    }
+
+    match /HireRatings/{ratingId} {
+      allow read: if signedIn();
+      allow create: if writingAsOwner('userId');
+      allow update, delete: if ownsExisting('userId');
+    }
+
+    // "User Info" and "User Noti" contain a space, which cannot be written as
+    // a literal path segment in the rules grammar — matched via a wildcard and
+    // narrowed by name instead. This block only ever grants access to those two
+    // collections; everything else falls through to deny-by-default.
+    match /{collection}/{docId} {
+      // Profiles are public to signed-in users (the app shows other people's
+      // profiles), but only the owner can write their own — doc id IS the uid.
+      allow read: if signedIn() && collection == 'User Info';
+      allow write: if signedIn() && collection == 'User Info' && docId == uid();
+
+      // Notification preferences are private to their owner.
+      allow read: if signedIn() && collection == 'User Noti'
+                  && resource.data.notiBy == uid();
+      allow create: if signedIn() && collection == 'User Noti'
+                    && request.resource.data.notiBy == uid();
+      allow update, delete: if signedIn() && collection == 'User Noti'
+                            && resource.data.notiBy == uid();
+    }
+  }
+}

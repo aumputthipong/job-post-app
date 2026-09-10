@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// Replaces rules that allowed unauthenticated read AND write to every object
+// in the bucket — anyone who knew the bucket name could overwrite or delete
+// every post image and profile picture in the app.
+//
+// Note: files already published via getDownloadURL() carry a token in the URL
+// and stay reachable through that URL regardless of these rules, which is how
+// images keep rendering in the app.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isImageUnder(maxBytes) {
+      return request.resource.size < maxBytes
+             && request.resource.contentType.matches('image/.*');
+    }
+
+    // Post images (CreateFind.js / CreateHire.js write here as `images/<name>`).
+    match /images/{fileName} {
+      allow read: if signedIn();
+      allow write: if signedIn() && isImageUnder(10 * 1024 * 1024);
+      allow delete: if signedIn();
+    }
+
+    // Profile pictures (MyProFileScreen.js writes here as `profiles/<name>`).
+    match /profiles/{fileName} {
+      allow read: if signedIn();
+      allow write: if signedIn() && isImageUnder(10 * 1024 * 1024);
+      allow delete: if signedIn();
+    }
+  }
+}
