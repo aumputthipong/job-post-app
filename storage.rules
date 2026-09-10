@@ -1,37 +1,22 @@
 rules_version = '2';
 
-// Replaces rules that allowed unauthenticated read AND write to every object
-// in the bucket — anyone who knew the bucket name could overwrite or delete
-// every post image and profile picture in the app.
+// Nothing in the app touches Firebase Storage any more — uploads go to
+// Cloudinary through POST /uploads — and the bucket is unreachable regardless,
+// since the project has no billing account attached (clients get 402, the
+// Admin SDK gets "billing account is disabled in state absent").
 //
-// Note: files already published via getDownloadURL() carry a token in the URL
-// and stay reachable through that URL regardless of these rules, which is how
-// images keep rendering in the app.
+// So this denies everything. It replaces rules that allowed unauthenticated
+// read AND write on every object in the bucket, which would have been a real
+// hole the moment billing was ever enabled.
+//
+// If billing is turned on later to recover the 53 objects still in there,
+// apps/api/scripts/backup-storage.ts reads them through the Admin SDK, which
+// bypasses these rules — no need to loosen anything to get the files out.
 
 service firebase.storage {
   match /b/{bucket}/o {
-
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function isImageUnder(maxBytes) {
-      return request.resource.size < maxBytes
-             && request.resource.contentType.matches('image/.*');
-    }
-
-    // Post images (CreateFind.js / CreateHire.js write here as `images/<name>`).
-    match /images/{fileName} {
-      allow read: if signedIn();
-      allow write: if signedIn() && isImageUnder(10 * 1024 * 1024);
-      allow delete: if signedIn();
-    }
-
-    // Profile pictures (MyProFileScreen.js writes here as `profiles/<name>`).
-    match /profiles/{fileName} {
-      allow read: if signedIn();
-      allow write: if signedIn() && isImageUnder(10 * 1024 * 1024);
-      allow delete: if signedIn();
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
