@@ -16,8 +16,8 @@ packages/
 ## Status
 
 - [x] Phase 0 — repo restructured into a monorepo, dead dependencies removed
-- [ ] Phase 1 — backend skeleton running locally (`favorites`, `ratings` done; posts/comments/users/auth pending)
-- [ ] Phase 2 — remaining writes migrated from direct Firestore calls to the API
+- [x] Phase 1 — backend running locally against the live Firebase project
+- [~] Phase 2 — every write has an endpoint; mobile screens not yet switched over to them
 - [ ] Phase 3 — Firestore rules locked to read-only for clients
 - [ ] Phase 4 — frontend modernization (TypeScript, modular Firebase SDK, TanStack Query, Expo Router, NativeWind)
 
@@ -34,7 +34,9 @@ npm install
 1. Get a service account key: Firebase Console → Project Settings → Service Accounts → Generate new private key
 2. Save it as `apps/api/serviceAccountKey.json` (gitignored — never commit this file)
 3. `cp apps/api/.env.example apps/api/.env`
-4. `npm run dev -w @jobapp-platform/api`
+4. Add Cloudinary credentials to `.env` (free account, no card required —
+   media storage, since Firebase Storage is unusable on this project; see MIGRATION.md)
+5. `npm run dev -w @jobapp-platform/api`
 
 ### Mobile (`apps/mobile`)
 

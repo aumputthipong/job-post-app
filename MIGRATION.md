@@ -20,17 +20,26 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
    old `"RatingJobs"` name (real user ratings that never displayed). They were copied to
    `"JobRatings"` preserving doc ids, verified, and the source docs deleted — see
    `apps/api/scripts/migrations/001-merge-rating-jobs-into-job-ratings.ts`.
-2. No `firestore.rules` / `storage.rules` ever existed — if the project is still on Firebase's
+2. **Firebase Storage is dead on this project.** It sits behind the Blaze plan and the
+   bucket has no billing account, so every path to the object data fails: clients get
+   402 Payment Required, the Admin SDK gets "billing account is disabled in state absent",
+   and signed URLs get 403. Object *metadata* still lists, so the 53 objects (36.7 MB) exist
+   but cannot be read — the existing images can't even be exported without enabling billing.
+   Decision: don't pay to unlock media we'd migrate away from anyway. New uploads go to
+   Cloudinary (free tier, no card) through `POST /uploads`; the dead `imageUrl` values left
+   in Firestore need a placeholder in the UI. `apps/api/scripts/backup-storage.ts` is kept
+   ready in case billing is ever enabled.
+3. No `firestore.rules` / `storage.rules` ever existed — if the project is still on Firebase's
    test-mode default rules, anyone with the app's (public) API key can read/write/delete all
    data directly. Locking this down is Phase 3, after writes are moved to the API.
-3. Firestore writes lived inside Redux reducers (async side effects in what should be pure
+4. Firestore writes lived inside Redux reducers (async side effects in what should be pure
    functions) — being replaced by API calls kicked off from action creators/thunks instead.
-4. `data/*.js` files set up `onSnapshot` listeners at module scope and mutate a shared array
+5. `data/*.js` files set up `onSnapshot` listeners at module scope and mutate a shared array
    used as Redux `initialState` — works by accident, fragile. To be replaced by hooks in Phase 4.
-5. `firebase-admin`, `native-base`, `@react-native-firebase/*`, `react-native-image-picker`,
+6. `firebase-admin`, `native-base`, `@react-native-firebase/*`, `react-native-image-picker`,
    `add`, `yarn` were in the mobile app's dependencies but never imported anywhere — removed
    during the Phase 0 cleanup.
-6. `android/` (594 MB, Expo-generated, unmodified) was committed to the old repo — deliberately
+7. `android/` (594 MB, Expo-generated, unmodified) was committed to the old repo — deliberately
    NOT copied here. Run `npx expo prebuild` inside `apps/mobile` when a native build is needed.
 
 ## Phase plan
@@ -39,15 +48,22 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
 2. **Phase 1 — in progress.** Backend skeleton: Fastify + firebase-admin + Zod validation,
    ID-token auth middleware, `/health`. `/favorites/toggle` and `/ratings` implemented as the
    first two migrated endpoints (chosen as the simplest writes to start with).
-3. **Phase 2 — not started.** Migrate remaining writes, in this order:
-   - `POST/PUT/DELETE /posts/find` (JobPosts) and `/posts/hire` (HirePosts), including deleting
-     the associated Storage image/resume on post delete (the legacy `EditFind.js`/`EditHire.js`
-     delete the Firestore doc but never clean up Storage)
-   - `POST /comments` (JobComments / HireComments)
-   - `PUT /users/me` (User Info) and `PUT /users/me/noti-preferences` (User Noti)
-   - `POST /auth/register` — create the Auth user and the `User Info` doc in one transaction
-     (today `RegisterScreen.js` does these as two separate calls; if the second fails, the
-     user ends up with a login but no profile)
+3. **Phase 2 — backend done, client not yet switched over.** All writes now have an
+   endpoint, verified running against the live project:
+
+   | Endpoint | Replaces |
+   | --- | --- |
+   | `POST/PUT/DELETE /posts/find`, `/posts/hire` | CreateFind, CreateHire, EditFind, EditHire |
+   | `POST/DELETE /comments/:postKind` | comment writes in both detail screens |
+   | `GET/PUT /users/me` | MyProFileScreen |
+   | `GET/PUT /users/me/noti-preferences` | EditNoti |
+   | `POST /favorites/toggle` | TOGGLE_FAVORITE in both reducers |
+   | `PUT /ratings` | SCORE_RATING / HIRE_RATING |
+   | `POST /uploads` | `firebase.storage().put()` in 5 screens |
+   | `POST /auth/register` | RegisterScreen |
+
+   Remaining: point the mobile screens at these endpoints instead of writing to Firestore
+   directly, one screen at a time.
 4. **Phase 3 — not started.** Lock `firestore.rules`/`storage.rules` to read-only for clients;
    confirm no write path still goes directly from the app to Firestore.
 5. **Phase 4 — not started.** Frontend modernization: TypeScript, modular Firebase SDK
