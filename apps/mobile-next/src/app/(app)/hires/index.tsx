@@ -46,7 +46,7 @@ export default function Hires() {
           keyboardShouldPersistTaps="handled"
         />
       )}
-      <Fab href="/hires/new" />
+      <Fab href="/hires/new" label="สร้างประกาศฟรีแลนซ์" />
     </View>
   );
 }

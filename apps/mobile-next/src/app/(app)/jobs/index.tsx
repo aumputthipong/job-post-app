@@ -42,7 +42,7 @@ export default function Jobs() {
           keyboardShouldPersistTaps="handled"
         />
       )}
-      <Fab href="/jobs/new" />
+      <Fab href="/jobs/new" label="สร้างประกาศงาน" />
     </View>
   );
 }

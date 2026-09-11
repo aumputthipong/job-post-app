@@ -69,15 +69,24 @@ export function SearchBar({
   );
 }
 
-export function Fab({ href }: { href: Href }) {
+export function Fab({
+  href,
+  icon = "add",
+  label,
+}: {
+  href: Href;
+  icon?: React.ComponentProps<typeof Ionicons>["name"];
+  label: string;
+}) {
   const insets = useSafeAreaInsets();
   return (
     <Link href={href} asChild>
       <TouchableOpacity
         className="absolute right-6 h-[60px] w-[60px] items-center justify-center rounded-full bg-primary"
         style={{ bottom: insets.bottom + 24, elevation: 6 }}
+        accessibilityLabel={label}
       >
-        <Ionicons name="add" size={32} color="#FFFFFF" />
+        <Ionicons name={icon} size={icon === "add" ? 32 : 26} color="#FFFFFF" />
       </TouchableOpacity>
     </Link>
   );
