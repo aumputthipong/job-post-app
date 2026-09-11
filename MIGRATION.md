@@ -12,6 +12,13 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
 
 ## Known issues carried over from the legacy code (tracked, not yet all fixed)
 
+**Deferred, by request (2026-09-11):** the notification-preferences flow
+(`EditNoti.js` / `PUT /users/me/noti-preferences`) works — saves correctly, no
+error — but the underlying feature is incomplete in the legacy design: there
+is no code anywhere that reads `User Noti` and actually sends a notification.
+It only stores a preference nobody consumes. Revisit this as a feature, not a
+bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
+
 1. **Fixed by `packages/shared`**: `jobsReducer.js` wrote ratings to a Firestore collection
    named `"RatingJobs"` while `data/Jobs-data.js` read from `"JobRatings"` — two different
    string literals for what should have been one collection, so Find-job ratings never
@@ -79,6 +86,12 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
    - `jobsReducer` imported `SET_NEW_POST_AVAILABLE`, which nothing exports.
    - The shared schema called the avatar `photoUrl`; the data and every screen use `imageUrl`,
      so Zod would have stripped it and avatar changes would never have saved.
+   - **Found in emulator testing 2026-09-11:** `CreateFind`'s root element was a `ScrollView`
+     wrapping another `ScrollView` (`CreateHire`, otherwise identical, correctly used
+     `SafeAreaView`). Two nested vertical ScrollViews fight over layout and touch handling,
+     so content ran off the bottom of the screen with no way to scroll to it — the submit
+     button existed but was unreachable, making it impossible to create a Find Job post at
+     all. Fixed by matching CreateHire's `SafeAreaView` root.
 4. **Phase 3 — done 2026-09-10.** `firestore.rules` now grants signed-in reads and denies
    every client write. Verified against the live project with a real ID token over the REST
    API: all nine collections readable (User Noti only via the `notiBy` filter the app sends —
