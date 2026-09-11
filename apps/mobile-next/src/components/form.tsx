@@ -1,4 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -15,23 +17,25 @@ type TextFieldProps = TextInputProps & {
   secret?: boolean;
 };
 
-export function TextField({ label, error, secret, ...inputProps }: TextFieldProps) {
+export function TextField({ label, error, secret, multiline, ...inputProps }: TextFieldProps) {
   const [hidden, setHidden] = useState(true);
 
   return (
     <View className="mb-5">
       <Text className="mb-2 font-medium text-text">{label}</Text>
       <View
-        className={`h-[50px] flex-row items-center rounded-xl border bg-background ${
+        className={`flex-row rounded-xl border bg-background ${multiline ? "min-h-[120px]" : "h-[50px] items-center"} ${
           error ? "border-red-500" : "border-border"
         }`}
       >
         <TextInput
-          className="flex-1 px-4 text-base text-text"
+          className={`flex-1 px-4 text-base text-text ${multiline ? "py-3" : ""}`}
           placeholderTextColor="#94A3B8"
           autoCapitalize="none"
           autoCorrect={false}
           secureTextEntry={secret && hidden}
+          multiline={multiline}
+          textAlignVertical={multiline ? "top" : "center"}
           {...inputProps}
         />
         {secret ? (
@@ -40,7 +44,159 @@ export function TextField({ label, error, secret, ...inputProps }: TextFieldProp
           </TouchableOpacity>
         ) : null}
       </View>
-      {error ? <Text className="mt-1 text-sm text-red-500">{error}</Text> : null}
+      <FieldError message={error} />
+    </View>
+  );
+}
+
+const FieldError = ({ message }: { message?: string }) =>
+  message ? <Text className="mt-1 text-sm text-red-500">{message}</Text> : null;
+
+/** Pick one of a few fixed values — replaces the legacy dropdowns. */
+export function ChoiceChips({
+  label,
+  options,
+  value,
+  onChange,
+  error,
+}: {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+}) {
+  return (
+    <View className="mb-5">
+      <Text className="mb-2 font-medium text-text">{label}</Text>
+      <View className="flex-row flex-wrap">
+        {options.map((option) => {
+          const selected = option === value;
+          return (
+            <TouchableOpacity
+              key={option}
+              onPress={() => onChange(option)}
+              className={`mb-2 mr-2 rounded-full border px-4 py-2 ${
+                selected ? "border-primary bg-primary" : "border-border bg-background"
+              }`}
+            >
+              <Text className={selected ? "text-surface" : "text-text"} numberOfLines={1}>
+                {option}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      <FieldError message={error} />
+    </View>
+  );
+}
+
+/** A list of short strings (qualifications, benefits) with add and remove. */
+export function ListField({
+  label,
+  items,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  items: string[];
+  onChange: (items: string[]) => void;
+  placeholder: string;
+}) {
+  const [draft, setDraft] = useState("");
+  const add = () => {
+    const item = draft.trim();
+    if (!item) return;
+    onChange([...items, item]);
+    setDraft("");
+  };
+
+  return (
+    <View className="mb-5">
+      <Text className="mb-2 font-medium text-text">{label}</Text>
+      {items.map((item, i) => (
+        <View key={`${i}-${item}`} className="mb-2 flex-row items-center rounded-xl bg-background px-4 py-3">
+          <Text className="flex-1 text-base text-text">{item}</Text>
+          <TouchableOpacity
+            onPress={() => onChange(items.filter((_, j) => j !== i))}
+            hitSlop={8}
+            accessibilityLabel={`ลบ ${item}`}
+          >
+            <Ionicons name="close-circle" size={20} color="#EF4444" />
+          </TouchableOpacity>
+        </View>
+      ))}
+      <View className="flex-row items-center">
+        <TextInput
+          className="mr-2 h-[50px] flex-1 rounded-xl border border-border bg-background px-4 text-base text-text"
+          placeholder={placeholder}
+          placeholderTextColor="#94A3B8"
+          value={draft}
+          onChangeText={setDraft}
+          onSubmitEditing={add}
+          returnKeyType="done"
+          submitBehavior="submit"
+        />
+        <TouchableOpacity
+          className="h-[50px] w-[50px] items-center justify-center rounded-xl bg-primary"
+          style={{ opacity: draft.trim() ? 1 : 0.4 }}
+          onPress={add}
+          disabled={!draft.trim()}
+          accessibilityLabel={`เพิ่ม${label}`}
+        >
+          <Ionicons name="add" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+/** Shows the current image (remote or just picked) and lets the user pick another. */
+export function ImageField({
+  label,
+  uri,
+  onChange,
+}: {
+  label: string;
+  uri?: string;
+  onChange: (localUri: string) => void;
+}) {
+  const pick = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
+    if (!result.canceled) onChange(result.assets[0].uri);
+  };
+
+  return (
+    <View className="mb-5">
+      <Text className="mb-2 font-medium text-text">{label}</Text>
+      <TouchableOpacity
+        onPress={pick}
+        activeOpacity={0.8}
+        className="h-48 overflow-hidden rounded-xl border border-dashed border-border bg-background"
+      >
+        {uri ? (
+          <>
+            <Image source={{ uri }} contentFit="cover" style={{ flex: 1 }} />
+            <View className="absolute bottom-3 right-3 flex-row items-center rounded-full bg-black/60 px-3 py-1.5">
+              <Ionicons name="camera-outline" size={16} color="#FFFFFF" />
+              <Text className="ml-1.5 text-xs text-surface" numberOfLines={1}>
+                เปลี่ยนรูป
+              </Text>
+            </View>
+          </>
+        ) : (
+          <View className="flex-1 items-center justify-center">
+            <Ionicons name="image-outline" size={32} color="#94A3B8" />
+            <Text className="mt-2 text-text-subtle">แตะเพื่อเพิ่มรูปภาพ (ไม่บังคับ)</Text>
+          </View>
+        )}
+      </TouchableOpacity>
     </View>
   );
 }
@@ -49,21 +205,26 @@ export function PrimaryButton({
   title,
   onPress,
   loading,
+  variant = "primary",
 }: {
   title: string;
   onPress: () => void;
   loading?: boolean;
+  variant?: "primary" | "danger";
 }) {
+  const danger = variant === "danger";
   return (
     <TouchableOpacity
-      className={`h-14 items-center justify-center rounded-2xl bg-primary ${loading ? "opacity-70" : ""}`}
+      className={`h-14 items-center justify-center rounded-2xl ${
+        danger ? "border border-red-500 bg-surface" : "bg-primary"
+      } ${loading ? "opacity-70" : ""}`}
       onPress={onPress}
       disabled={loading}
     >
       {loading ? (
-        <ActivityIndicator color="#FFFFFF" />
+        <ActivityIndicator color={danger ? "#EF4444" : "#FFFFFF"} />
       ) : (
-        <Text className="text-lg font-bold text-surface">{title}</Text>
+        <Text className={`text-lg font-bold ${danger ? "text-red-500" : "text-surface"}`}>{title}</Text>
       )}
     </TouchableOpacity>
   );
