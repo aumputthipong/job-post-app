@@ -12,7 +12,9 @@ import {
   KeyboardAvoidingView,
   Alert,
   FlatList,
-  ScrollView
+  ScrollView,
+  SafeAreaView,
+  Platform
 } from "react-native";
 // import { ScrollView } from 'react-native-virtualized-view'
 import * as ImagePicker from "expo-image-picker";
@@ -146,9 +148,9 @@ const CreateFind = ({ route, navigation }) => {
     setWelfareBenefits(newData);
   };
 return (
-    <ScrollView style={styles.safeArea}>
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoid} 
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView 
@@ -337,7 +339,7 @@ return (
 
         </ScrollView>
       </KeyboardAvoidingView>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
