@@ -19,7 +19,7 @@ packages/
 - [x] Phase 1 — backend running locally against the live Firebase project
 - [x] Phase 2 — every write goes through the API; no client writes to Firestore remain
 - [x] Phase 3 — Firestore rules deny all client writes (verified against the live project)
-- [ ] Phase 4 — frontend modernization (TypeScript, modular Firebase SDK, TanStack Query, Expo Router, NativeWind)
+- [~] Phase 4 — rebuilt frontend in `apps/mobile-next` (4.0 emulators + tests done)
 
 **Deployment is out of scope for now** — the API is meant to run locally during development only.
 
@@ -37,6 +37,17 @@ npm install
 4. Add Cloudinary credentials to `.env` (free account, no card required —
    media storage, since Firebase Storage is unusable on this project; see MIGRATION.md)
 5. `npm run dev -w @jobapp-platform/api`
+
+### Local development and tests (no production access needed)
+
+Needs Java 21+ for the Firestore emulator — found automatically if Android Studio is installed.
+
+```bash
+npm run emulators       # Firebase Auth + Firestore emulators, UI at http://127.0.0.1:4001
+npm run seed            # sample users, posts, comments; password for all: password123
+npm run api:emulators   # API on :4000 against the emulators
+npm test                # API + security-rules tests, emulators started and stopped for you
+```
 
 ### Mobile (`apps/mobile`)
 

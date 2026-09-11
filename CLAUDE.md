@@ -18,10 +18,22 @@ Read `MIGRATION.md` for the full history and the reasoning behind each decision.
 
 ```bash
 npm install                                   # from repo root (npm workspaces)
-npm run dev -w @jobapp-platform/api           # API on :4000
-npm run start -w @jobapp-platform/mobile      # Metro; open in Expo Go
+
+# Local development — the default. Nothing here can reach production.
+npm run emulators                             # Firebase Auth + Firestore emulators (UI on :4001)
+npm run seed                                  # sample data; every account's password is password123
+npm run api:emulators                         # API on :4000 against the emulators
+
+npm test                                      # starts emulators, runs API + rules tests, stops them
 npm run typecheck -w @jobapp-platform/api
+
+# Against the real project — only when that is the point.
+npm run dev -w @jobapp-platform/api           # API on :4000 against log-in-d8f2c
+npm run start -w @jobapp-platform/mobile      # Metro; open in Expo Go
 ```
+
+The emulators need Java 21+. `scripts/firebase.mjs` finds one on its own (JAVA_HOME, then the
+JDK bundled with Android Studio), so the machine's default `java` can stay at 17.
 
 Headless check that the app still bundles:
 `cd apps/mobile && npx expo export --platform android --output-dir <tmp>`
@@ -50,7 +62,12 @@ The mobile app finds the API through the host Expo served the bundle from
 
 ## Working with the live project — read before touching data
 
-- There is no emulator/staging project. Everything hits the real Firestore and Auth.
+- **Develop and test against the emulators** (project `demo-jobapp`). A `demo-` project id
+  cannot reach real services — Firebase fails the call instead — and `firebaseAdmin.ts` refuses
+  to start with only one emulator variable set, or with a non-demo project id. `test/setup.ts`
+  stops the test run outright if the emulators aren't in use, because the production key sits in
+  `apps/api/` and the tests wipe the database between cases.
+- The original `apps/mobile` app still talks to production; only touch it deliberately.
 - **Never test `/auth/register` with a real address.** A "duplicate email" test once created
   a real account because the address turned out not to be registered.
 - Deleting Auth users and publishing security rules from scripts are blocked by the
@@ -66,7 +83,7 @@ Edit `firestore.rules` in the repo, commit, then give the owner the file content
 into Firebase Console → Firestore → Rules → Publish. Storage rules cannot be opened in the
 console on the Spark plan; that's harmless while the bucket is unreachable.
 
-## Emulator notes (Windows)
+## Android emulator notes (Windows)
 
 - AVD `Medium_Phone_API_36.1`; open the app with
   `adb shell am start -a android.intent.action.VIEW -d "exp://<LAN-IP>:8081"`
@@ -82,8 +99,8 @@ the plan and its reasoning are in `MIGRATION.md`. In short: a new app in `apps/m
 on the current Expo SDK (TypeScript, Expo Router, NativeWind, TanStack Query, modular
 Firebase SDK) built screen by screen, with `apps/mobile` kept runnable as the reference until
 parity. Decided and not to be revisited without the owner: no in-place SDK upgrade, **no
-Zustand**, no notification tab in the new app, Firebase Emulator Suite before any new
-feature work.
+Zustand**, no notification tab in the new app. Step 4.0 (Firebase Emulator Suite + tests) is
+done; next is 4.1, scaffolding `apps/mobile-next`.
 
 Deferred by request: notification preferences (`EditNoti`) save fine, but nothing ever reads
 `User Noti` to send a notification. Treat it as a feature to build later, not a bug to polish.

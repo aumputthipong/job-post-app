@@ -129,6 +129,18 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
 
    **Steps:**
    - 4.0 Firebase Emulator Suite + API and rules tests — so testing stops touching production.
+     **Done 2026-09-11.** Emulators run under the project id `demo-jobapp`; Firebase will not
+     route a `demo-` project to real services, so a misconfiguration fails rather than writing
+     to `log-in-d8f2c`. The API refuses to start half-emulated or with a non-demo id. 55 tests
+     (`npm test`): 28 against the API through real emulator-issued ID tokens, covering each bug
+     fixed in Phase 2 — impersonation via `postById`, posting without an image, orphaned
+     comments/ratings/favourites on delete, the `RatingJobs` name, duplicate notification rows,
+     the avatar field — and 27 against `firestore.rules` with the client SDK. Both suites were
+     checked to catch real regressions: planting the `postById` impersonation bug fails exactly
+     its test, and opening `JobPosts` to client writes fails exactly the two write tests.
+     `npm run seed` loads Thai sample data for developing the new app. firebase-tools 15 needs
+     Java 21; `scripts/firebase.mjs` finds the JDK Android Studio ships rather than asking for a
+     system-wide Java upgrade.
    - 4.1 Scaffold `apps/mobile-next`: current SDK, TypeScript, Expo Router, NativeWind,
      TanStack Query, design tokens taken from the March 2026 redesign.
    - 4.2 Auth: welcome, login, register, persistence, route guard.
