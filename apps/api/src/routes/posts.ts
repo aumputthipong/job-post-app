@@ -68,10 +68,10 @@ export async function postsRoutes(app: FastifyInstance) {
       const ref = db.collection(collection).doc(id);
       const snap = await ref.get();
       if (!snap.exists) {
-        return reply.code(404).send({ error: "Post not found" });
+        return reply.code(404).send({ error: "ไม่พบประกาศนี้ อาจถูกลบไปแล้ว" });
       }
       if (snap.data()!.postById !== request.userId) {
-        return reply.code(403).send({ error: "You can only edit your own posts" });
+        return reply.code(403).send({ error: "แก้ไขได้เฉพาะประกาศของตัวเอง" });
       }
 
       // If the image is being replaced, drop the old one rather than orphaning it.
@@ -92,10 +92,10 @@ export async function postsRoutes(app: FastifyInstance) {
       const ref = db.collection(collection).doc(id);
       const snap = await ref.get();
       if (!snap.exists) {
-        return reply.code(404).send({ error: "Post not found" });
+        return reply.code(404).send({ error: "ไม่พบประกาศนี้ อาจถูกลบไปแล้ว" });
       }
       if (snap.data()!.postById !== request.userId) {
-        return reply.code(403).send({ error: "You can only delete your own posts" });
+        return reply.code(403).send({ error: "ลบได้เฉพาะประกาศของตัวเอง" });
       }
 
       const mediaId = snap.data()![mediaIdField];

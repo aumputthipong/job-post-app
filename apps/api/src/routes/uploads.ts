@@ -19,10 +19,10 @@ export async function uploadsRoutes(app: FastifyInstance) {
     const file = await request.file({ limits: { fileSize: MAX_BYTES } });
 
     if (!file) {
-      return reply.code(400).send({ error: "Expected a multipart file field" });
+      return reply.code(400).send({ error: "ไม่พบไฟล์ที่อัปโหลด" });
     }
     if (!file.mimetype.startsWith("image/")) {
-      return reply.code(415).send({ error: `Expected an image, got ${file.mimetype}` });
+      return reply.code(415).send({ error: "รองรับเฉพาะไฟล์รูปภาพ" });
     }
 
     // `folder` is an optional text field sent alongside the file.
@@ -34,7 +34,7 @@ export async function uploadsRoutes(app: FastifyInstance) {
       buffer = await file.toBuffer();
     } catch (err) {
       request.log.warn({ err }, "upload rejected");
-      return reply.code(413).send({ error: `File exceeds the ${MAX_BYTES} byte limit` });
+      return reply.code(413).send({ error: "ไฟล์ใหญ่เกิน 10 MB" });
     }
 
     // Cloudinary has no emulator, so local development still uploads for real.
