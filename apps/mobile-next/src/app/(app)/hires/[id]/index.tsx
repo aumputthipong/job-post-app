@@ -2,7 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CommentList } from "@/components/comment-list";
 import { Avatar, PostImage } from "@/components/media";
@@ -27,10 +28,11 @@ export default function HireDetail() {
 
   return (
     <View className="flex-1">
-      <ScrollView
-        className="flex-1 bg-background"
+      <KeyboardAwareScrollView
+        style={{ flex: 1, backgroundColor: "#F5F7FA" }}
         contentContainerStyle={{ paddingBottom: insets.bottom + (isOwner ? 96 : 0) }}
         keyboardShouldPersistTaps="handled"
+        bottomOffset={24}
       >
         <Link href={`/users/${hire.postById}`} asChild>
           <TouchableOpacity className="m-4 flex-row items-center rounded-card bg-surface p-4" style={{ elevation: 3 }}>
@@ -95,7 +97,7 @@ export default function HireDetail() {
             </View>
           </Pressable>
         </Modal>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       {isOwner ? <Fab href={`/hires/${hire.id}/edit`} icon="create-outline" label="แก้ไขประกาศ" /> : null}
     </View>
   );

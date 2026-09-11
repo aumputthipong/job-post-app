@@ -1,5 +1,6 @@
 import { Stack, useLocalSearchParams } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CommentList } from "@/components/comment-list";
 import { PostImage } from "@/components/media";
@@ -23,10 +24,11 @@ export default function JobDetail() {
   return (
     <View className="flex-1">
       <Stack.Screen options={{ headerRight: () => <FavoriteButton postId={job.id} /> }} />
-      <ScrollView
-        className="flex-1 bg-surface"
+      <KeyboardAwareScrollView
+        style={{ flex: 1, backgroundColor: "#FFFFFF" }}
         contentContainerStyle={{ paddingBottom: insets.bottom + (isOwner ? 96 : 0) }}
         keyboardShouldPersistTaps="handled"
+        bottomOffset={24}
       >
         <PostImage uri={job.imageUrl} className="h-56 w-full" />
 
@@ -69,7 +71,7 @@ export default function JobDetail() {
           <View className="mb-5 h-px bg-border" />
           <CommentList kind="find" postId={job.id} />
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       {isOwner ? <Fab href={`/jobs/${job.id}/edit`} icon="create-outline" label="แก้ไขประกาศ" /> : null}
     </View>
   );
