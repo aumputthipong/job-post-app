@@ -222,7 +222,17 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
        with the on-screen keyboard (see 4.4), so it stays on the checklist.
      - Screen titles moved to the `(app)` layout. A title set inside a screen missed its
        loading/error/not-found states, which showed the route path instead.
-   - 4.6 Own profile and avatar.
+   - 4.6 Own profile and avatar. **Built 2026-09-11** and walked through on the emulator:
+     the profile tab, edit with a blank-name error then a save (updates live), avatar
+     change (uploads to `jobapp-dev/profiles`), sign-out with confirm, and the public
+     profile on the shared layout. `npm test` 57/57. The owner's checklist is in PR #6.
+     - Same as legacy: the camera button uploads as soon as a photo is picked.
+     - Changed: editing is its own screen instead of a modal. Email is shown read-only:
+       the legacy form let you edit it, but the API never saved it (it belongs to Auth).
+     - The API now rejects a blank first or last name (Thai messages, shared schema).
+     - Sign-out clears the query cache, so the next account doesn't see cached data.
+     - One test avatar stays in Cloudinary `jobapp-dev/profiles`. Somchai's seed photo is
+       an external URL, so there was nothing to replace and delete.
    - 4.7 Parity check against the old app, delete it, rename, update docs.
 
    Route tree, mapped from `navigation/MyNavigator.js`:
