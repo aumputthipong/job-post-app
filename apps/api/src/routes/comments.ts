@@ -25,7 +25,7 @@ export async function commentsRoutes(app: FastifyInstance) {
       kind.data === "find" ? COLLECTIONS.JOB_POSTS : COLLECTIONS.HIRE_POSTS;
     const post = await db.collection(postCollection).doc(parsed.data.postId).get();
     if (!post.exists) {
-      return reply.code(404).send({ error: "Post not found" });
+      return reply.code(404).send({ error: "ไม่พบประกาศนี้ อาจถูกลบไปแล้ว" });
     }
 
     const collection =
@@ -52,10 +52,10 @@ export async function commentsRoutes(app: FastifyInstance) {
     const snap = await ref.get();
 
     if (!snap.exists) {
-      return reply.code(404).send({ error: "Comment not found" });
+      return reply.code(404).send({ error: "ไม่พบความคิดเห็นนี้" });
     }
     if (snap.data()!.userId !== request.userId) {
-      return reply.code(403).send({ error: "You can only delete your own comments" });
+      return reply.code(403).send({ error: "ลบได้เฉพาะความคิดเห็นของตัวเอง" });
     }
 
     await ref.delete();
