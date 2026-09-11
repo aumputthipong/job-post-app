@@ -29,7 +29,7 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
    Cloudinary (free tier, no card) through `POST /uploads`; the dead `imageUrl` values left
    in Firestore need a placeholder in the UI. `apps/api/scripts/backup-storage.ts` is kept
    ready in case billing is ever enabled.
-3. No `firestore.rules` / `storage.rules` ever existed — if the project is still on Firebase's
+3. **Resolved in Phase 3.** No `firestore.rules` / `storage.rules` ever existed — if the project is still on Firebase's
    test-mode default rules, anyone with the app's (public) API key can read/write/delete all
    data directly. Locking this down is Phase 3, after writes are moved to the API.
 4. Firestore writes lived inside Redux reducers (async side effects in what should be pure
@@ -79,10 +79,14 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
    - `jobsReducer` imported `SET_NEW_POST_AVAILABLE`, which nothing exports.
    - The shared schema called the avatar `photoUrl`; the data and every screen use `imageUrl`,
      so Zod would have stripped it and avatar changes would never have saved.
-4. **Phase 3 — ready to start.** The client no longer writes, so `firestore.rules` can drop
-   its `allow create/update/delete` blocks and keep only authenticated reads. The Admin SDK
-   the API uses bypasses rules, so nothing on the server is affected. `storage.rules` is moot
-   — that bucket is unreachable regardless (see issue 2).
+4. **Phase 3 — done 2026-09-10.** `firestore.rules` now grants signed-in reads and denies
+   every client write. Verified against the live project with a real ID token over the REST
+   API: all nine collections readable (User Noti only via the `notiBy` filter the app sends —
+   an unfiltered list is refused, on purpose); client update/create on JobPosts, JobComments,
+   FavoriteJobs and the caller's own profile all return 403; Admin SDK writes still succeed.
+   The probes wrote each field back to its existing value, so no data changed.
+   `storage.rules` was not published — the console won't open Storage on the Spark plan —
+   which is harmless while the bucket is unreachable anyway.
 5. **Phase 4 — not started.** Frontend modernization: TypeScript, modular Firebase SDK
    (replace `firebase/compat`), TanStack Query + Zustand (replace the Redux store), Expo Router
    (replace `navigation/MyNavigator.js`), NativeWind, incremental Expo SDK upgrade.
