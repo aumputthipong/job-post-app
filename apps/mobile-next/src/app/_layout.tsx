@@ -25,10 +25,7 @@ function RootNavigator() {
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
       <Stack.Protected guard={signedIn}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="jobs" />
-        <Stack.Screen name="hires" />
-        <Stack.Screen name="users" />
+        <Stack.Screen name="(app)" />
       </Stack.Protected>
     </Stack>
   );
