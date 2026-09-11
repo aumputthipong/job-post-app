@@ -1,4 +1,12 @@
-import type { PostKind, RegisterInput } from "@jobapp-platform/shared";
+import type {
+  CreateHirePostInput,
+  CreateJobPostInput,
+  PostKind,
+  RegisterInput,
+  UpdateHirePostInput,
+  UpdateJobPostInput,
+} from "@jobapp-platform/shared";
+import { File } from "expo-file-system";
 import { auth, getDevHost } from "./firebase";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? `http://${getDevHost()}:4000`;
@@ -21,12 +29,16 @@ function messageFrom(status: number, body: any): string {
   return `เกิดข้อผิดพลาด (${status})`;
 }
 
+type RequestOptions = { method?: string; body?: unknown; signedIn?: boolean; timeoutMs?: number };
+
 async function request<T>(
   path: string,
-  { method = "GET", body, signedIn = true }: { method?: string; body?: unknown; signedIn?: boolean } = {},
+  { method = "GET", body, signedIn = true, timeoutMs = TIMEOUT_MS }: RequestOptions = {},
 ): Promise<T> {
+  const isForm = body instanceof FormData;
   const headers: Record<string, string> = {};
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  // fetch sets the multipart boundary itself for FormData.
+  if (body !== undefined && !isForm) headers["Content-Type"] = "application/json";
   if (signedIn) {
     const token = await auth.currentUser?.getIdToken();
     if (!token) throw new ApiError("กรุณาเข้าสู่ระบบก่อน", 401);
@@ -34,13 +46,13 @@ async function request<T>(
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   let res: Response;
   try {
     res = await fetch(`${API_URL}${path}`, {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
       signal: controller.signal,
     });
   } catch {
@@ -70,4 +82,23 @@ export const api = {
 
   deleteComment: (postKind: PostKind, id: string) =>
     request(`/comments/${postKind}/${id}`, { method: "DELETE" }),
+
+  createPost: (postKind: PostKind, data: CreateJobPostInput | CreateHirePostInput) =>
+    request<{ id: string }>(`/posts/${postKind}`, { method: "POST", body: data }),
+
+  updatePost: (postKind: PostKind, id: string, data: UpdateJobPostInput | UpdateHirePostInput) =>
+    request(`/posts/${postKind}/${id}`, { method: "PUT", body: data }),
+
+  deletePost: (postKind: PostKind, id: string) => request(`/posts/${postKind}/${id}`, { method: "DELETE" }),
+
+  /** Uploads a local image (file:// URI) to Cloudinary through the API. */
+  uploadImage: (uri: string, folder: "posts" | "profiles") => {
+    const form = new FormData();
+    // `folder` must come before the file: the API reads fields up to the file part.
+    form.append("folder", folder);
+    // Expo's fetch takes a real File; the legacy { uri, name, type } object throws
+    // "Unsupported FormDataPart implementation".
+    form.append("file", new File(uri));
+    return request<{ url: string; publicId: string }>("/uploads", { method: "POST", body: form, timeoutMs: 60_000 });
+  },
 };
