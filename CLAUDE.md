@@ -77,10 +77,13 @@ console on the Spark plan; that's harmless while the bucket is unreachable.
 
 ## Status and what's next
 
-Phases 0–3 are done and tested in the emulator by the owner. Next is **Phase 4**: TypeScript,
-modular Firebase SDK (drop `firebase/compat`), TanStack Query + Zustand instead of Redux,
-Expo Router instead of `navigation/MyNavigator.js`, NativeWind, and upgrading Expo SDK 49
-one version at a time (RN 0.76+ turns on the New Architecture — the riskiest step).
+Phases 0–3 are done and tested in the emulator by the owner. **Phase 4 is in progress** —
+the plan and its reasoning are in `MIGRATION.md`. In short: a new app in `apps/mobile-next`
+on the current Expo SDK (TypeScript, Expo Router, NativeWind, TanStack Query, modular
+Firebase SDK) built screen by screen, with `apps/mobile` kept runnable as the reference until
+parity. Decided and not to be revisited without the owner: no in-place SDK upgrade, **no
+Zustand**, no notification tab in the new app, Firebase Emulator Suite before any new
+feature work.
 
 Deferred by request: notification preferences (`EditNoti`) save fine, but nothing ever reads
 `User Noti` to send a notification. Treat it as a feature to build later, not a bug to polish.

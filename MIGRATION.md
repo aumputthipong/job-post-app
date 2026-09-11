@@ -8,7 +8,7 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
 - New repo, monorepo layout (npm workspaces) — see chat history for the reasoning
 - No deployment for now — API runs locally only
 - Priority: finish the backend first, modernize the frontend after
-- Frontend will move to Expo Router (queued for Phase 4, not started)
+- Frontend will move to Expo Router, as part of a rebuilt app (Phase 4, see below)
 
 ## Known issues carried over from the legacy code (tracked, not yet all fixed)
 
@@ -100,6 +100,51 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
    The probes wrote each field back to its existing value, so no data changed.
    `storage.rules` was not published — the console won't open Storage on the Spark plan —
    which is harmless while the bucket is unreachable anyway.
-5. **Phase 4 — not started.** Frontend modernization: TypeScript, modular Firebase SDK
-   (replace `firebase/compat`), TanStack Query + Zustand (replace the Redux store), Expo Router
-   (replace `navigation/MyNavigator.js`), NativeWind, incremental Expo SDK upgrade.
+5. **Phase 4 — planned 2026-09-11, in progress.** Frontend modernization.
+
+   **Approach: a new app alongside the old one, not an in-place upgrade.** TypeScript, Expo
+   Router, NativeWind and TanStack Query each touch every screen, so all 17 screens (~5,400
+   lines) get rewritten regardless. Upgrading SDK 49 one version at a time would mean fixing
+   breakage five or six times in code that is about to be deleted, and would drag along the
+   Expo Router that shipped with SDK 49. Instead `apps/mobile-next` starts on the current SDK
+   (and so on the New Architecture from day one) and screens are ported one at a time, while
+   `apps/mobile` stays runnable as the reference. When the new app reaches parity, the old
+   one is deleted and `mobile-next` is renamed to `mobile`. The API and `packages/shared` are
+   unchanged — the new app consumes the contract Phase 2 already proved.
+
+   **Stack decisions:**
+   - TanStack Query for server state. Firestore `onSnapshot` listeners write into the query
+     cache and screens read with `useQuery`; writes are `useMutation` calls to the API and the
+     listener picks up the result, so lists update without navigating away and back.
+   - **No Zustand** (it was in the original plan). Once server state lives in the query cache,
+     what remains is auth — a small context over `onAuthStateChanged` — and per-screen UI
+     state. Nothing needs a global store yet; adding one would be stack for its own sake.
+   - Modular Firebase SDK with React Native auth persistence, so login survives a restart.
+   - Third-party UI libraries mostly dropped: the dropdown (5 files) and rating (2 files) are
+     small enough to build with NativeWind; `react-native-image-zoom-viewer` is unmaintained;
+     `react-navigation-header-buttons` and `react-native-virtualized-view` are unnecessary
+     under Expo Router; `axios` and `react-native-element-dropdown` were never used.
+   - The notification tab is left out of the new app until the feature exists (see the
+     deferred note above) rather than porting a screen that stores a preference nothing reads.
+
+   **Steps:**
+   - 4.0 Firebase Emulator Suite + API and rules tests — so testing stops touching production.
+   - 4.1 Scaffold `apps/mobile-next`: current SDK, TypeScript, Expo Router, NativeWind,
+     TanStack Query, design tokens taken from the March 2026 redesign.
+   - 4.2 Auth: welcome, login, register, persistence, route guard.
+   - 4.3 Read-only screens: home, both job lists, both detail screens, other user's profile.
+   - 4.4 Favourite, rating, comment, Keep.
+   - 4.5 Create / edit / delete posts with image upload.
+   - 4.6 Own profile and avatar.
+   - 4.7 Parity check against the old app, delete it, rename, update docs.
+
+   Route tree, mapped from `navigation/MyNavigator.js`:
+
+   ```
+   app/_layout.tsx          providers + redirect to (auth) or (tabs)
+   app/(auth)/              welcome, login, register
+   app/(tabs)/              index (home), keep, profile
+   app/jobs/                index, new, [id], [id]/edit
+   app/hires/               index, new, [id], [id]/edit
+   app/users/[id].tsx       another user's profile
+   ```
