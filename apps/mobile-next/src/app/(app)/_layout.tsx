@@ -12,6 +12,7 @@ const TITLES: Record<string, string> = {
   "hires/[id]/index": "รายละเอียดฟรีแลนซ์",
   "hires/[id]/edit": "แก้ไขประกาศฟรีแลนซ์",
   "users/[id]": "โปรไฟล์",
+  "edit-profile": "แก้ไขโปรไฟล์",
 };
 
 // One stack for everything behind sign-in, so a screen pushed from a tab
