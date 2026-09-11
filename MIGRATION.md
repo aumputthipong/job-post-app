@@ -142,21 +142,34 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
      Java 21; `scripts/firebase.mjs` finds the JDK Android Studio ships rather than asking for a
      system-wide Java upgrade.
    - 4.1 Scaffold `apps/mobile-next`: current SDK, TypeScript, Expo Router, NativeWind,
-     TanStack Query, design tokens taken from the March 2026 redesign. **Done 2026-09-11** —
-     verified booting on the emulator with NativeWind styling rendering correctly. Full route
-     tree scaffolded (auth/tabs/jobs/hires/users) as placeholders for the steps below. Firebase
-     client is app+Firestore only for now; `initializeAuth`/`getAuth` throw "Component auth has
-     not been registered yet" under Metro on this setup (confirmed working in a plain Node
-     script against the same firebase package and emulator — a Metro/Hermes-specific issue, not
-     firebase/emulator/monorepo-duplication). Left for 4.2 to solve.
+     TanStack Query, design tokens taken from the March 2026 redesign. **Done 2026-09-11.**
+     Full route tree scaffolded (auth/tabs/jobs/hires/users) as placeholders.
+     *Correction:* 4.1 was recorded as "NativeWind styling rendering correctly" — it wasn't.
+     Two copies of `react-native-css-interop` were in the bundle (see 4.2), so `className`
+     did nothing; the screenshot that looked styled was default text. Found and fixed in 4.2.
+   - 4.2 Auth: welcome, login, register, persistence, route guard. **Done 2026-09-11**, tested
+     on the emulator against the Firebase emulators: validation messages, wrong password,
+     sign-in, session surviving an app restart, sign-out, duplicate email (409 from the API),
+     and registration landing signed in. Route guard is Expo Router's `Stack.Protected`;
+     the splash stays up until Firebase has restored any saved session.
 
-     Monorepo/Metro issues hit and fixed along the way: `apps/mobile`'s
-     `disableHierarchicalLookup: true` metro setting broke resolution of nativewind's nested
-     `react-native-css-interop` dep here (removed for this app); that same package needed
-     pinning as a direct dependency to land at a location Metro's resolver can reach from
-     anywhere in the bundle; NativeWind's `className` type augmentation needed a local copy
-     since the hoisted one augments a different (older) `react-native` than this app's own.
-   - 4.2 Auth: welcome, login, register, persistence, route guard.
+     Four monorepo/Metro problems, all in `apps/mobile-next/metro.config.js`:
+     - *Firebase Auth "Component auth has not been registered yet".* Not a duplicate package
+       but a duplicate *file*: with package exports on, `import "@firebase/app"` resolved to
+       its ESM build while `@firebase/auth`'s React Native build `require`s the CJS build —
+       two component registries. `@firebase/*` now resolves with package exports off.
+     - *NativeWind did nothing.* The css-interop pin added in 4.1 created a second copy;
+       styles registered in one, `className` read the other. Pin removed; every
+       `react-native-css-interop` import now resolves to nativewind's own copy.
+     - *Two Reacts.* Packages hoisted to the workspace root (e.g. `@tanstack/react-query`)
+       resolved `react` to apps/mobile's React 18 while the app runs React 19 — would have
+       broken the first `useQuery`. `react` / `react-native` are pinned to the app's copies.
+     - *`./x.js` imports from packages/shared.* Written that way for Node ESM (the API);
+       Metro now retries without the extension.
+
+     Also: the Firebase emulators bound to 127.0.0.1 only, unreachable from the emulator or a
+     phone — `firebase.json` now binds them to 0.0.0.0 (fake data only). Register/login
+     validation moved to `packages/shared` so the app and the API share one schema.
    - 4.3 Read-only screens: home, both job lists, both detail screens, other user's profile.
    - 4.4 Favourite, rating, comment, Keep.
    - 4.5 Create / edit / delete posts with image upload.

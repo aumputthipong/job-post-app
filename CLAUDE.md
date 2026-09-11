@@ -24,6 +24,7 @@ npm run emulators                             # Firebase Auth + Firestore emulat
 npm run seed                                  # sample data; every account's password is password123
 npm run api:emulators                         # API on :4000 against the emulators
 
+npm run mobile                                # Metro for apps/mobile-next; press `a` for Android
 npm test                                      # starts emulators, runs API + rules tests, stops them
 npm run typecheck -w @jobapp-platform/api
 
@@ -99,9 +100,10 @@ the plan and its reasoning are in `MIGRATION.md`. In short: a new app in `apps/m
 on the current Expo SDK (TypeScript, Expo Router, NativeWind, TanStack Query, modular
 Firebase SDK) built screen by screen, with `apps/mobile` kept runnable as the reference until
 parity. Decided and not to be revisited without the owner: no in-place SDK upgrade, **no
-Zustand**, no notification tab in the new app. Steps 4.0–4.1 done (emulators + tests; app
-boots with routing/NativeWind working). Next is 4.2 (auth) — note `firebase.ts` has no auth
-wiring yet, see MIGRATION.md for why.
+Zustand**, no notification tab in the new app. Steps 4.0–4.2 done (emulators + tests;
+scaffold; auth with route guard). Next is 4.3 (read-only screens). `apps/mobile-next/
+metro.config.js` carries several monorepo resolution fixes — read its comments (and
+MIGRATION.md 4.2) before touching it.
 
 Deferred by request: notification preferences (`EditNoti`) save fine, but nothing ever reads
 `User Noti` to send a notification. Treat it as a feature to build later, not a bug to polish.

@@ -1,15 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { FieldValue } from "firebase-admin/firestore";
-import { z } from "zod";
-import { COLLECTIONS } from "@jobapp-platform/shared";
+import { COLLECTIONS, registerSchema } from "@jobapp-platform/shared";
 import { auth, db } from "../firebaseAdmin.js";
-
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-});
 
 /**
  * Replaces RegisterScreen.js, which called createUserWithEmailAndPassword and
@@ -66,11 +58,11 @@ export async function authRoutes(app: FastifyInstance) {
       }
 
       if (err?.code === "auth/email-already-exists") {
-        return reply.code(409).send({ error: "That email is already registered" });
+        return reply.code(409).send({ error: "อีเมลนี้ถูกใช้สมัครสมาชิกแล้ว" });
       }
 
       request.log.error({ err }, "registration failed");
-      return reply.code(500).send({ error: "Registration failed" });
+      return reply.code(500).send({ error: "สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่" });
     }
   });
 }

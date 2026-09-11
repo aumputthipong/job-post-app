@@ -19,7 +19,7 @@ packages/
 - [x] Phase 1 — backend running locally against the live Firebase project
 - [x] Phase 2 — every write goes through the API; no client writes to Firestore remain
 - [x] Phase 3 — Firestore rules deny all client writes (verified against the live project)
-- [~] Phase 4 — rebuilt frontend in `apps/mobile-next` (4.0–4.1 done: emulators, tests, app boots)
+- [~] Phase 4 — rebuilt frontend in `apps/mobile-next` (4.0–4.2 done: emulators, tests, scaffold, auth)
 
 **Deployment is out of scope for now** — the API is meant to run locally during development only.
 
@@ -46,6 +46,7 @@ Needs Java 21+ for the Firestore emulator — found automatically if Android Stu
 npm run emulators       # Firebase Auth + Firestore emulators, UI at http://127.0.0.1:4001
 npm run seed            # sample users, posts, comments; password for all: password123
 npm run api:emulators   # API on :4000 against the emulators
+npm run mobile          # the new app (apps/mobile-next) — press `a` to open it on Android
 npm test                # API + security-rules tests, emulators started and stopped for you
 ```
 
