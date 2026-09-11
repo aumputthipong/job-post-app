@@ -181,8 +181,13 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
      - Everything behind sign-in is one `(app)` stack (tabs plus pushed screens) so a
        screen opened from a tab gets a back button.
      - Fixed along the way: the legacy profile screen showed the email under ปริญญาตรี.
-     - In dev, a Fast Refresh can leave a shrink-wrapped Thai label clipped by one word; a
-       cold start renders it correctly. Not a production issue.
+     - *Thai label clipping.* A shrink-to-fit label (e.g. the attribute chip) sometimes lost
+       its last word: "มีประสบการณ์งานปูน" drew as "มีประสบการณ์งาน". Yoga's size was right
+       (same bounds either way); Android's draw-time layout wrapped the last word onto a
+       second, clipped line. It happened whenever the screen rendered from cached data during
+       the push animation, e.g. reopening the job list. It isn't Fast Refresh only, as first
+       noted. `numberOfLines={1}` fixes it (0/6 clipped vs 4/4 before). Single-line labels
+       that size to their text get it; full-width text isn't affected.
    - 4.4 Favourite, rating, comment, Keep.
    - 4.5 Create / edit / delete posts with image upload.
    - 4.6 Own profile and avatar.

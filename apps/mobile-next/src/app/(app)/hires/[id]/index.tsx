@@ -37,7 +37,7 @@ export default function HireDetail() {
             </Text>
             <View className="mt-2 flex-row items-center">
               <Stars value={rating.average} size={14} />
-              <Text className="ml-2 text-xs text-text-subtle">
+              <Text className="ml-2 text-xs text-text-subtle" numberOfLines={1}>
                 {rating.count ? `${rating.average.toFixed(1)} (${rating.count} รีวิว)` : "ยังไม่มีรีวิว"}
               </Text>
             </View>
@@ -64,7 +64,9 @@ export default function HireDetail() {
               <PostImage uri={hire.resumeUrl} className="h-56 w-full rounded-xl" />
               <View className="absolute bottom-3 right-3 flex-row items-center rounded-full bg-black/60 px-3 py-1.5">
                 <Ionicons name="expand-outline" size={16} color="#FFFFFF" />
-                <Text className="ml-1.5 text-xs text-surface">แตะเพื่อดูรูปเต็ม</Text>
+                <Text className="ml-1.5 text-xs text-surface" numberOfLines={1}>
+                  แตะเพื่อดูรูปเต็ม
+                </Text>
               </View>
             </TouchableOpacity>
           ) : (

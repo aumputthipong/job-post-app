@@ -26,7 +26,7 @@ export default function JobDetail() {
         <Text className="mt-1 text-base text-text-muted">{job.agency}</Text>
         <View className="mt-3 flex-row items-center">
           <Stars value={rating.average} />
-          <Text className="ml-2 text-sm text-text-subtle">
+          <Text className="ml-2 text-sm text-text-subtle" numberOfLines={1}>
             {rating.count ? `${rating.average.toFixed(1)} / 5 (${rating.count} รีวิว)` : "ยังไม่มีรีวิว"}
           </Text>
         </View>
