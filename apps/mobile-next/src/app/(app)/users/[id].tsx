@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/media";
@@ -18,8 +18,6 @@ export default function UserProfile() {
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: insets.bottom }}>
-      <Stack.Screen options={{ title: "โปรไฟล์" }} />
-
       <View className="m-4 items-center rounded-card bg-surface p-6" style={{ elevation: 3 }}>
         <Avatar uri={user.imageUrl} name={fullName(user)} size="lg" />
         <Text className="mt-3 text-2xl font-bold text-primary">{fullName(user)}</Text>

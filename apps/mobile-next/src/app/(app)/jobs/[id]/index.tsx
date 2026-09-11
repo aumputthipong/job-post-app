@@ -25,7 +25,7 @@ export default function JobDetail() {
       contentContainerStyle={{ paddingBottom: insets.bottom }}
       keyboardShouldPersistTaps="handled"
     >
-      <Stack.Screen options={{ title: "รายละเอียดงาน", headerRight: () => <FavoriteButton postId={job.id} /> }} />
+      <Stack.Screen options={{ headerRight: () => <FavoriteButton postId={job.id} /> }} />
       <PostImage uri={job.imageUrl} className="h-56 w-full" />
 
       <View className="p-5">

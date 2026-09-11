@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { Link, Stack, useLocalSearchParams } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -30,7 +30,6 @@ export default function HireDetail() {
       contentContainerStyle={{ paddingBottom: insets.bottom }}
       keyboardShouldPersistTaps="handled"
     >
-      <Stack.Screen options={{ title: "รายละเอียดฟรีแลนซ์" }} />
 
       <Link href={`/users/${hire.postById}`} asChild>
         <TouchableOpacity className="m-4 flex-row items-center rounded-card bg-surface p-4" style={{ elevation: 3 }}>
