@@ -6,3 +6,4 @@ export * from "./schemas/comment.js";
 export * from "./schemas/rating.js";
 export * from "./schemas/favorite.js";
 export * from "./schemas/notiPreference.js";
+export * from "./schemas/auth.js";

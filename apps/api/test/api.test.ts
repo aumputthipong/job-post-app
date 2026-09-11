@@ -323,6 +323,8 @@ describe("registration", () => {
       payload: { email: "bad", password: "1" },
     });
     expect(res.statusCode).toBe(400);
+    // Same schema (and Thai messages) the app validates its form with.
+    expect(res.json().error.fieldErrors.email).toContain("กรุณากรอกอีเมลให้ถูกต้อง");
     const users = await auth.listUsers();
     expect(users.users).toHaveLength(0);
   });
