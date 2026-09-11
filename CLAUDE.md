@@ -113,4 +113,6 @@ new post may only appear after navigating away and back. Fixed properly in Phase
 
 - Owner communicates in Thai; reply in Thai.
 - Commit in small, single-purpose commits with messages that explain *why*. No attribution lines.
+- Comments in code: short, sparse — only where genuinely non-obvious. Not a paragraph per line.
+- Work on a feature branch and open a PR (`gh pr create`); don't push straight to `main`.
 - Verify against the running app or live API before calling something done.
