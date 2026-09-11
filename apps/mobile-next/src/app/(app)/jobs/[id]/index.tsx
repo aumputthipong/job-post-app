@@ -3,6 +3,8 @@ import { ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CommentList } from "@/components/comment-list";
 import { PostImage } from "@/components/media";
+import { FavoriteButton, RatePost } from "@/components/post-actions";
+import { useAuth } from "@/lib/auth-context";
 import { Bullets, EmptyState, ErrorState, InfoRow, Loading, Section, Stars } from "@/components/ui";
 import { useJobPost, useRatingSummary } from "@/lib/data";
 
@@ -11,14 +13,19 @@ export default function JobDetail() {
   const { data: job, loading, error } = useJobPost(id);
   const rating = useRatingSummary("find", id);
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   if (error) return <ErrorState error={error} />;
   if (loading) return <Loading />;
   if (!job) return <EmptyState icon="alert-circle-outline" message="ไม่พบประกาศนี้ อาจถูกลบไปแล้ว" />;
 
   return (
-    <ScrollView className="flex-1 bg-surface" contentContainerStyle={{ paddingBottom: insets.bottom }}>
-      <Stack.Screen options={{ title: "รายละเอียดงาน" }} />
+    <ScrollView
+      className="flex-1 bg-surface"
+      contentContainerStyle={{ paddingBottom: insets.bottom }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Stack.Screen options={{ title: "รายละเอียดงาน", headerRight: () => <FavoriteButton postId={job.id} /> }} />
       <PostImage uri={job.imageUrl} className="h-56 w-full" />
 
       <View className="p-5">
@@ -54,6 +61,8 @@ export default function JobDetail() {
           <InfoRow icon="mail-outline">{job.email || "ไม่ระบุ"}</InfoRow>
           <InfoRow icon="call-outline">{job.phone || "ไม่ระบุ"}</InfoRow>
         </Section>
+
+        {user?.uid !== job.postById ? <RatePost kind="find" postId={job.id} title="ให้คะแนนโพสต์นี้" /> : null}
 
         <View className="mb-5 h-px bg-border" />
         <CommentList kind="find" postId={job.id} />
