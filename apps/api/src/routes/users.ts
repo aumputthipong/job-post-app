@@ -18,7 +18,7 @@ export async function usersRoutes(app: FastifyInstance) {
   app.get("/users/me", { preHandler: requireAuth }, async (request, reply) => {
     const snap = await db.collection(COLLECTIONS.USER_INFO).doc(request.userId!).get();
     if (!snap.exists) {
-      return reply.code(404).send({ error: "Profile not found" });
+      return reply.code(404).send({ error: "ไม่พบโปรไฟล์ของคุณ" });
     }
     return reply.send({ id: snap.id, ...snap.data() });
   });
