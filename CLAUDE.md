@@ -99,8 +99,9 @@ the plan and its reasoning are in `MIGRATION.md`. In short: a new app in `apps/m
 on the current Expo SDK (TypeScript, Expo Router, NativeWind, TanStack Query, modular
 Firebase SDK) built screen by screen, with `apps/mobile` kept runnable as the reference until
 parity. Decided and not to be revisited without the owner: no in-place SDK upgrade, **no
-Zustand**, no notification tab in the new app. Step 4.0 (Firebase Emulator Suite + tests) is
-done; next is 4.1, scaffolding `apps/mobile-next`.
+Zustand**, no notification tab in the new app. Steps 4.0–4.1 done (emulators + tests; app
+boots with routing/NativeWind working). Next is 4.2 (auth) — note `firebase.ts` has no auth
+wiring yet, see MIGRATION.md for why.
 
 Deferred by request: notification preferences (`EditNoti`) save fine, but nothing ever reads
 `User Noti` to send a notification. Treat it as a feature to build later, not a bug to polish.

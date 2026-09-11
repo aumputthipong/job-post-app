@@ -142,7 +142,20 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
      Java 21; `scripts/firebase.mjs` finds the JDK Android Studio ships rather than asking for a
      system-wide Java upgrade.
    - 4.1 Scaffold `apps/mobile-next`: current SDK, TypeScript, Expo Router, NativeWind,
-     TanStack Query, design tokens taken from the March 2026 redesign.
+     TanStack Query, design tokens taken from the March 2026 redesign. **Done 2026-09-11** —
+     verified booting on the emulator with NativeWind styling rendering correctly. Full route
+     tree scaffolded (auth/tabs/jobs/hires/users) as placeholders for the steps below. Firebase
+     client is app+Firestore only for now; `initializeAuth`/`getAuth` throw "Component auth has
+     not been registered yet" under Metro on this setup (confirmed working in a plain Node
+     script against the same firebase package and emulator — a Metro/Hermes-specific issue, not
+     firebase/emulator/monorepo-duplication). Left for 4.2 to solve.
+
+     Monorepo/Metro issues hit and fixed along the way: `apps/mobile`'s
+     `disableHierarchicalLookup: true` metro setting broke resolution of nativewind's nested
+     `react-native-css-interop` dep here (removed for this app); that same package needed
+     pinning as a direct dependency to land at a location Metro's resolver can reach from
+     anywhere in the bundle; NativeWind's `className` type augmentation needed a local copy
+     since the hoisted one augments a different (older) `react-native` than this app's own.
    - 4.2 Auth: welcome, login, register, persistence, route guard.
    - 4.3 Read-only screens: home, both job lists, both detail screens, other user's profile.
    - 4.4 Favourite, rating, comment, Keep.
