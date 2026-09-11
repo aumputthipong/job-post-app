@@ -1,17 +1,20 @@
 import { z } from "zod";
 
-/** Firestore doc shape for COLLECTIONS.HIRE_POSTS, as written by the legacy app. */
+const required = (message: string) => z.string().trim().min(1, message);
+
+/** Firestore doc shape for COLLECTIONS.HIRE_POSTS, as written by the legacy app.
+ *  Messages are Thai: the API's 400s and the app's forms show them as-is. */
 export const hirePostSchema = z.object({
-  hireTitle: z.string().min(1),
+  hireTitle: required("กรุณากรอกหัวข้อประกาศ"),
   resumeUrl: z.string().url().optional(),
   /** Cloudinary public_id, needed to delete the file when the post is deleted.
    *  Absent on posts created before the move off Firebase Storage. */
   resumePublicId: z.string().optional(),
-  category: z.string().min(1),
-  detail: z.string().min(1),
+  category: required("กรุณาเลือกประเภทงาน"),
+  detail: required("กรุณากรอกรายละเอียด"),
   postById: z.string().min(1),
-  phone: z.string().min(1),
-  email: z.string().email(),
+  phone: required("กรุณากรอกเบอร์โทรศัพท์"),
+  email: z.string().trim().email("กรุณากรอกอีเมลให้ถูกต้อง"),
 });
 
 export const createHirePostSchema = hirePostSchema.omit({ postById: true });
