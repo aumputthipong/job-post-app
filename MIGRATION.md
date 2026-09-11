@@ -171,6 +171,18 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
      phone — `firebase.json` now binds them to 0.0.0.0 (fake data only). Register/login
      validation moved to `packages/shared` so the app and the API share one schema.
    - 4.3 Read-only screens: home, both job lists, both detail screens, other user's profile.
+     **Built 2026-09-11** and walked through on the emulator against seeded data: lists,
+     search, details with rating and comments, the resume viewer, and the author profile. The
+     owner's own run-through is still pending; it's a checklist in PR #3.
+     - Data comes from Firestore listeners written into the TanStack Query cache
+       (`src/lib/live-query.ts`), so lists update live and back navigation is instant.
+       Posts are sorted on the client because legacy documents without `createdAt` would be
+       dropped by `orderBy`.
+     - Everything behind sign-in is one `(app)` stack (tabs plus pushed screens) so a
+       screen opened from a tab gets a back button.
+     - Fixed along the way: the legacy profile screen showed the email under ปริญญาตรี.
+     - In dev, a Fast Refresh can leave a shrink-wrapped Thai label clipped by one word; a
+       cold start renders it correctly. Not a production issue.
    - 4.4 Favourite, rating, comment, Keep.
    - 4.5 Create / edit / delete posts with image upload.
    - 4.6 Own profile and avatar.
@@ -179,10 +191,11 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
    Route tree, mapped from `navigation/MyNavigator.js`:
 
    ```
-   app/_layout.tsx          providers + redirect to (auth) or (tabs)
+   app/_layout.tsx          providers + guard: (auth) or (app)
    app/(auth)/              welcome, login, register
-   app/(tabs)/              index (home), keep, profile
-   app/jobs/                index, new, [id], [id]/edit
-   app/hires/               index, new, [id], [id]/edit
-   app/users/[id].tsx       another user's profile
+   app/(app)/_layout.tsx    one stack for everything behind sign-in
+   app/(app)/(tabs)/        index (home), keep, profile
+   app/(app)/jobs/          index, new, [id], [id]/edit
+   app/(app)/hires/         index, new, [id], [id]/edit
+   app/(app)/users/[id].tsx another user's profile
    ```

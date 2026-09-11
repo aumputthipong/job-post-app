@@ -100,16 +100,18 @@ the plan and its reasoning are in `MIGRATION.md`. In short: a new app in `apps/m
 on the current Expo SDK (TypeScript, Expo Router, NativeWind, TanStack Query, modular
 Firebase SDK) built screen by screen, with `apps/mobile` kept runnable as the reference until
 parity. Decided and not to be revisited without the owner: no in-place SDK upgrade, **no
-Zustand**, no notification tab in the new app. Steps 4.0–4.2 done (emulators + tests;
-scaffold; auth with route guard). Next is 4.3 (read-only screens). `apps/mobile-next/
+Zustand**, no notification tab in the new app. Steps 4.0–4.3 done (emulators + tests;
+scaffold; auth with route guard; read-only screens on live Firestore listeners). Next is
+4.4 (favourite, rating, comment, Keep). `apps/mobile-next/
 metro.config.js` carries several monorepo resolution fixes — read its comments (and
 MIGRATION.md 4.2) before touching it.
 
 Deferred by request: notification preferences (`EditNoti`) save fine, but nothing ever reads
 `User Noti` to send a notification. Treat it as a feature to build later, not a bug to polish.
 
-Known pre-existing limitation: list screens read module-scope arrays mutated in place, so a
-new post may only appear after navigating away and back. Fixed properly in Phase 4.
+Known pre-existing limitation in `apps/mobile`: list screens read module-scope arrays mutated
+in place, so a new post may only appear after navigating away and back. `apps/mobile-next`
+lists are live listeners and don't have this.
 
 ## Conventions
 
