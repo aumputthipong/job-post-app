@@ -19,7 +19,7 @@ packages/
 - [x] Phase 1 — backend running locally against the live Firebase project
 - [x] Phase 2 — every write goes through the API; no client writes to Firestore remain
 - [x] Phase 3 — Firestore rules deny all client writes (verified against the live project)
-- [~] Phase 4 — rebuilt frontend in `apps/mobile-next` (4.0–4.4 done: emulators, tests, scaffold, auth, read-only screens, favourite/rating/comments)
+- [~] Phase 4 — rebuilt frontend in `apps/mobile-next` (4.0–4.5 done: emulators, tests, scaffold, auth, read-only screens, favourite/rating/comments, posting)
 
 **Deployment is out of scope for now** — the API is meant to run locally during development only.
 

@@ -202,7 +202,26 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
      - Not verified: whether the on-screen keyboard covers the comment box. The emulator
        uses the PC keyboard, so the soft keyboard never opens. It's on the owner's
        checklist; the forms in 4.5 need the same answer anyway.
-   - 4.5 Create / edit / delete posts with image upload.
+   - 4.5 Create / edit / delete posts with image upload. **Built 2026-09-11** and walked
+     through on the emulator, for both kinds of post: validation messages, create with an
+     image (uploaded to Cloudinary `jobapp-dev`), edit with a replaced image, delete, and
+     the owner-only guard. The API logged no failed Cloudinary deletes, so the replaced and
+     deleted test images are gone. `npm test` 56/56. The owner's checklist is in PR #5.
+     - One form per post type on the shared schemas, which now carry Thai messages and
+       reject whitespace-only text. Category and employment type are chips with the legacy
+       dropdown values (existing posts store those strings).
+     - Legacy changed the image from the detail screen; here it's part of the edit form.
+       Owners get the same pencil button as before.
+     - *Upload gotcha:* SDK 57's `fetch` is Expo's, and it throws "Unsupported FormDataPart
+       implementation" for React Native's old `{ uri, name, type }` file part. Uploads send
+       an `expo-file-system` `File` instead.
+     - *Metro:* `react-native-keyboard-controller` hoisted to the root and would have
+       loaded apps/mobile's reanimated 3. The resolver now sends every package the app
+       declares to the app's own copy, which also covers the old React/RN special case.
+     - Keyboard: forms and the comment box use `KeyboardAwareScrollView`. Still unverified
+       with the on-screen keyboard (see 4.4), so it stays on the checklist.
+     - Screen titles moved to the `(app)` layout. A title set inside a screen missed its
+       loading/error/not-found states, which showed the route path instead.
    - 4.6 Own profile and avatar.
    - 4.7 Parity check against the old app, delete it, rename, update docs.
 

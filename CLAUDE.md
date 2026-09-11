@@ -100,11 +100,12 @@ the plan and its reasoning are in `MIGRATION.md`. In short: a new app in `apps/m
 on the current Expo SDK (TypeScript, Expo Router, NativeWind, TanStack Query, modular
 Firebase SDK) built screen by screen, with `apps/mobile` kept runnable as the reference until
 parity. Decided and not to be revisited without the owner: no in-place SDK upgrade, **no
-Zustand**, no notification tab in the new app. Steps 4.0–4.4 done (emulators + tests;
+Zustand**, no notification tab in the new app. Steps 4.0–4.5 done (emulators + tests;
 scaffold; auth with route guard; read-only screens on live Firestore listeners; favourite,
-rating, comment, Keep). Next is 4.5 (create/edit/delete posts with upload). `apps/mobile-next/
-metro.config.js` carries several monorepo resolution fixes — read its comments (and
-MIGRATION.md 4.2) before touching it.
+rating, comment, Keep; create/edit/delete posts with upload). Next is 4.6 (own profile and
+avatar). `apps/mobile-next/metro.config.js` carries several monorepo resolution fixes —
+read its comments (and MIGRATION.md 4.2, 4.5) before touching it. Uploads must send an
+`expo-file-system` `File`, not a `{ uri, name, type }` object (MIGRATION.md 4.5).
 
 Deferred by request: notification preferences (`EditNoti`) save fine, but nothing ever reads
 `User Noti` to send a notification. Treat it as a feature to build later, not a bug to polish.
