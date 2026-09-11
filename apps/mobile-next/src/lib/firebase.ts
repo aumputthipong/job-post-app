@@ -1,16 +1,16 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import { type FirebaseApp, getApps, initializeApp } from "firebase/app";
+import {
+  connectAuthEmulator,
+  // @ts-expect-error exported by the RN build; firebase's shared .d.ts omits it
+  getReactNativePersistence,
+  initializeAuth,
+} from "firebase/auth";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 
-// Points at the local emulators by default (see CLAUDE.md) — never at the
-// production project apps/mobile uses. Set EXPO_PUBLIC_USE_PRODUCTION_FIREBASE=1
-// to opt in deliberately.
-//
-// Auth isn't wired up here yet — initializeAuth()/getAuth() throw "Component
-// auth has not been registered yet" under Metro on this setup (confirmed: the
-// same call works fine in a plain Node script against the same firebase
-// package and emulator, so it's Metro/Hermes-specific, not a version or
-// monorepo-duplication issue). Left for step 4.2 to solve properly.
+// Emulators by default (see CLAUDE.md) — never the production project that
+// apps/mobile uses. Set EXPO_PUBLIC_USE_PRODUCTION_FIREBASE=1 to opt in.
 const useProduction = process.env.EXPO_PUBLIC_USE_PRODUCTION_FIREBASE === "1";
 
 const emulatorConfig = {
@@ -28,9 +28,8 @@ const productionConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-// "localhost" means the device itself, not the dev machine — derive the
-// emulator host from the address Expo served the bundle from instead.
-function getDevHost(): string {
+// "localhost" is the device itself — use the host Expo served the bundle from.
+export function getDevHost(): string {
   const hostUri = Constants.expoConfig?.hostUri ?? (Constants as any).manifest?.hostUri;
   return hostUri ? hostUri.split(":")[0]! : "localhost";
 }
@@ -41,8 +40,16 @@ function createApp(): FirebaseApp {
 }
 
 export const firebaseApp = createApp();
+
+// Persisted in AsyncStorage so a signed-in user stays signed in across restarts.
+export const auth = initializeAuth(firebaseApp, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
+
 export const db = getFirestore(firebaseApp);
 
 if (!useProduction) {
-  connectFirestoreEmulator(db, getDevHost(), 8080);
+  const host = getDevHost();
+  connectAuthEmulator(auth, `http://${host}:9099`, { disableWarnings: true });
+  connectFirestoreEmulator(db, host, 8080);
 }
