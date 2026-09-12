@@ -1,12 +1,19 @@
-import { Stack } from "expo-router";
-import { ScreenPlaceholder } from "@/components/screen-placeholder";
+import { router } from "expo-router";
+import { JobPostForm } from "@/components/post-form";
+import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
-// Replaces CreateFind.js. Lands in step 4.5.
 export default function NewJob() {
+  const { user } = useAuth();
+
   return (
-    <>
-      <Stack.Screen options={{ title: "สร้างประกาศงาน" }} />
-      <ScreenPlaceholder title="สร้างประกาศงาน" note="Phase 4.5" />
-    </>
+    <JobPostForm
+      initial={{ email: user?.email ?? "" }}
+      submitLabel="ลงประกาศ"
+      onSubmit={async (data) => {
+        const { id } = await api.createPost("find", data);
+        router.replace(`/jobs/${id}`);
+      }}
+    />
   );
 }

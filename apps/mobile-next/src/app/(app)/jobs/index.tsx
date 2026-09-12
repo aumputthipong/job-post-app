@@ -1,4 +1,3 @@
-import { Stack } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,7 +20,6 @@ export default function Jobs() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: "ประกาศหางาน" }} />
       {error ? (
         <ErrorState error={error} />
       ) : loading ? (
@@ -44,7 +42,7 @@ export default function Jobs() {
           keyboardShouldPersistTaps="handled"
         />
       )}
-      <Fab href="/jobs/new" />
+      <Fab href="/jobs/new" label="สร้างประกาศงาน" />
     </View>
   );
 }

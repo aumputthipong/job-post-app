@@ -19,11 +19,13 @@ config.resolver.nodeModulesPaths = [
 
 const isPackage = (name, pkg) => name === pkg || name.startsWith(`${pkg}/`);
 const from = (dir) => ({ originModulePath: path.join(dir, "package.json") });
+const appDeps = Object.keys(require("./package.json").dependencies);
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  // One React / React Native per bundle. Packages hoisted to the workspace root
-  // would otherwise pick up apps/mobile's React 18 / RN 0.72 from there.
-  if (["react", "react-dom", "react-native"].some((pkg) => isPackage(moduleName, pkg))) {
+  // Anything this app depends on resolves to its own copy. Packages hoisted to
+  // the workspace root would otherwise pick up apps/mobile's versions there
+  // (React 18, RN 0.72, reanimated 3).
+  if (appDeps.some((pkg) => isPackage(moduleName, pkg))) {
     return context.resolveRequest({ ...context, ...from(projectRoot) }, moduleName, platform);
   }
   // One react-native-css-interop: the copy nativewind's Metro/Babel plugins use,

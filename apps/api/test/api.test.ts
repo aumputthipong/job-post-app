@@ -98,6 +98,18 @@ describe("posts", () => {
     expect(res.statusCode).toBe(400);
   });
 
+  it("rejects a whitespace-only title with the form's Thai message", async () => {
+    const author = await createUser();
+    const res = await app.inject({
+      method: "POST",
+      url: "/posts/find",
+      headers: bearer(author),
+      payload: { ...jobPost(), jobTitle: "   " },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error.fieldErrors.jobTitle).toContain("กรุณากรอกหัวข้องาน");
+  });
+
   it("won't let another user edit or delete a post", async () => {
     const author = await createUser("author");
     const intruder = await createUser("intruder");

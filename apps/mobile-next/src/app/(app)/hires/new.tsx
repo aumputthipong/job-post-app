@@ -1,12 +1,19 @@
-import { Stack } from "expo-router";
-import { ScreenPlaceholder } from "@/components/screen-placeholder";
+import { router } from "expo-router";
+import { HirePostForm } from "@/components/post-form";
+import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
-// Replaces CreateHire.js. Lands in step 4.5.
 export default function NewHire() {
+  const { user } = useAuth();
+
   return (
-    <>
-      <Stack.Screen options={{ title: "สร้างประกาศฟรีแลนซ์" }} />
-      <ScreenPlaceholder title="สร้างประกาศรับจ้าง" note="Phase 4.5" />
-    </>
+    <HirePostForm
+      initial={{ email: user?.email ?? "" }}
+      submitLabel="ลงประกาศ"
+      onSubmit={async (data) => {
+        const { id } = await api.createPost("hire", data);
+        router.replace(`/hires/${id}`);
+      }}
+    />
   );
 }

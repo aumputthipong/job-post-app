@@ -1,4 +1,4 @@
-import { Link, Stack } from "expo-router";
+import { Link } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,7 +24,6 @@ export default function Hires() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: "Find Freelance" }} />
       {error ? (
         <ErrorState error={error} />
       ) : loading ? (
@@ -47,7 +46,7 @@ export default function Hires() {
           keyboardShouldPersistTaps="handled"
         />
       )}
-      <Fab href="/hires/new" />
+      <Fab href="/hires/new" label="สร้างประกาศฟรีแลนซ์" />
     </View>
   );
 }
