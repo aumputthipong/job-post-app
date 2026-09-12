@@ -1,4 +1,4 @@
-import type { RegisterInput } from "@jobapp-platform/shared";
+import type { PostKind, RegisterInput } from "@jobapp-platform/shared";
 import { auth, getDevHost } from "./firebase";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? `http://${getDevHost()}:4000`;
@@ -58,4 +58,16 @@ async function request<T>(
 export const api = {
   register: (input: RegisterInput) =>
     request<{ uid: string }>("/auth/register", { method: "POST", body: input, signedIn: false }),
+
+  toggleFavorite: (postKind: PostKind, postId: string) =>
+    request<{ favorited: boolean }>("/favorites/toggle", { method: "POST", body: { postKind, postId } }),
+
+  rate: (postKind: PostKind, postId: string, rating: number) =>
+    request("/ratings", { method: "PUT", body: { postKind, postId, rating } }),
+
+  addComment: (postKind: PostKind, postId: string, comment: string) =>
+    request<{ id: string }>(`/comments/${postKind}`, { method: "POST", body: { postId, comment } }),
+
+  deleteComment: (postKind: PostKind, id: string) =>
+    request(`/comments/${postKind}/${id}`, { method: "DELETE" }),
 };

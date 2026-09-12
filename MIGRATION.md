@@ -188,7 +188,20 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
        the push animation, e.g. reopening the job list. It isn't Fast Refresh only, as first
        noted. `numberOfLines={1}` fixes it (0/6 clipped vs 4/4 before). Single-line labels
        that size to their text get it; full-width text isn't affected.
-   - 4.4 Favourite, rating, comment, Keep.
+   - 4.4 Favourite, rating, comment, Keep. **Built 2026-09-11** and walked through on the
+     emulator. Tested: favourite on/off, Keep listing, rating and a live average, one-tap
+     comment send, deleting your own comment, and the error path with the API stopped
+     (alert, then the control reverts). The owner's run-through is a checklist in PR #4.
+     - Same behaviour as legacy: favourites are jobs only (FavoriteJobs has no kind field);
+       owners can't rate their own post; comments keep the 100-character limit.
+     - Beyond legacy: the star shows whether the job is saved, and you can delete your own
+       comments (the API allowed it, but the old UI never offered it).
+     - Writes go through the API, and the Firestore listener brings the result back. The
+       star and rating show the new value at once and drop the override when the listener
+       confirms it.
+     - Not verified: whether the on-screen keyboard covers the comment box. The emulator
+       uses the PC keyboard, so the soft keyboard never opens. It's on the owner's
+       checklist; the forms in 4.5 need the same answer anyway.
    - 4.5 Create / edit / delete posts with image upload.
    - 4.6 Own profile and avatar.
    - 4.7 Parity check against the old app, delete it, rename, update docs.

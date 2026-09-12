@@ -100,9 +100,9 @@ the plan and its reasoning are in `MIGRATION.md`. In short: a new app in `apps/m
 on the current Expo SDK (TypeScript, Expo Router, NativeWind, TanStack Query, modular
 Firebase SDK) built screen by screen, with `apps/mobile` kept runnable as the reference until
 parity. Decided and not to be revisited without the owner: no in-place SDK upgrade, **no
-Zustand**, no notification tab in the new app. Steps 4.0–4.3 done (emulators + tests;
-scaffold; auth with route guard; read-only screens on live Firestore listeners). Next is
-4.4 (favourite, rating, comment, Keep). `apps/mobile-next/
+Zustand**, no notification tab in the new app. Steps 4.0–4.4 done (emulators + tests;
+scaffold; auth with route guard; read-only screens on live Firestore listeners; favourite,
+rating, comment, Keep). Next is 4.5 (create/edit/delete posts with upload). `apps/mobile-next/
 metro.config.js` carries several monorepo resolution fixes — read its comments (and
 MIGRATION.md 4.2) before touching it.
 

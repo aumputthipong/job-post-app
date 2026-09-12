@@ -6,6 +6,8 @@ import { Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from "reac
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CommentList } from "@/components/comment-list";
 import { Avatar, PostImage } from "@/components/media";
+import { RatePost } from "@/components/post-actions";
+import { useAuth } from "@/lib/auth-context";
 import { EmptyState, ErrorState, InfoRow, Loading, Section, Stars } from "@/components/ui";
 import { fullName, useHirePost, useRatingSummary, useUser } from "@/lib/data";
 
@@ -16,13 +18,18 @@ export default function HireDetail() {
   const rating = useRatingSummary("hire", id);
   const [viewerOpen, setViewerOpen] = useState(false);
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   if (error) return <ErrorState error={error} />;
   if (loading) return <Loading />;
   if (!hire) return <EmptyState icon="alert-circle-outline" message="ไม่พบประกาศนี้ อาจถูกลบไปแล้ว" />;
 
   return (
-    <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: insets.bottom }}>
+    <ScrollView
+      className="flex-1 bg-background"
+      contentContainerStyle={{ paddingBottom: insets.bottom }}
+      keyboardShouldPersistTaps="handled"
+    >
       <Stack.Screen options={{ title: "รายละเอียดฟรีแลนซ์" }} />
 
       <Link href={`/users/${hire.postById}`} asChild>
@@ -73,6 +80,10 @@ export default function HireDetail() {
             <Text className="text-text-subtle">ไม่มีไฟล์แนบ</Text>
           )}
         </Section>
+
+        {user?.uid !== hire.postById ? (
+          <RatePost kind="hire" postId={hire.id} title="ให้คะแนนฟรีแลนซ์คนนี้" />
+        ) : null}
 
         <View className="mb-5 h-px bg-border" />
         <CommentList kind="hire" postId={hire.id} />

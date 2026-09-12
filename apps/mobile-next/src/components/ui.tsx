@@ -19,6 +19,26 @@ export function Stars({ value, size = 16 }: { value: number; size?: number }) {
   );
 }
 
+export function StarPicker({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <View className="flex-row">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <TouchableOpacity key={n} className="px-1" disabled={disabled} onPress={() => onChange(n)} hitSlop={4}>
+          <Ionicons name={value >= n ? "star" : "star-outline"} size={34} color="#FF9800" />
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
 export function SearchBar({
   value,
   onChangeText,

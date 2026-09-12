@@ -1,6 +1,7 @@
 import {
   COLLECTIONS,
   type Comment,
+  type Favorite,
   type HirePost,
   type JobPost,
   type PostKind,
@@ -69,6 +70,18 @@ export function useUsers() {
   const result = useLiveQuery(["users"], listen<UserDoc>(collection(db, COLLECTIONS.USER_INFO)));
   const byId = new Map((result.data ?? []).map((u) => [u.id, u]));
   return { ...result, byId };
+}
+
+/** Post ids the user has favourited. FavoriteJobs doesn't record the post kind; only jobs use it. */
+export function useFavoriteIds(userId: string | undefined) {
+  const result = useLiveQuery(
+    ["favorites", userId],
+    userId
+      ? listen<Doc<Favorite>>(query(collection(db, COLLECTIONS.FAVORITE_JOBS), where("userId", "==", userId)))
+      : null,
+  );
+  const ids = new Set((result.data ?? []).map((f) => f.postId));
+  return { ...result, ids };
 }
 
 export function useComments(kind: PostKind, postId: string | undefined) {
