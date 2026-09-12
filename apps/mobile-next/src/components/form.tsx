@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import {
   ActivityIndicator,
   Text,
@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type TextFieldProps = TextInputProps & {
   label: string;
@@ -152,6 +154,17 @@ export function ListField({
   );
 }
 
+/** Opens the system photo picker with a crop step; resolves to a local URI, or undefined if cancelled. */
+export async function pickImage(aspect: [number, number]) {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    allowsEditing: true,
+    aspect,
+    quality: 0.8,
+  });
+  return result.canceled ? undefined : result.assets[0].uri;
+}
+
 /** Shows the current image (remote or just picked) and lets the user pick another. */
 export function ImageField({
   label,
@@ -163,13 +176,8 @@ export function ImageField({
   onChange: (localUri: string) => void;
 }) {
   const pick = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
-    if (!result.canceled) onChange(result.assets[0].uri);
+    const picked = await pickImage([4, 3]);
+    if (picked) onChange(picked);
   };
 
   return (
@@ -198,6 +206,52 @@ export function ImageField({
         )}
       </TouchableOpacity>
     </View>
+  );
+}
+
+/** Scrolling page for a long form; keeps the focused field above the keyboard. */
+export function FormScrollView({ children }: { children: ReactNode }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: "#F5F7FA" }}
+      contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
+      keyboardShouldPersistTaps="handled"
+      bottomOffset={24}
+    >
+      {/* One element child: this package is root-hoisted and types children
+          with the older @types/react (see providers.tsx). */}
+      <View>{children}</View>
+    </KeyboardAwareScrollView>
+  );
+}
+
+export function FormSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View className="mb-4 rounded-card bg-surface p-5" style={{ elevation: 2 }}>
+      <Text className="mb-4 text-lg font-bold text-primary">{title}</Text>
+      {children}
+    </View>
+  );
+}
+
+/** Submit button, with a summary line above it while any field has an error. */
+export function SubmitButton({
+  title,
+  onPress,
+  loading,
+  hasErrors,
+}: {
+  title: string;
+  onPress: () => void;
+  loading?: boolean;
+  hasErrors?: boolean;
+}) {
+  return (
+    <>
+      {hasErrors ? <Text className="mb-3 text-center text-red-500">กรุณากรอกข้อมูลที่ยังขาดให้ครบ</Text> : null}
+      <PrimaryButton title={title} onPress={onPress} loading={loading} />
+    </>
   );
 }
 

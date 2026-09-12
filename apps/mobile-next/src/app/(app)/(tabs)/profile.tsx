@@ -1,22 +1,93 @@
+import { Ionicons } from "@expo/vector-icons";
 import { signOut } from "firebase/auth";
-import { Text, View } from "react-native";
+import { Link } from "expo-router";
+import { useState } from "react";
+import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { PrimaryButton } from "@/components/form";
+import { pickImage } from "@/components/form";
+import { ProfileCard, ProfileDetails } from "@/components/profile";
+import { EmptyState, ErrorState, Loading } from "@/components/ui";
+import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { useUser } from "@/lib/data";
 import { auth } from "@/lib/firebase";
+import { queryClient } from "@/lib/query-client";
 
-// Minimal until 4.6 (profile + avatar); sign-out is here now so the auth
-// route guard can be exercised end to end.
 export default function Profile() {
   const { user } = useAuth();
+  const { data: profile, loading, error } = useUser(user?.uid);
+  const [uploading, setUploading] = useState(false);
+
+  // Uploads as soon as a photo is picked, as the legacy screen did.
+  const changePhoto = async () => {
+    const uri = await pickImage([1, 1]);
+    if (!uri) return;
+    setUploading(true);
+    try {
+      const { url, publicId } = await api.uploadImage(uri, "profiles");
+      await api.updateMe({ imageUrl: url, imagePublicId: publicId });
+    } catch (e) {
+      Alert.alert("อัปโหลดรูปไม่สำเร็จ", (e as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const confirmSignOut = () =>
+    Alert.alert("ออกจากระบบ?", undefined, [
+      { text: "ยกเลิก", style: "cancel" },
+      {
+        text: "ออกจากระบบ",
+        style: "destructive",
+        onPress: async () => {
+          await signOut(auth);
+          // Nothing cached for this account should show for the next one.
+          queryClient.clear();
+        },
+      },
+    ]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 justify-center px-8">
-        <Text className="text-lg font-semibold text-primary">โปรไฟล์</Text>
-        <Text className="mb-8 mt-1 text-text-subtle">{user?.email}</Text>
-        <PrimaryButton title="ออกจากระบบ" onPress={() => signOut(auth)} />
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <View className="flex-row items-center justify-between px-6 pb-2 pt-5">
+        <Text className="text-2xl font-bold text-primary">โปรไฟล์</Text>
+        <TouchableOpacity onPress={confirmSignOut} className="flex-row items-center py-2" hitSlop={8}>
+          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+          <Text className="ml-1 font-semibold text-red-500">ออกจากระบบ</Text>
+        </TouchableOpacity>
       </View>
+
+      {error ? (
+        <ErrorState error={error} />
+      ) : loading ? (
+        <Loading />
+      ) : !profile ? (
+        <EmptyState icon="person-outline" message="ไม่พบโปรไฟล์ของคุณ" />
+      ) : (
+        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+          <ProfileCard
+            user={profile}
+            avatarAction={
+              <TouchableOpacity
+                onPress={changePhoto}
+                disabled={uploading}
+                className="absolute bottom-0 right-0 h-9 w-9 items-center justify-center rounded-full border-2 border-surface bg-primary"
+                accessibilityLabel="เปลี่ยนรูปโปรไฟล์"
+              >
+                {uploading ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Ionicons name="camera" size={16} color="#FFFFFF" />}
+              </TouchableOpacity>
+            }
+          >
+            <Link href="/edit-profile" asChild>
+              <TouchableOpacity className="mt-4 flex-row items-center rounded-full border border-primary px-5 py-2">
+                <Ionicons name="create-outline" size={16} color="#083C6B" />
+                <Text className="ml-2 font-semibold text-primary">แก้ไขโปรไฟล์</Text>
+              </TouchableOpacity>
+            </Link>
+          </ProfileCard>
+          <ProfileDetails user={profile} />
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }

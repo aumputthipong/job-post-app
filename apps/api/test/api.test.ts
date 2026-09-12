@@ -302,6 +302,18 @@ describe("users", () => {
     const res = await app.inject({ method: "GET", url: "/users/me", headers: bearer(user) });
     expect(res.statusCode).toBe(404);
   });
+
+  it("refuses to blank out a name, in the form's Thai", async () => {
+    const user = await createUser();
+    const res = await app.inject({
+      method: "PUT",
+      url: "/users/me",
+      headers: bearer(user),
+      payload: { firstName: " " },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error.fieldErrors.firstName).toContain("กรุณากรอกชื่อ");
+  });
 });
 
 describe("registration", () => {

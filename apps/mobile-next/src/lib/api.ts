@@ -5,6 +5,7 @@ import type {
   RegisterInput,
   UpdateHirePostInput,
   UpdateJobPostInput,
+  UpdateUserProfileInput,
 } from "@jobapp-platform/shared";
 import { File } from "expo-file-system";
 import { auth, getDevHost } from "./firebase";
@@ -90,6 +91,8 @@ export const api = {
     request(`/posts/${postKind}/${id}`, { method: "PUT", body: data }),
 
   deletePost: (postKind: PostKind, id: string) => request(`/posts/${postKind}/${id}`, { method: "DELETE" }),
+
+  updateMe: (data: UpdateUserProfileInput) => request("/users/me", { method: "PUT", body: data }),
 
   /** Uploads a local image (file:// URI) to Cloudinary through the API. */
   uploadImage: (uri: string, folder: "posts" | "profiles") => {
