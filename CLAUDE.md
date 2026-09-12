@@ -9,7 +9,7 @@ Read `MIGRATION.md` for the full history and the reasoning behind each decision.
 
 ## Layout
 
-- `apps/mobile` — Expo SDK 49 / RN 0.72, still JavaScript, Redux + React Navigation 6
+- `apps/mobile` — Expo SDK 57 / RN 0.86, TypeScript, Expo Router, NativeWind, TanStack Query
 - `apps/api` — Fastify 5 + TypeScript + firebase-admin, run with `tsx`
 - `packages/shared` — Zod schemas + `COLLECTIONS` constants used by both apps
 - `firestore.rules` / `storage.rules` — source of truth, but see "Publishing rules"
@@ -24,13 +24,13 @@ npm run emulators                             # Firebase Auth + Firestore emulat
 npm run seed                                  # sample data; every account's password is password123
 npm run api:emulators                         # API on :4000 against the emulators
 
-npm run mobile                                # Metro for apps/mobile-next; press `a` for Android
+npm run mobile                                # Metro for apps/mobile; press `a` for Android
 npm test                                      # starts emulators, runs API + rules tests, stops them
 npm run typecheck -w @jobapp-platform/api
 
 # Against the real project — only when that is the point.
 npm run dev -w @jobapp-platform/api           # API on :4000 against log-in-d8f2c
-npm run start -w @jobapp-platform/mobile      # Metro; open in Expo Go
+# the app needs apps/mobile/.env.local (see .env.example) to leave the emulators
 ```
 
 `npm test` empties the emulators between cases, so it can't share them with someone testing
@@ -45,28 +45,30 @@ JDK bundled with Android Studio), so the machine's default `java` can stay at 17
 
 Headless check that the app still bundles:
 `cd apps/mobile && npx expo export --platform android --output-dir <tmp>`
+(the old SDK 49 app is gone; `git log -- apps/mobile-legacy` finds it if a comparison is needed)
 
 The mobile app finds the API through the host Expo served the bundle from
-(`apps/mobile/api/config.js`), so no IP is hardcoded.
+(`getDevHost()` in `src/lib/firebase.ts`), so no IP is hardcoded.
 
 ## Architecture (settled — don't re-litigate)
 
-- **Reads** stay on the client via Firestore `onSnapshot` (`apps/mobile/data/liveCollection.js`,
-  subscribes only after login).
+- **Reads** stay on the client via Firestore `onSnapshot`, written into the TanStack Query
+  cache (`src/lib/live-query.ts`), so screens share one listener and one cached value.
 - **Writes** all go through the API. No screen writes to Firestore directly any more.
 - **Firestore rules** allow signed-in reads and deny every client write (Phase 3, verified).
   The API uses the Admin SDK, which bypasses rules.
 - **Media** goes to Cloudinary via `POST /uploads`. Firebase Storage is dead on this project
   (Spark plan, no billing account: 402 to clients, "billing account absent" to Admin SDK).
   The owner has no credit card, so Blaze is not an option. Old image URLs are dead;
-  `components/PostImage.js` falls back to a placeholder.
+  `PostImage` falls back to a placeholder.
 - Every API route takes the user id from the verified ID token, never from the body.
 
 ## Secrets (all gitignored — never commit)
 
 - `apps/api/serviceAccountKey.json` — Firebase Admin key
 - `apps/api/.env` — `PORT`, `GOOGLE_APPLICATION_CREDENTIALS`, `CLOUDINARY_*`
-- `apps/mobile/database/firebaseDB.js` — Firebase web config
+- `apps/mobile/.env.local` — Firebase web config, only needed to run against production
+  (the retired app's copy is kept at `apps/mobile-legacy/database/firebaseDB.js`, gitignored)
 
 ## Working with the live project — read before touching data
 
@@ -75,7 +77,7 @@ The mobile app finds the API through the host Expo served the bundle from
   to start with only one emulator variable set, or with a non-demo project id. `test/setup.ts`
   stops the test run outright if the emulators aren't in use, because the production key sits in
   `apps/api/` and the tests wipe the database between cases.
-- The original `apps/mobile` app still talks to production; only touch it deliberately.
+- The app talks to the emulators unless `apps/mobile/.env.local` says otherwise.
 - **Never test `/auth/register` with a real address.** A "duplicate email" test once created
   a real account because the address turned out not to be registered.
 - Deleting Auth users and publishing security rules from scripts are blocked by the
@@ -93,34 +95,35 @@ console on the Spark plan; that's harmless while the bucket is unreachable.
 
 ## Android emulator notes (Windows)
 
-- AVD `Medium_Phone_API_36.1`; open the app with
+- AVD `Medium_Phone`; open the app with
   `adb shell am start -a android.intent.action.VIEW -d "exp://<LAN-IP>:8081"`
 - **Never run `adb shell pm clear host.exp.exponent`** — it corrupts Expo Go
   ("Failed to load all assets"). If that happens, `adb uninstall host.exp.exponent` and let
-  `npx expo start --android --go` reinstall the SDK 49 build.
+  `npx expo start --android --go` reinstall the matching Expo Go build.
 - `expo start` may open a chooser page in Chrome; tap "Expo Go".
 
 ## Status and what's next
 
-Phases 0–3 are done and tested in the emulator by the owner. **Phase 4 is in progress** —
-the plan and its reasoning are in `MIGRATION.md`. In short: a new app in `apps/mobile-next`
-on the current Expo SDK (TypeScript, Expo Router, NativeWind, TanStack Query, modular
-Firebase SDK) built screen by screen, with `apps/mobile` kept runnable as the reference until
-parity. Decided and not to be revisited without the owner: no in-place SDK upgrade, **no
-Zustand**, no notification tab in the new app. Steps 4.0–4.6 done (emulators + tests;
-scaffold; auth with route guard; read-only screens on live Firestore listeners; favourite,
-rating, comment, Keep; create/edit/delete posts with upload; own profile and avatar). Next
-is 4.7 (parity check, then retire apps/mobile — ask the owner before deleting anything).
-`apps/mobile-next/metro.config.js` carries several monorepo resolution fixes —
-read its comments (and MIGRATION.md 4.2, 4.5) before touching it. Uploads must send an
-`expo-file-system` `File`, not a `{ uri, name, type }` object (MIGRATION.md 4.5).
+All four phases are built. **Phase 4 ended with 4.7**: the SDK 49 app was deleted and the
+rebuilt one took its place at `apps/mobile`. Decided and not to be revisited without the
+owner: no in-place SDK upgrade, **no Zustand**, no notification tab.
+
+Still open, and the owner's call:
+- They review and test PRs #3–#9; nothing is merged to `main` yet.
+- The new app has only run against the emulators. One run against the real project is
+  wanted before trusting it there (MIGRATION.md 4.7).
+
+`apps/mobile/metro.config.js` carries several monorepo resolution fixes — read its comments
+(and MIGRATION.md 4.2, 4.5) before touching it; the workspace root still holds React 18 /
+RN 0.72 / expo 49 as peers of the old async-storage that `apps/api`'s firebase brings in.
+Uploads must send an `expo-file-system` `File`, not a `{ uri, name, type }` object
+(MIGRATION.md 4.5).
 
 Deferred by request: notification preferences (`EditNoti`) save fine, but nothing ever reads
 `User Noti` to send a notification. Treat it as a feature to build later, not a bug to polish.
 
-Known pre-existing limitation in `apps/mobile`: list screens read module-scope arrays mutated
-in place, so a new post may only appear after navigating away and back. `apps/mobile-next`
-lists are live listeners and don't have this.
+The legacy app's lists read module-scope arrays mutated in place, so a new post only
+appeared after navigating away and back. The rebuilt lists are live listeners; that's gone.
 
 ## Conventions
 

@@ -234,8 +234,8 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
      - One test avatar stays in Cloudinary `jobapp-dev/profiles`. Somchai's seed photo is
        an external URL, so there was nothing to replace and delete.
    - 4.7 Parity check against the old app, delete it, rename, update docs.
-     **Parity check done 2026-09-11** (by reading every legacy screen against the new routes).
-     Deleting and renaming wait for the owner.
+     **Parity check done 2026-09-11** (by reading every legacy screen against the new routes);
+     **the app retired 2026-09-12**.
 
      | Legacy screen | New route | Notes |
      | --- | --- | --- |
@@ -252,16 +252,25 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
      | OtherProfileScreen | `users/[id]` | Bachelor shows the degree, not the email |
      | NotificationScreen / EditNoti | — | Deferred by the owner, not ported |
 
-     Before deleting apps/mobile:
-     - The owner runs through the checklists in PRs #3–#6.
-     - The new app has only ever run against the emulators. Run it once against the real
-       project (`apps/mobile-next/.env.example` lists the variables; the API must run
-       in production mode) and browse. Real documents may have shapes the seed doesn't,
-       such as missing fields, numbers where strings are expected, or dead image URLs.
-     - After deleting: rename apps/mobile-next → apps/mobile. Then drop what only existed
-       because two apps shared one `node_modules`: the dependency pin in
-       `metro.config.js`, the `as any` in `providers.tsx`, and the local
-       `nativewind-env.d.ts`. Then update the README and scripts.
+     Retiring it (all in one PR, nothing merged to `main` until the owner is happy):
+     - The SDK 49 app is deleted and `apps/mobile-next` renamed into its place, so the app
+       is `apps/mobile` again and `@jobapp-platform/mobile` is its package name once more.
+       `git log -- apps/mobile-legacy` reaches the old code if it is ever needed.
+     - Its gitignored files stay on disk at `apps/mobile-legacy/`, because the Firebase web
+       config there is what an owner needs to fill in `apps/mobile/.env.local`. Delete the
+       folder once those values are copied.
+     - *The workarounds mostly had to stay.* They were blamed on the legacy app, but after
+       deleting it the workspace root still holds React 18, RN 0.72 and expo 49: they are
+       peers of the old `@react-native-async-storage/async-storage` that `apps/api`'s
+       `firebase` dependency pulls in (the rules tests need the client SDK). So the Metro
+       dependency pin stays, and so does the local `nativewind-env.d.ts` — which now also
+       has to cover `react-native-safe-area-context`, because with the legacy app gone
+       npm hoisted nativewind and safe-area-context to the root. Only the `as any` in
+       `providers.tsx` could go.
+     - Still open, the owner's call: the app has only ever run against the emulators. Run it
+       once against the real project (`apps/mobile/.env.example` lists the variables; the
+       API must run in production mode) and browse. Real documents may have shapes the seed
+       doesn't — missing fields, numbers where strings are expected, dead image URLs.
 
    Route tree, mapped from `navigation/MyNavigator.js`:
 
