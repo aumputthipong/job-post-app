@@ -234,6 +234,34 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
      - One test avatar stays in Cloudinary `jobapp-dev/profiles`. Somchai's seed photo is
        an external URL, so there was nothing to replace and delete.
    - 4.7 Parity check against the old app, delete it, rename, update docs.
+     **Parity check done 2026-09-11** (by reading every legacy screen against the new routes).
+     Deleting and renaming wait for the owner.
+
+     | Legacy screen | New route | Notes |
+     | --- | --- | --- |
+     | Welcome / Login / Register | `(auth)/welcome`, `login`, `register` | Same fields, confirm password included; validation shared with the API |
+     | HomeScreen | `(tabs)/index` | Same |
+     | FindJobScreen | `jobs/index` | Legacy searched title only; now also position and agency |
+     | HireJobScreen | `hires/index` | Legacy searched title only; now also category and author |
+     | FindJobDetailScreen | `jobs/[id]` | Rating, comments, favourite, owner edit. Star shows saved state; you can delete your own comments; image change moved to the edit form |
+     | HireJobDetailScreen | `hires/[id]` | Resume viewer, rating, comments, owner edit. Same changes as above |
+     | CreateFind / CreateHire | `jobs/new`, `hires/new` | Chips instead of dropdowns, same values |
+     | EditFind / EditHire | `jobs/[id]/edit`, `hires/[id]/edit` | Delete lives here too; image can be replaced; owner-only |
+     | KeepScreen | `(tabs)/keep` | Same (jobs only) |
+     | MyProFileScreen | `(tabs)/profile`, `edit-profile` | Avatar, edit, sign-out. Email read-only (legacy edits were never saved) |
+     | OtherProfileScreen | `users/[id]` | Bachelor shows the degree, not the email |
+     | NotificationScreen / EditNoti | — | Deferred by the owner, not ported |
+
+     Before deleting apps/mobile:
+     - The owner runs through the checklists in PRs #3–#6.
+     - The new app has only ever run against the emulators. Run it once against the real
+       project (`apps/mobile-next/.env.example` lists the variables; the API must run
+       in production mode) and browse. Real documents may have shapes the seed doesn't,
+       such as missing fields, numbers where strings are expected, or dead image URLs.
+     - After deleting: rename apps/mobile-next → apps/mobile. Then drop what only existed
+       because two apps shared one `node_modules`: the dependency pin in
+       `metro.config.js`, the `as any` in `providers.tsx`, and the local
+       `nativewind-env.d.ts`. Then update the README and scripts.
 
    Route tree, mapped from `navigation/MyNavigator.js`:
 
