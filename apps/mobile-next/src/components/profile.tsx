@@ -19,8 +19,7 @@ export function ProfileCard({
   return (
     <View className="m-4 items-center rounded-card bg-surface p-6" style={{ elevation: 3 }}>
       <View>
-        {/* Keyed so a new photo gets a fresh load instead of the old one's error state. */}
-        <Avatar key={user.imageUrl} uri={user.imageUrl} name={fullName(user)} size="lg" />
+        <Avatar uri={user.imageUrl} name={fullName(user)} size="lg" />
         {avatarAction}
       </View>
       <Text className="mt-3 text-2xl font-bold text-primary">{fullName(user)}</Text>
