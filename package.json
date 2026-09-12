@@ -11,7 +11,7 @@
     "test": "node scripts/firebase.mjs emulators:exec --project demo-jobapp --only auth,firestore \"npm run test:run -w @jobapp-platform/api\"",
     "seed": "npm run seed -w @jobapp-platform/api",
     "api:emulators": "npm run dev:emulators -w @jobapp-platform/api",
-    "mobile": "npm run start -w @jobapp-platform/mobile-next"
+    "mobile": "npm run start -w @jobapp-platform/mobile"
   },
   "devDependencies": {
     "firebase-tools": "^15.30.0"

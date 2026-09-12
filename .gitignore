@@ -17,8 +17,11 @@ apps/mobile/ios/
 apps/api/dist/
 apps/api/build/
 
+# what's left of the retired SDK 49 app: its Firebase web config, kept so the
+# values are still to hand. Safe to delete the folder once they're copied out.
+apps/mobile-legacy/
+
 # secrets — never commit real Firebase config or service account keys
-apps/mobile/database/firebaseDB.js
 apps/api/**/serviceAccountKey.json
 apps/api/**/*firebase-adminsdk*.json
 .env

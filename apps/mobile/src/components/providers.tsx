@@ -9,11 +9,8 @@ export function Providers({ children }: PropsWithChildren) {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
-        {/* react-query is hoisted to root, so its types see a duplicate, older
-            @types/react (18, pinned by legacy apps/mobile) — `as any` sidesteps
-            that; not a real incompatibility. */}
         <QueryClientProvider client={queryClient}>
-          {(<AuthProvider>{children}</AuthProvider>) as any}
+          <AuthProvider>{children}</AuthProvider>
         </QueryClientProvider>
       </KeyboardProvider>
     </GestureHandlerRootView>

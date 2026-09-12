@@ -1,8 +1,8 @@
 /**
  * NativeWind's own `className` typing (normally pulled in via `/// <reference
- * types="nativewind/types" />`) doesn't apply here: that package is hoisted to
- * the workspace root, so it augments the "react-native" module resolved from
- * THERE (18.x, pinned by legacy apps/mobile) — not this app's own nested
+ * types="nativewind/types" />`) doesn't apply here: nativewind sits in the
+ * workspace root, so it augments the "react-native" resolved from THERE — the
+ * 0.72 copy that apps/api's firebase dependency drags in — not this app's own
  * react-native. Declared locally instead, so it resolves "react-native" the
  * same way every .tsx file here does. Content copied from
  * react-native-css-interop@0.2.6's types.d.ts.
@@ -74,5 +74,13 @@ declare module "react-native" {
   }
   interface ModalBaseProps {
     presentationClassName?: string;
+  }
+}
+
+// Same reason, for the SafeAreaView the auth and tab screens use: nativewind
+// augments the copy it resolves from the workspace root, not the one here.
+declare module "react-native-safe-area-context" {
+  interface NativeSafeAreaViewProps {
+    className?: string;
   }
 }
