@@ -8,12 +8,13 @@ const PLACEHOLDER = require("@/assets/images/PostPlaceholder.png");
 // answers 402 on this project — fall back to the placeholder instead of a gap.
 // Sizing goes on the wrapping View: expo-image doesn't take className.
 export function PostImage({ uri, className }: { uri?: string; className?: string }) {
-  const [failed, setFailed] = useState(false);
+  // The URI that failed, not a flag: a replaced image must be tried again.
+  const [failedUri, setFailedUri] = useState<string>();
   return (
     <View className={`overflow-hidden bg-border ${className ?? ""}`}>
       <Image
-        source={uri && !failed ? { uri } : PLACEHOLDER}
-        onError={() => setFailed(true)}
+        source={uri && failedUri !== uri ? { uri } : PLACEHOLDER}
+        onError={() => setFailedUri(uri)}
         contentFit="cover"
         transition={150}
         style={{ width: "100%", height: "100%" }}
@@ -34,7 +35,7 @@ export function Avatar({
   name?: string;
   size?: keyof typeof sizes;
 }) {
-  const [failed, setFailed] = useState(false);
+  const [failedUri, setFailedUri] = useState<string>();
   const px = sizes[size];
   const initials =
     (name ?? "")
@@ -45,11 +46,11 @@ export function Avatar({
       .join("")
       .toUpperCase() || "?";
 
-  if (uri && !failed) {
+  if (uri && failedUri !== uri) {
     return (
       <Image
         source={{ uri }}
-        onError={() => setFailed(true)}
+        onError={() => setFailedUri(uri)}
         style={{ width: px, height: px, borderRadius: px / 2, backgroundColor: "#E4E9F2" }}
       />
     );

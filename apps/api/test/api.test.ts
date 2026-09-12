@@ -60,6 +60,18 @@ describe("authentication", () => {
     });
     expect(res.statusCode).toBe(401);
   });
+
+  it("says so in Thai, since the app shows the message as it comes", async () => {
+    const missing = await app.inject({ method: "GET", url: "/users/me" });
+    const invalid = await app.inject({
+      method: "GET",
+      url: "/users/me",
+      headers: { authorization: "Bearer not-a-token" },
+    });
+
+    expect(missing.json().error).toContain("เข้าสู่ระบบ");
+    expect(invalid.json().error).toContain("เข้าสู่ระบบใหม่");
+  });
 });
 
 describe("posts", () => {
@@ -147,6 +159,27 @@ describe("posts", () => {
     expect(res.statusCode).toBe(200);
     const doc = await db.collection(COLLECTIONS.JOB_POSTS).doc(id).get();
     expect(doc.data()?.wage).toBe("45000");
+  });
+
+  it("deletes a post with more dependents than one write batch holds", async () => {
+    // A batch takes 500 operations; the route has to split the work up.
+    const author = await createUser("author");
+    const id = await createJob(author);
+
+    const comments = db.collection(COLLECTIONS.JOB_COMMENTS);
+    for (let written = 0; written < 600; written += 200) {
+      const batch = db.batch();
+      for (let i = 0; i < 200; i += 1) {
+        batch.set(comments.doc(), { postId: id, userId: author.uid, comment: `c${written + i}` });
+      }
+      await batch.commit();
+    }
+    expect(await countWhere(COLLECTIONS.JOB_COMMENTS, "postId", id)).toBe(600);
+
+    const res = await app.inject({ method: "DELETE", url: `/posts/find/${id}`, headers: bearer(author) });
+
+    expect(res.statusCode).toBe(200);
+    expect(await countWhere(COLLECTIONS.JOB_COMMENTS, "postId", id)).toBe(0);
   });
 
   it("deleting a post also removes its comments, ratings and favourites", async () => {

@@ -23,7 +23,7 @@ export async function requireAuth(request: FastifyRequest, reply: FastifyReply) 
   const token = header?.startsWith("Bearer ") ? header.slice("Bearer ".length) : undefined;
 
   if (!token) {
-    return reply.code(401).send({ error: "Missing Authorization: Bearer <idToken> header" });
+    return reply.code(401).send({ error: "กรุณาเข้าสู่ระบบก่อน" });
   }
 
   try {
@@ -31,6 +31,7 @@ export async function requireAuth(request: FastifyRequest, reply: FastifyReply) 
     request.userId = decoded.uid;
   } catch (err) {
     request.log.warn({ err }, "ID token verification failed");
-    return reply.code(401).send({ error: "Invalid or expired ID token" });
+    // The app shows this as-is; a token that can't be verified means signing in again.
+    return reply.code(401).send({ error: "เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่" });
   }
 }

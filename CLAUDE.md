@@ -33,6 +33,13 @@ npm run dev -w @jobapp-platform/api           # API on :4000 against log-in-d8f2
 npm run start -w @jobapp-platform/mobile      # Metro; open in Expo Go
 ```
 
+`npm test` empties the emulators between cases, so it can't share them with someone testing
+the app. To run it during a session, start a second set on other ports: copy `firebase.json`
+to a scratch file with different `auth`, `firestore`, `hub` and `logging` ports, then
+`node scripts/firebase.mjs emulators:exec --config <that file> --project demo-jobapp --only
+auth,firestore "npm run test:run -w @jobapp-platform/api"`. The tests read the hosts from the
+environment `emulators:exec` sets, so nothing else needs changing.
+
 The emulators need Java 21+. `scripts/firebase.mjs` finds one on its own (JAVA_HOME, then the
 JDK bundled with Android Studio), so the machine's default `java` can stay at 17.
 

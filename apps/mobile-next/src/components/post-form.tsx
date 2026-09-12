@@ -6,7 +6,7 @@ import {
   type PostKind,
 } from "@jobapp-platform/shared";
 import { router } from "expo-router";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import { Alert, View } from "react-native";
 import type { ZodType, ZodTypeDef } from "zod";
 import { api } from "@/lib/api";
@@ -115,6 +115,7 @@ function usePostForm<Fields extends Record<string, unknown>, Input>(
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [picked, setPicked] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
+  const uploaded = useRef<{ uri: string; url: string; publicId: string }>(undefined);
 
   const set =
     <K extends keyof Fields>(key: K) =>
@@ -132,7 +133,11 @@ function usePostForm<Fields extends Record<string, unknown>, Input>(
     setSubmitting(true);
     try {
       // Only a newly picked image is uploaded; an unchanged one stays as it is.
-      const media = picked ? await api.uploadImage(picked, "posts") : undefined;
+      // A retry after a failed save reuses the upload instead of orphaning it.
+      if (picked && uploaded.current?.uri !== picked) {
+        uploaded.current = { uri: picked, ...(await api.uploadImage(picked, "posts")) };
+      }
+      const media = picked ? uploaded.current : undefined;
       await onSubmit({ ...parsed.data, ...(media && { [urlKey]: media.url, [idKey]: media.publicId }) });
     } catch (error) {
       Alert.alert("บันทึกไม่สำเร็จ", (error as Error).message);

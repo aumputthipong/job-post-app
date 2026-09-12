@@ -56,14 +56,26 @@ async function request<T>(
       body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
       signal: controller.signal,
     });
-  } catch {
-    throw new ApiError("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบว่า API กำลังทำงานอยู่", 0);
+  } catch (error) {
+    throw new ApiError(
+      (error as Error)?.name === "AbortError"
+        ? "เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่"
+        : "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบว่า API กำลังทำงานอยู่",
+      0,
+    );
   } finally {
     clearTimeout(timer);
   }
 
+  // Not every response is JSON — a wrong EXPO_PUBLIC_API_URL can reach something
+  // that answers HTML, and parsing that must not crash the screen.
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data: unknown = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    if (res.ok) throw new ApiError("เซิร์ฟเวอร์ตอบกลับมาในรูปแบบที่ไม่รู้จัก", res.status);
+  }
   if (!res.ok) throw new ApiError(messageFrom(res.status, data), res.status);
   return data as T;
 }

@@ -122,13 +122,18 @@ async function deletePostAndDependents(collection: string, postId: string, kind:
     COLLECTIONS.FAVORITE_JOBS,
   ];
 
-  const batch = db.batch();
-  batch.delete(db.collection(collection).doc(postId));
+  const refs = [db.collection(collection).doc(postId)];
 
   for (const dependent of dependents) {
     const snap = await db.collection(dependent).where("postId", "==", postId).get();
-    snap.docs.forEach((doc) => batch.delete(doc.ref));
+    snap.docs.forEach((doc) => refs.push(doc.ref));
   }
 
-  await batch.commit();
+  // A write batch takes at most 500 operations, and a post with many comments,
+  // ratings and favourites can pass that.
+  for (let i = 0; i < refs.length; i += 400) {
+    const batch = db.batch();
+    refs.slice(i, i + 400).forEach((ref) => batch.delete(ref));
+    await batch.commit();
+  }
 }
