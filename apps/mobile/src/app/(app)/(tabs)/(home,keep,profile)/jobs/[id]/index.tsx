@@ -1,10 +1,10 @@
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CommentList } from "@/components/comment-list";
 import { PostImage } from "@/components/media";
 import { FavoriteButton, RatePost } from "@/components/post-actions";
+import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
 import { useAuth } from "@/lib/auth-context";
 import { Bullets, EmptyState, ErrorState, Fab, InfoRow, Loading, Section, Stars } from "@/components/ui";
 import { useJobPost, useRatingSummary } from "@/lib/data";
@@ -13,7 +13,8 @@ export default function JobDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: job, loading, error } = useJobPost(id);
   const rating = useRatingSummary("find", id);
-  const insets = useSafeAreaInsets();
+  const tabBarHeight = useTabBarHeight();
+  const hideTabBar = useHideTabBarOnScroll();
   const { user } = useAuth();
 
   if (error) return <ErrorState error={error} />;
@@ -26,9 +27,10 @@ export default function JobDetail() {
       <Stack.Screen options={{ headerRight: () => <FavoriteButton postId={job.id} /> }} />
       <KeyboardAwareScrollView
         style={{ flex: 1, backgroundColor: "#FFFFFF" }}
-        contentContainerStyle={{ paddingBottom: insets.bottom + (isOwner ? 96 : 0) }}
+        contentContainerStyle={{ paddingBottom: tabBarHeight + (isOwner ? 96 : 0) }}
         keyboardShouldPersistTaps="handled"
         bottomOffset={24}
+        {...hideTabBar}
       >
         <PostImage uri={job.imageUrl} className="h-56 w-full" />
 

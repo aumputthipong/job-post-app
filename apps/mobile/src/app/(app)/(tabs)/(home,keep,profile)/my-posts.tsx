@@ -1,9 +1,9 @@
 import type { PostKind } from "@jobapp-platform/shared";
 import { useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HireCard } from "@/components/hire-card";
 import { JobCard } from "@/components/job-card";
+import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
 import { EmptyState, ErrorState, Fab, Loading } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
 import { useHirePosts, useJobPosts, useUser } from "@/lib/data";
@@ -19,7 +19,9 @@ export default function MyPosts() {
   const jobs = useJobPosts();
   const hires = useHirePosts();
   const [kind, setKind] = useState<PostKind>("find");
-  const insets = useSafeAreaInsets();
+  const tabBarHeight = useTabBarHeight();
+  const hideTabBar = useHideTabBarOnScroll();
+  const listProps = { contentContainerStyle: { paddingBottom: tabBarHeight + 100 }, ...hideTabBar };
 
   // Filters the lists the app already listens to, as Keep does.
   const mine = {
@@ -59,7 +61,7 @@ export default function MyPosts() {
           keyExtractor={(job) => job.id}
           renderItem={({ item }) => <JobCard job={item} />}
           ListEmptyComponent={<EmptyState icon="document-text-outline" message="คุณยังไม่มีประกาศหางาน" />}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+          {...listProps}
         />
       ) : (
         <FlatList
@@ -67,7 +69,7 @@ export default function MyPosts() {
           keyExtractor={(hire) => hire.id}
           renderItem={({ item }) => <HireCard hire={item} author={profile ?? undefined} />}
           ListEmptyComponent={<EmptyState icon="people-outline" message="คุณยังไม่มีประกาศฟรีแลนซ์" />}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+          {...listProps}
         />
       )}
 

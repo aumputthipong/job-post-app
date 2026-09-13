@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link, type Href } from "expo-router";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFollowTabBar, useTabBarHeight } from "./tab-bar";
 
 /** Read-only 0–5 star rating, with half stars. */
 export function Stars({ value, size = 16 }: { value: number; size?: number }) {
@@ -79,16 +81,20 @@ export function Fab({
   label: string;
 }) {
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useTabBarHeight();
+  const follow = useFollowTabBar();
   return (
-    <Link href={href} asChild>
-      <TouchableOpacity
-        className="absolute right-6 h-[60px] w-[60px] items-center justify-center rounded-full bg-primary"
-        style={{ bottom: insets.bottom + 24, elevation: 6 }}
-        accessibilityLabel={label}
-      >
-        <Ionicons name={icon} size={icon === "add" ? 32 : 26} color="#FFFFFF" />
-      </TouchableOpacity>
-    </Link>
+    <Animated.View style={[{ position: "absolute", right: 24, bottom: (tabBarHeight || insets.bottom) + 24 }, follow]}>
+      <Link href={href} asChild>
+        <TouchableOpacity
+          className="h-[60px] w-[60px] items-center justify-center rounded-full bg-primary"
+          style={{ elevation: 6 }}
+          accessibilityLabel={label}
+        >
+          <Ionicons name={icon} size={icon === "add" ? 32 : 26} color="#FFFFFF" />
+        </TouchableOpacity>
+      </Link>
+    </Animated.View>
   );
 }
 

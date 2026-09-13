@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react";
 import { FlatList, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { JobCard } from "@/components/job-card";
+import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
 import { EmptyState, ErrorState, Fab, Loading, SearchBar } from "@/components/ui";
 import { useJobPosts } from "@/lib/data";
 
 export default function Jobs() {
   const { data: jobs, loading, error } = useJobPosts();
   const [search, setSearch] = useState("");
-  const insets = useSafeAreaInsets();
+  const tabBarHeight = useTabBarHeight();
+  const hideTabBar = useHideTabBarOnScroll();
 
   const shown = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -38,8 +39,9 @@ export default function Jobs() {
               message={search ? "ไม่พบตำแหน่งงานที่คุณค้นหา" : "ยังไม่มีประกาศงาน"}
             />
           }
-          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+          contentContainerStyle={{ paddingBottom: tabBarHeight + 100 }}
           keyboardShouldPersistTaps="handled"
+          {...hideTabBar}
         />
       )}
       <Fab href="/jobs/new" label="สร้างประกาศงาน" />
