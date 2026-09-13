@@ -207,6 +207,24 @@ for (const [collection, postId, userId, rating] of ratings) {
 await db.collection(COLLECTIONS.FAVORITE_JOBS).add({ postId: "job-frontend", userId: "user-anan" });
 await db.collection(COLLECTIONS.FAVORITE_JOBS).add({ postId: "job-builder", userId: "user-anan" });
 await db.collection(COLLECTIONS.USER_NOTI).add({ notiBy: "user-anan", category: ["งานไอที"] });
+await db.collection(COLLECTIONS.USER_NOTI).add({ notiBy: "user-somchai", category: ["งานออกแบบ", "งานไอที"] });
+
+// What the API would have written for the comments and ratings above, so the
+// notification screens have something to show without clicking through first.
+const notifications = [
+  { userId: "user-somchai", type: "comment", postKind: "find", postId: "job-frontend", postTitle: "รับสมัคร Frontend Developer", actorIds: ["user-malee", "user-anan"], actorCount: 2, read: false },
+  { userId: "user-somchai", type: "rating", postKind: "find", postId: "job-frontend", postTitle: "รับสมัคร Frontend Developer", actorIds: ["user-malee", "user-anan"], actorCount: 2, read: false },
+  { userId: "user-somchai", type: "new_post", postKind: "hire", postId: "hire-designer", postTitle: "รับออกแบบโลโก้และแบรนด์", actorIds: ["user-malee"], actorCount: 1, read: true },
+  { userId: "user-malee", type: "comment", postKind: "find", postId: "job-barista", postTitle: "รับสมัครบาริสต้า พาร์ทไทม์", actorIds: ["user-anan"], actorCount: 1, read: false },
+  { userId: "user-malee", type: "comment", postKind: "hire", postId: "hire-designer", postTitle: "รับออกแบบโลโก้และแบรนด์", actorIds: ["user-somchai"], actorCount: 1, read: false },
+] as const;
+
+for (const n of notifications) {
+  await db
+    .collection(COLLECTIONS.NOTIFICATIONS)
+    .doc(`${n.userId}_${n.type}_${n.postId}`)
+    .set({ ...n, updatedAt: FieldValue.serverTimestamp() });
+}
 
 console.log(`Seeded ${users.length} users, ${jobPosts.length} job posts, ${hirePosts.length} hire posts,`);
 console.log(`${comments.length} comments, ${ratings.length} ratings. Password for every account: ${PASSWORD}`);
