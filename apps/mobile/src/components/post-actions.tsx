@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import type { PostKind } from "@jobapp-platform/shared";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -44,21 +44,24 @@ export function RatePost({ kind, postId, title }: { kind: PostKind; postId: stri
   const { ratings } = useRatingSummary(kind, postId);
   const mine = ratings.find((r) => r.userId === user?.uid)?.rating ?? 0;
   const [override, setOverride] = useState<number | null>(null);
-  const [pending, setPending] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => setOverride(null), [mine]);
+  useEffect(() => () => clearTimeout(timer.current), []);
 
-  const rate = async (value: number) => {
-    setPending(true);
+  // Saves ~1 s after the last tap, so trying 1, 3, then 5 stars is one request
+  // (and one notification) rather than three.
+  const rate = (value: number) => {
     setOverride(value);
-    try {
-      await api.rate(kind, postId, value);
-    } catch (error) {
-      setOverride(null);
-      Alert.alert("ให้คะแนนไม่สำเร็จ", (error as Error).message);
-    } finally {
-      setPending(false);
-    }
+    clearTimeout(timer.current);
+    timer.current = setTimeout(async () => {
+      try {
+        await api.rate(kind, postId, value);
+      } catch (error) {
+        setOverride(null);
+        Alert.alert("ให้คะแนนไม่สำเร็จ", (error as Error).message);
+      }
+    }, 1000);
   };
 
   return (
@@ -66,9 +69,13 @@ export function RatePost({ kind, postId, title }: { kind: PostKind; postId: stri
       <Text className="mb-3 text-base font-bold text-text" numberOfLines={1}>
         {title}
       </Text>
-      <StarPicker value={override ?? mine} onChange={rate} disabled={pending} />
+      <StarPicker value={override ?? mine} onChange={rate} />
       <Text className="mt-2 text-xs text-text-subtle" numberOfLines={1}>
-        {mine ? `คุณให้ ${mine} ดาว · แตะเพื่อเปลี่ยน` : "แตะดาวเพื่อให้คะแนน"}
+        {override !== null && override !== mine
+          ? "กำลังบันทึก..."
+          : mine
+            ? `คุณให้ ${mine} ดาว · แตะเพื่อเปลี่ยน`
+            : "แตะดาวเพื่อให้คะแนน"}
       </Text>
     </View>
   );
