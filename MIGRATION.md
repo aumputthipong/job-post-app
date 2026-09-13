@@ -247,7 +247,7 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
      | KeepScreen | `(tabs)/keep` | Same (jobs only) |
      | MyProFileScreen | `(tabs)/profile`, `edit-profile` | Avatar, edit, sign-out. Email read-only (legacy edits were never saved) |
      | OtherProfileScreen | `users/[id]` | Bachelor shows the degree, not the email |
-     | NotificationScreen / EditNoti | — | Deferred by the owner, not ported |
+     | NotificationScreen / EditNoti | `notifications`, `notification-settings` | Deferred at 4.7, built in 5.5 as in-app notifications |
 
      Retiring it (all in one PR, nothing merged to `main` until the owner is happy):
      - The SDK 49 app is deleted and `apps/mobile-next` renamed into its place, so the app
@@ -388,6 +388,15 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
      - Deleting a post deletes its notifications. Deleting a comment leaves the grouped row.
      - Rules: a user reads only rows with their own `userId`; clients write nothing.
      - The app sorts by `updatedAt` itself (like the lists), so no composite index is needed.
-   - 5.5 **Notifications — app.** A bell with an unread badge on the home screen, a list
-     screen (tap = read + open the post; "อ่านทั้งหมด"), and Profile → "ตั้งค่าการแจ้งเตือน"
-     for choosing categories with the existing endpoint.
+   - 5.5 **Notifications — app. Done 2026-09-13.** A bell with an unread badge on the home
+     screen, a list screen (tap = read + open the post; "อ่านทั้งหมด"; unread rows tinted with a
+     dot), and "ตั้งค่าการแจ้งเตือน" — from Profile and from the top of the list — for choosing
+     categories with the existing endpoint. Rows read "มาลี และอีก 1 คน แสดงความคิดเห็นในโพสต์ของคุณ"
+     with the post title and a Thai relative time. Both screens are live listeners, so a new post
+     in a followed category lights the bell without a refresh (checked on the emulator by
+     posting as Malee through the API while Somchai sat on the home screen).
+     - The rating stars save ~1 s after the last tap. Three taps within 0.2 s sent one request
+       with the last value; the label reads "กำลังบันทึก..." meanwhile.
+     - Opening a notification doesn't wait on the mark-read request; the listener flips the
+       row a moment later.
+     - The legacy NotificationScreen / EditNoti row of the 4.7 parity table now points here.
