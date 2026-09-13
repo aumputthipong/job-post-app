@@ -57,6 +57,8 @@ async function request<T>(
       signal: controller.signal,
     });
   } catch (error) {
+    // The message below is a guess for the user; the real cause goes to the Metro log.
+    if (__DEV__) console.warn(`${method} ${path} failed before a response:`, error);
     throw new ApiError(
       (error as Error)?.name === "AbortError"
         ? "เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่"
