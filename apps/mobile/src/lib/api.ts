@@ -109,7 +109,7 @@ export const api = {
   updateMe: (data: UpdateUserProfileInput) => request("/users/me", { method: "PUT", body: data }),
 
   /** Uploads a local image (file:// URI) to Cloudinary through the API. */
-  uploadImage: (uri: string, folder: "posts" | "profiles") => {
+  uploadImage: (uri: string, folder: "posts" | "profiles" | "resumes") => {
     const form = new FormData();
     // `folder` must come before the file: the API reads fields up to the file part.
     form.append("folder", folder);
