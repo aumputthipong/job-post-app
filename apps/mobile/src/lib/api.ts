@@ -108,6 +108,13 @@ export const api = {
 
   updateMe: (data: UpdateUserProfileInput) => request("/users/me", { method: "PUT", body: data }),
 
+  updateNotiPreferences: (category: string[]) =>
+    request("/users/me/noti-preferences", { method: "PUT", body: { category } }),
+
+  markNotificationRead: (id: string) => request(`/notifications/${encodeURIComponent(id)}/read`, { method: "POST" }),
+
+  markAllNotificationsRead: () => request<{ updated: number }>("/notifications/read-all", { method: "POST" }),
+
   /** Uploads a local image (file:// URI) to Cloudinary through the API. */
   uploadImage: (uri: string, folder: "posts" | "profiles" | "resumes") => {
     const form = new FormData();
