@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import type { JobPostDoc } from "@/lib/data";
-import { PostImage } from "./media";
+import { PostCover } from "./media";
 
 export function JobCard({ job }: { job: JobPostDoc }) {
   return (
@@ -13,7 +13,7 @@ export function JobCard({ job }: { job: JobPostDoc }) {
         style={{ elevation: 4 }}
         activeOpacity={0.8}
       >
-        <PostImage uri={postImages(job)[0]?.url} className="h-40 w-full" />
+        <PostCover images={postImages(job)} className="h-40 w-full" />
         <View className="p-4">
           <Text className="mb-2 text-xl font-bold text-primary" numberOfLines={2}>
             {job.jobTitle}
