@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { signOut } from "firebase/auth";
-import { Link } from "expo-router";
+import { type Href, Link } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -88,20 +88,26 @@ export default function Profile() {
               </TouchableOpacity>
             </Link>
           </ProfileCard>
-          <Link href="/my-posts" asChild>
-            <TouchableOpacity
-              className="mx-4 mb-4 flex-row items-center rounded-card bg-surface p-4"
-              style={{ elevation: 2 }}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="documents-outline" size={22} color="#083C6B" />
-              <Text className="ml-3 flex-1 text-base font-semibold text-text">โพสต์ของฉัน</Text>
-              <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
-            </TouchableOpacity>
-          </Link>
+          <View className="mx-4 mb-4 overflow-hidden rounded-card bg-surface" style={{ elevation: 2 }}>
+            <MenuRow href="/my-posts" icon="documents-outline" title="โพสต์ของฉัน" />
+            <View className="ml-14 h-px bg-border" />
+            <MenuRow href="/notification-settings" icon="notifications-outline" title="ตั้งค่าการแจ้งเตือน" />
+          </View>
           <ProfileDetails user={profile} editable />
         </ScrollView>
       )}
     </SafeAreaView>
+  );
+}
+
+function MenuRow({ href, icon, title }: { href: Href; icon: React.ComponentProps<typeof Ionicons>["name"]; title: string }) {
+  return (
+    <Link href={href} asChild>
+      <TouchableOpacity className="flex-row items-center p-4" activeOpacity={0.7}>
+        <Ionicons name={icon} size={22} color="#083C6B" />
+        <Text className="ml-3 flex-1 text-base font-semibold text-text">{title}</Text>
+        <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+      </TouchableOpacity>
+    </Link>
   );
 }
