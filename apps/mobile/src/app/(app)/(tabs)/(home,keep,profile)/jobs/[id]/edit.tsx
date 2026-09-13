@@ -19,7 +19,7 @@ export default function EditJob() {
   return (
     <JobPostForm
       initial={job}
-      initialImage={postImages(job)[0]?.url}
+      initialImages={postImages(job)}
       submitLabel="บันทึก"
       onSubmit={async (data) => {
         await api.updatePost("find", id, data);
