@@ -1,4 +1,6 @@
+import { uploadFolder } from "@jobapp-platform/shared";
 import { v2 as cloudinary } from "cloudinary";
+import { usingEmulators } from "../firebaseAdmin.js";
 
 /**
  * Media storage for the app.
@@ -38,6 +40,17 @@ export function assertCloudinary() {
         "and CLOUDINARY_API_SECRET in apps/api/.env (free account, no card required).",
     );
   }
+}
+
+// Cloudinary has no emulator, so local development still uploads for real.
+// A separate root folder keeps those files apart from the real app's media
+// and makes them easy to clear out.
+export const MEDIA_ROOT = usingEmulators ? "jobapp-dev" : "jobapp";
+
+/** Whether an image the client sent was uploaded by this user through POST /uploads. */
+export function isOwnUpload(media: { url: string; publicId?: string }, folder: string, uid: string) {
+  const { publicId, url } = media;
+  return !!publicId && publicId.startsWith(`${uploadFolder(MEDIA_ROOT, folder, uid)}/`) && url.includes(`/${publicId}`);
 }
 
 export type UploadResult = { url: string; publicId: string };

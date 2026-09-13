@@ -1,14 +1,16 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { FieldValue } from "firebase-admin/firestore";
 import {
   COLLECTIONS,
   createHirePostSchema,
   createJobPostSchema,
+  type Media,
+  postImages,
   updateHirePostSchema,
   updateJobPostSchema,
 } from "@jobapp-platform/shared";
 import { db } from "../firebaseAdmin.js";
-import { deleteImage } from "../lib/cloudinary.js";
+import { deleteImage, isOwnUpload } from "../lib/cloudinary.js";
 import { requireAuth } from "../plugins/auth.js";
 
 /**
@@ -29,28 +31,36 @@ const CONFIG = {
     collection: COLLECTIONS.JOB_POSTS,
     createSchema: createJobPostSchema,
     updateSchema: updateJobPostSchema,
-    mediaIdField: "imagePublicId",
   },
   hire: {
     collection: COLLECTIONS.HIRE_POSTS,
     createSchema: createHirePostSchema,
     updateSchema: updateHirePostSchema,
-    mediaIdField: "resumePublicId",
   },
 } as const;
 
+// Old posts keep one image in these; saving `images` replaces them.
+const LEGACY_IMAGE_FIELDS = ["imageUrl", "imagePublicId", "resumeUrl", "resumePublicId"];
+
+const NOT_YOUR_IMAGE = "ใช้ได้เฉพาะรูปที่คุณอัปโหลดเอง";
+
 export async function postsRoutes(app: FastifyInstance) {
   for (const kind of ["find", "hire"] as PostKind[]) {
-    const { collection, createSchema, updateSchema, mediaIdField } = CONFIG[kind];
+    const { collection, createSchema, updateSchema } = CONFIG[kind];
 
     app.post(`/posts/${kind}`, { preHandler: requireAuth }, async (request, reply) => {
       const parsed = createSchema.safeParse(request.body);
       if (!parsed.success) {
         return reply.code(400).send({ error: parsed.error.flatten() });
       }
+      const images = parsed.data.images ?? [];
+      if (!images.every((image) => isOwnUpload(image, "posts", request.userId!))) {
+        return reply.code(403).send({ error: NOT_YOUR_IMAGE });
+      }
 
       const doc = await db.collection(collection).add({
         ...parsed.data,
+        images,
         postById: request.userId!,
         createdAt: FieldValue.serverTimestamp(),
       });
@@ -74,15 +84,19 @@ export async function postsRoutes(app: FastifyInstance) {
         return reply.code(403).send({ error: "แก้ไขได้เฉพาะประกาศของตัวเอง" });
       }
 
-      // If the image is being replaced, drop the old one rather than orphaning it.
-      const previousMediaId = snap.data()![mediaIdField];
-      const incomingMediaId = (parsed.data as Record<string, unknown>)[mediaIdField];
-      if (previousMediaId && incomingMediaId && previousMediaId !== incomingMediaId) {
-        const removed = await deleteImage(previousMediaId);
-        if (!removed) request.log.warn({ previousMediaId }, "old media not deleted");
+      const update: Record<string, unknown> = { ...parsed.data, updatedAt: FieldValue.serverTimestamp() };
+      let removed: Media[] = [];
+      if (parsed.data.images) {
+        const replaced = replaceImages(postImages(snap.data()!), parsed.data.images, request.userId!);
+        if (!replaced) return reply.code(403).send({ error: NOT_YOUR_IMAGE });
+        update.images = replaced.next;
+        removed = replaced.removed;
+        for (const field of LEGACY_IMAGE_FIELDS) update[field] = FieldValue.delete();
       }
 
-      await ref.update({ ...parsed.data, updatedAt: FieldValue.serverTimestamp() });
+      await ref.update(update);
+      // Only once the post no longer points at them.
+      await deleteMedia(request, removed);
       return reply.send({ id });
     });
 
@@ -98,15 +112,39 @@ export async function postsRoutes(app: FastifyInstance) {
         return reply.code(403).send({ error: "ลบได้เฉพาะประกาศของตัวเอง" });
       }
 
-      const mediaId = snap.data()![mediaIdField];
-      if (mediaId) {
-        const removed = await deleteImage(mediaId);
-        if (!removed) request.log.warn({ mediaId }, "media not deleted, continuing");
-      }
-
       await deletePostAndDependents(collection, id, kind);
+      await deleteMedia(request, postImages(snap.data()!));
       return reply.send({ id, deleted: true });
     });
+  }
+}
+
+/**
+ * Works out a post's new image list. Images already on the post are matched by
+ * url and keep their stored publicId — whatever the client sent for them is
+ * ignored, so a later removal can't be pointed at some other file. New images
+ * must be the caller's own uploads; null if any isn't. `removed` are the images
+ * dropped from the list, to delete once the post is saved.
+ */
+function replaceImages(previous: Media[], incoming: Media[], uid: string) {
+  const stored = new Map(previous.map((image) => [image.url, image]));
+  const next: Media[] = [];
+  for (const image of incoming) {
+    const existing = stored.get(image.url);
+    if (existing) next.push(existing);
+    else if (isOwnUpload(image, "posts", uid)) next.push(image);
+    else return null;
+  }
+
+  const kept = new Set(next.map((image) => image.url));
+  return { next, removed: previous.filter((image) => !kept.has(image.url)) };
+}
+
+async function deleteMedia(request: FastifyRequest, images: Media[]) {
+  for (const { publicId } of images) {
+    if (!publicId) continue;
+    const removed = await deleteImage(publicId);
+    if (!removed) request.log.warn({ publicId }, "media not deleted, continuing");
   }
 }
 

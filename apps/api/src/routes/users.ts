@@ -6,7 +6,7 @@ import {
   updateUserProfileSchema,
 } from "@jobapp-platform/shared";
 import { db } from "../firebaseAdmin.js";
-import { deleteImage } from "../lib/cloudinary.js";
+import { deleteImage, isOwnUpload } from "../lib/cloudinary.js";
 import { requireAuth } from "../plugins/auth.js";
 
 /**
@@ -32,18 +32,25 @@ export async function usersRoutes(app: FastifyInstance) {
     const ref = db.collection(COLLECTIONS.USER_INFO).doc(request.userId!);
     const snap = await ref.get();
 
-    // Replacing the avatar? Remove the old one instead of orphaning it.
-    const previousImageId = snap.data()?.imagePublicId;
-    const incomingImageId = parsed.data.imagePublicId;
-    if (previousImageId && incomingImageId && previousImageId !== incomingImageId) {
-      const removed = await deleteImage(previousImageId);
-      if (!removed) request.log.warn({ previousImageId }, "old avatar not deleted");
+    // A new avatar must be the caller's own upload: replacing it deletes the old
+    // file, so claiming someone else's would let you delete theirs.
+    const { imageUrl, imagePublicId } = parsed.data;
+    const changingAvatar = imageUrl !== undefined || imagePublicId !== undefined;
+    if (changingAvatar && !isOwnUpload({ url: imageUrl ?? "", publicId: imagePublicId }, "profiles", request.userId!)) {
+      return reply.code(403).send({ error: "ใช้ได้เฉพาะรูปที่คุณอัปโหลดเอง" });
     }
 
     await ref.set(
       { ...parsed.data, updatedAt: FieldValue.serverTimestamp() },
       { merge: true },
     );
+
+    // Replacing the avatar? Remove the old one instead of orphaning it.
+    const previousImageId = snap.data()?.imagePublicId;
+    if (previousImageId && imagePublicId && previousImageId !== imagePublicId) {
+      const removed = await deleteImage(previousImageId);
+      if (!removed) request.log.warn({ previousImageId }, "old avatar not deleted");
+    }
 
     return reply.send({ id: request.userId });
   });

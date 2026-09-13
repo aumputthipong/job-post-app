@@ -1,6 +1,6 @@
+import { uploadFolder } from "@jobapp-platform/shared";
 import type { FastifyInstance } from "fastify";
-import { usingEmulators } from "../firebaseAdmin.js";
-import { uploadImage } from "../lib/cloudinary.js";
+import { MEDIA_ROOT, uploadImage } from "../lib/cloudinary.js";
 import { requireAuth } from "../plugins/auth.js";
 
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -37,11 +37,9 @@ export async function uploadsRoutes(app: FastifyInstance) {
       return reply.code(413).send({ error: "ไฟล์ใหญ่เกิน 10 MB" });
     }
 
-    // Cloudinary has no emulator, so local development still uploads for real.
-    // A separate root folder keeps those files apart from the real app's media
-    // and makes them easy to clear out.
-    const root = usingEmulators ? "jobapp-dev" : "jobapp";
-    const uploaded = await uploadImage(buffer, `${root}/${folder}`);
+    // One folder per user: a post may only claim images from its author's folder,
+    // so nobody can attach (and later delete) someone else's upload.
+    const uploaded = await uploadImage(buffer, uploadFolder(MEDIA_ROOT, folder, request.userId!));
     return reply.send(uploaded);
   });
 }
