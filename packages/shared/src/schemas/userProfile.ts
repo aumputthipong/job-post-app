@@ -20,7 +20,20 @@ export const userProfileSchema = z.object({
    *  documents already use — every screen reads user.imageUrl. */
   imageUrl: z.string().url().optional(),
   imagePublicId: z.string().optional(),
+  /** One PDF or image, shown on the profile and linked from freelance posts.
+   *  null removes it. */
+  resume: z
+    .object({
+      url: z.string().url(),
+      publicId: z.string().min(1),
+      /** The file's original name, for the button label. */
+      name: z.string().max(200).optional(),
+    })
+    .nullable()
+    .optional(),
 });
+
+export const isPdf = (url: string) => /\.pdf($|\?)/i.test(url);
 
 /** Fields a user is allowed to self-edit via PUT /users/me. Email belongs to
  *  Firebase Auth, so it isn't one of them. */
