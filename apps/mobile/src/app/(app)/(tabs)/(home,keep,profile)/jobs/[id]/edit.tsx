@@ -1,3 +1,4 @@
+import { postImages } from "@jobapp-platform/shared";
 import { router, useLocalSearchParams } from "expo-router";
 import { DeletePostButton, JobPostForm } from "@/components/post-form";
 import { EmptyState, ErrorState, Loading } from "@/components/ui";
@@ -18,7 +19,7 @@ export default function EditJob() {
   return (
     <JobPostForm
       initial={job}
-      initialImage={job.imageUrl}
+      initialImage={postImages(job)[0]?.url}
       submitLabel="บันทึก"
       onSubmit={async (data) => {
         await api.updatePost("find", id, data);
