@@ -11,7 +11,9 @@ import {
 } from "@jobapp-platform/shared";
 import { db } from "../firebaseAdmin.js";
 import { deleteImage, isOwnUpload } from "../lib/cloudinary.js";
+import { notificationRefsForPost, notifyNewPost, postTitle } from "../lib/notifications.js";
 import { requireAuth } from "../plugins/auth.js";
+import { rateLimit } from "../plugins/rate-limit.js";
 
 /**
  * Replaces the direct Firestore writes in CreateFind.js, CreateHire.js,
@@ -47,8 +49,10 @@ const NOT_YOUR_IMAGE = "ใช้ได้เฉพาะรูปที่ค�
 export async function postsRoutes(app: FastifyInstance) {
   for (const kind of ["find", "hire"] as PostKind[]) {
     const { collection, createSchema, updateSchema } = CONFIG[kind];
+    // Each new post notifies everyone following its category.
+    const limitPosts = rateLimit(`posts/${kind}`, 5);
 
-    app.post(`/posts/${kind}`, { preHandler: requireAuth }, async (request, reply) => {
+    app.post(`/posts/${kind}`, { preHandler: [requireAuth, limitPosts] }, async (request, reply) => {
       const parsed = createSchema.safeParse(request.body);
       if (!parsed.success) {
         return reply.code(400).send({ error: parsed.error.flatten() });
@@ -65,6 +69,7 @@ export async function postsRoutes(app: FastifyInstance) {
         createdAt: FieldValue.serverTimestamp(),
       });
 
+      await notifyNewPost(request.log, { kind, id: doc.id, title: postTitle(kind, parsed.data), ownerId: request.userId! }, parsed.data.category);
       return reply.code(201).send({ id: doc.id });
     });
 
@@ -166,6 +171,7 @@ async function deletePostAndDependents(collection: string, postId: string, kind:
     const snap = await db.collection(dependent).where("postId", "==", postId).get();
     snap.docs.forEach((doc) => refs.push(doc.ref));
   }
+  refs.push(...(await notificationRefsForPost(postId)));
 
   // A write batch takes at most 500 operations, and a post with many comments,
   // ratings and favourites can pass that.

@@ -5,6 +5,7 @@ import { cloudinaryConfigured } from "./lib/cloudinary.js";
 import { authRoutes } from "./routes/auth.js";
 import { commentsRoutes } from "./routes/comments.js";
 import { favoritesRoutes } from "./routes/favorites.js";
+import { notificationsRoutes } from "./routes/notifications.js";
 import { postsRoutes } from "./routes/posts.js";
 import { ratingsRoutes } from "./routes/ratings.js";
 import { uploadsRoutes } from "./routes/uploads.js";
@@ -28,6 +29,7 @@ export async function buildApp(options: FastifyServerOptions = {}) {
   await app.register(authRoutes);
   await app.register(commentsRoutes);
   await app.register(favoritesRoutes);
+  await app.register(notificationsRoutes);
   await app.register(postsRoutes);
   await app.register(ratingsRoutes);
   await app.register(uploadsRoutes);
