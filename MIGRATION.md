@@ -319,10 +319,14 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
      - The app still picks one image until 5.3; it sends `images: [that one]`.
      - Tests: `test/post-images.test.ts` mocks Cloudinary's delete and checks exactly which
        files would be removed.
-   - 5.3 **Several images per post — app.** Pick several at once (no crop: the system picker
-     can't crop a multi-selection; the carousel crops to fill instead), thumbnails with a
-     remove button, a swipeable carousel with dots on the detail screens, and an image count
-     on the cover in lists.
+   - 5.3 **Several images per post — app. Done 2026-09-13.** Pick several at once (no crop: the
+     system picker can't crop a multi-selection; the carousel crops to fill instead),
+     thumbnails with a remove button and a "ปก" tag on the first, a swipeable carousel with
+     dots and a counter on the detail screens that opens a full-screen swipeable viewer, and
+     an image count on the cover in lists. Freelance cards now show their first portfolio
+     image. New images upload in parallel with a progress line; uploads are remembered by
+     local uri, so retrying a failed save doesn't upload the same photo twice. Reordering
+     isn't there yet — remove and re-add to change the cover.
    - Freelance posts' "เรซูเม่ / ผลงาน" splits in two, pending the owner's confirmation:
      a résumé belongs to the person, not to one post, so it moves to the profile (one PDF or
      image, shown on the public profile and linked from each freelance post), and the post's
