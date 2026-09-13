@@ -6,7 +6,7 @@ import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } fr
 import { SafeAreaView } from "react-native-safe-area-context";
 import { pickImage } from "@/components/form";
 import { ProfileCard, ProfileDetails } from "@/components/profile";
-import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
+import { useTabBarHeight } from "@/components/tab-bar";
 import { EmptyState, ErrorState, Loading } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -19,7 +19,6 @@ export default function Profile() {
   const { data: profile, loading, error } = useUser(user?.uid);
   const [uploading, setUploading] = useState(false);
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll();
 
   // Uploads as soon as a photo is picked, as the legacy screen did.
   const changePhoto = async () => {
@@ -67,7 +66,7 @@ export default function Profile() {
       ) : !profile ? (
         <EmptyState icon="person-outline" message="ไม่พบโปรไฟล์ของคุณ" />
       ) : (
-        <ScrollView contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }} {...hideTabBar}>
+        <ScrollView contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}>
           <ProfileCard
             user={profile}
             avatarAction={

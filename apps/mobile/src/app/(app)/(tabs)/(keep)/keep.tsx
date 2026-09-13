@@ -9,11 +9,11 @@ import { useFavoriteIds, useJobPosts } from "@/lib/data";
 export default function Keep() {
   const { user } = useAuth();
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll();
   const jobs = useJobPosts();
   const favorites = useFavoriteIds(user?.uid);
   const saved = (jobs.data ?? []).filter((job) => favorites.ids.has(job.id));
   const error = jobs.error ?? favorites.error;
+  const hideTabBar = useHideTabBarOnScroll(!jobs.loading && !favorites.loading && !error);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>

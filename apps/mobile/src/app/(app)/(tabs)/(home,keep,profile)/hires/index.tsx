@@ -10,7 +10,7 @@ export default function Hires() {
   const { byId } = useUsers();
   const [search, setSearch] = useState("");
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll();
+  const hideTabBar = useHideTabBarOnScroll(!loading && !error);
 
   const shown = useMemo(() => {
     const term = search.trim().toLowerCase();

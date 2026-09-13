@@ -17,6 +17,8 @@ const show = (hidden: SharedValue<number>, value: 0 | 1) => {
 
 /**
  * Hides the tab bar while scrolling down and brings it back on the way up, like Facebook.
+ * Only for feeds of posts (the boards, Keep, My posts), which can run very long; every
+ * other screen keeps the bar in place.
  * Pass `scrolling = false` while the screen shows a loading, error or not-found state
  * instead of its list: nothing scrolls there, so a hidden bar would never come back.
  */
@@ -45,7 +47,21 @@ export function useHideTabBarOnScroll(scrolling = true) {
     else if (!atBottom) show(hidden, dy > 0 ? 1 : 0);
   };
 
-  return { onScroll, scrollEventThrottle: 16 };
+  // A list that shrinks while the bar is hidden (a search, an empty segment) may no
+  // longer scroll at all, so it could never be scrolled back into view.
+  const viewport = useRef(0);
+  const contentFits = (contentHeight: number) => {
+    if (hidden && viewport.current && contentHeight <= viewport.current) {
+      lastY.current = 0;
+      show(hidden, 0);
+    }
+  };
+  const onLayout = (event: { nativeEvent: { layout: { height: number } } }) => {
+    viewport.current = event.nativeEvent.layout.height;
+  };
+  const onContentSizeChange = (_width: number, height: number) => contentFits(height);
+
+  return { onScroll, onLayout, onContentSizeChange, scrollEventThrottle: 16 };
 }
 
 /** The bar's height, for bottom padding; 0 on screens outside the tabs. */

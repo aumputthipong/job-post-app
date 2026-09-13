@@ -5,7 +5,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { CommentList } from "@/components/comment-list";
 import { ImageCarousel } from "@/components/image-carousel";
 import { FavoriteButton, RatePost } from "@/components/post-actions";
-import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
+import { useTabBarHeight } from "@/components/tab-bar";
 import { useAuth } from "@/lib/auth-context";
 import { Bullets, EmptyState, ErrorState, Fab, InfoRow, Loading, Section, Stars } from "@/components/ui";
 import { useJobPost, useRatingSummary } from "@/lib/data";
@@ -15,7 +15,6 @@ export default function JobDetail() {
   const { data: job, loading, error } = useJobPost(id);
   const rating = useRatingSummary("find", id);
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll(!!job && !error);
   const { user } = useAuth();
 
   if (error) return <ErrorState error={error} />;
@@ -31,7 +30,6 @@ export default function JobDetail() {
         contentContainerStyle={{ paddingBottom: tabBarHeight + (isOwner ? 96 : 0) }}
         keyboardShouldPersistTaps="handled"
         bottomOffset={24}
-        {...hideTabBar}
       >
         <ImageCarousel images={postImages(job)} height={280} />
 
