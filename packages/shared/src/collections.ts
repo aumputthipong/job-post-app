@@ -22,6 +22,7 @@ export const COLLECTIONS = {
   HIRE_COMMENTS: "HireComments",
   JOB_RATINGS: "JobRatings",
   HIRE_RATINGS: "HireRatings",
+  NOTIFICATIONS: "Notifications",
 } as const;
 
 export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS];
