@@ -9,7 +9,7 @@ export default function UserProfile() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: user, loading, error } = useUser(id);
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll();
+  const hideTabBar = useHideTabBarOnScroll(!!user && !error);
 
   if (error) return <ErrorState error={error} />;
   if (loading) return <Loading />;

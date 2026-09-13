@@ -15,7 +15,7 @@ export default function JobDetail() {
   const { data: job, loading, error } = useJobPost(id);
   const rating = useRatingSummary("find", id);
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll();
+  const hideTabBar = useHideTabBarOnScroll(!!job && !error);
   const { user } = useAuth();
 
   if (error) return <ErrorState error={error} />;

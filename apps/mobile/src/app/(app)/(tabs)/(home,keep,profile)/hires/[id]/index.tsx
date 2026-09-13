@@ -18,7 +18,7 @@ export default function HireDetail() {
   const { data: author } = useUser(hire?.postById);
   const rating = useRatingSummary("hire", id);
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll();
+  const hideTabBar = useHideTabBarOnScroll(!!hire && !error);
   const { user } = useAuth();
 
   if (error) return <ErrorState error={error} />;

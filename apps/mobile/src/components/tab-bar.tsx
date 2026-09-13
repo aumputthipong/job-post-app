@@ -15,10 +15,18 @@ const show = (hidden: SharedValue<number>, value: 0 | 1) => {
   if (hidden.value !== value) hidden.value = withTiming(value, { duration: 200 });
 };
 
-/** Hides the tab bar while scrolling down and brings it back on the way up, like Facebook. */
-export function useHideTabBarOnScroll() {
+/**
+ * Hides the tab bar while scrolling down and brings it back on the way up, like Facebook.
+ * Pass `scrolling = false` while the screen shows a loading, error or not-found state
+ * instead of its list: nothing scrolls there, so a hidden bar would never come back.
+ */
+export function useHideTabBarOnScroll(scrolling = true) {
   const hidden = useContext(HiddenContext);
   const lastY = useRef(0);
+
+  useEffect(() => {
+    if (!scrolling && hidden) show(hidden, 0);
+  }, [scrolling, hidden]);
 
   // Only nativeEvent is typed: keyboard-controller's types come from the root's older RN.
   const onScroll = (event: { nativeEvent: NativeScrollEvent }) => {
