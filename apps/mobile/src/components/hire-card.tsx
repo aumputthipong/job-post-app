@@ -1,9 +1,11 @@
+import { postImages } from "@jobapp-platform/shared";
 import { Link } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { fullName, type HirePostDoc, type UserDoc } from "@/lib/data";
-import { Avatar } from "./media";
+import { Avatar, PostCover } from "./media";
 
 export function HireCard({ hire, author }: { hire: HirePostDoc; author?: UserDoc }) {
+  const images = postImages(hire);
   return (
     <Link href={`/hires/${hire.id}`} asChild>
       <TouchableOpacity className="mx-4 mb-4 rounded-card bg-surface p-4" style={{ elevation: 3 }} activeOpacity={0.8}>
@@ -24,6 +26,12 @@ export function HireCard({ hire, author }: { hire: HirePostDoc; author?: UserDoc
         <Text className="text-sm leading-5 text-text-muted" numberOfLines={3}>
           {hire.detail}
         </Text>
+        {/* Portfolio first image; a freelance post without one stays text only. */}
+        {images.length ? (
+          <View className="mt-3">
+            <PostCover images={images} className="h-40 w-full rounded-xl" />
+          </View>
+        ) : null}
       </TouchableOpacity>
     </Link>
   );

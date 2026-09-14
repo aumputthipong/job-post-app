@@ -1,12 +1,11 @@
 import { postImages } from "@jobapp-platform/shared";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { Link, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { CommentList } from "@/components/comment-list";
-import { Avatar, PostImage } from "@/components/media";
+import { ImageCarousel } from "@/components/image-carousel";
+import { Avatar } from "@/components/media";
 import { RatePost } from "@/components/post-actions";
 import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
 import { useAuth } from "@/lib/auth-context";
@@ -18,7 +17,6 @@ export default function HireDetail() {
   const { data: hire, loading, error } = useHirePost(id);
   const { data: author } = useUser(hire?.postById);
   const rating = useRatingSummary("hire", id);
-  const [viewerOpen, setViewerOpen] = useState(false);
   const tabBarHeight = useTabBarHeight();
   const hideTabBar = useHideTabBarOnScroll();
   const { user } = useAuth();
@@ -27,7 +25,7 @@ export default function HireDetail() {
   if (loading) return <Loading />;
   if (!hire) return <EmptyState icon="alert-circle-outline" message="ไม่พบประกาศนี้ อาจถูกลบไปแล้ว" />;
   const isOwner = user?.uid === hire.postById;
-  const cover = postImages(hire)[0]?.url;
+  const images = postImages(hire);
 
   return (
     <View className="flex-1">
@@ -71,19 +69,11 @@ export default function HireDetail() {
             <InfoRow icon="call-outline">{hire.phone || "ไม่ระบุ"}</InfoRow>
           </Section>
 
-          <Section title="เรซูเม่ / ผลงาน">
-            {cover ? (
-              <TouchableOpacity activeOpacity={0.8} onPress={() => setViewerOpen(true)}>
-                <PostImage uri={cover} className="h-56 w-full rounded-xl" />
-                <View className="absolute bottom-3 right-3 flex-row items-center rounded-full bg-black/60 px-3 py-1.5">
-                  <Ionicons name="expand-outline" size={16} color="#FFFFFF" />
-                  <Text className="ml-1.5 text-xs text-surface" numberOfLines={1}>
-                    แตะเพื่อดูรูปเต็ม
-                  </Text>
-                </View>
-              </TouchableOpacity>
+          <Section title="ผลงาน">
+            {images.length ? (
+              <ImageCarousel images={images} height={240} rounded />
             ) : (
-              <Text className="text-text-subtle">ไม่มีไฟล์แนบ</Text>
+              <Text className="text-text-subtle">ยังไม่มีรูปผลงาน</Text>
             )}
           </Section>
 
@@ -92,15 +82,6 @@ export default function HireDetail() {
           <View className="mb-5 h-px bg-border" />
           <CommentList kind="hire" postId={hire.id} />
         </View>
-
-        <Modal visible={viewerOpen} transparent animationType="fade" onRequestClose={() => setViewerOpen(false)}>
-          <Pressable className="flex-1 bg-black" onPress={() => setViewerOpen(false)}>
-            <Image source={{ uri: cover }} contentFit="contain" style={{ flex: 1 }} />
-            <View className="absolute right-5 top-12">
-              <Ionicons name="close" size={32} color="#FFFFFF" />
-            </View>
-          </Pressable>
-        </Modal>
       </KeyboardAwareScrollView>
       {isOwner ? <Fab href={`/hires/${hire.id}/edit`} icon="create-outline" label="แก้ไขประกาศ" /> : null}
     </View>

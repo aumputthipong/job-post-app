@@ -1,9 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
+import { MAX_POST_IMAGES, type Media } from "@jobapp-platform/shared";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { type ReactNode, useState } from "react";
 import {
   ActivityIndicator,
+  ScrollView,
   Text,
   TextInput,
   type TextInputProps,
@@ -165,46 +167,78 @@ export async function pickImage(aspect: [number, number]) {
   return result.canceled ? undefined : result.assets[0].uri;
 }
 
-/** Shows the current image (remote or just picked) and lets the user pick another. */
-export function ImageField({
+/** An image in a form: already stored (`media` set) or just picked, still to upload. */
+export type FormImage = { uri: string; media?: Media };
+
+/**
+ * Several images, first one the cover. The system picker can't crop a
+ * multi-selection, so none of them are cropped; screens crop to fill instead.
+ */
+export function ImagesField({
   label,
-  uri,
+  images,
   onChange,
 }: {
   label: string;
-  uri?: string;
-  onChange: (localUri: string) => void;
+  images: FormImage[];
+  onChange: (images: FormImage[]) => void;
 }) {
-  const pick = async () => {
-    const picked = await pickImage([4, 3]);
-    if (picked) onChange(picked);
+  const room = MAX_POST_IMAGES - images.length;
+
+  const add = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsMultipleSelection: true,
+      selectionLimit: room,
+      orderedSelection: true,
+      quality: 0.8,
+    });
+    if (result.canceled) return;
+    const known = new Set(images.map((image) => image.uri));
+    const picked = result.assets.map((asset) => ({ uri: asset.uri })).filter((image) => !known.has(image.uri));
+    onChange([...images, ...picked].slice(0, MAX_POST_IMAGES));
   };
 
   return (
     <View className="mb-5">
-      <Text className="mb-2 font-medium text-text">{label}</Text>
-      <TouchableOpacity
-        onPress={pick}
-        activeOpacity={0.8}
-        className="h-48 overflow-hidden rounded-xl border border-dashed border-border bg-background"
-      >
-        {uri ? (
-          <>
-            <Image source={{ uri }} contentFit="cover" style={{ flex: 1 }} />
-            <View className="absolute bottom-3 right-3 flex-row items-center rounded-full bg-black/60 px-3 py-1.5">
-              <Ionicons name="camera-outline" size={16} color="#FFFFFF" />
-              <Text className="ml-1.5 text-xs text-surface" numberOfLines={1}>
-                เปลี่ยนรูป
-              </Text>
-            </View>
-          </>
-        ) : (
-          <View className="flex-1 items-center justify-center">
-            <Ionicons name="image-outline" size={32} color="#94A3B8" />
-            <Text className="mt-2 text-text-subtle">แตะเพื่อเพิ่มรูปภาพ (ไม่บังคับ)</Text>
+      <View className="mb-2 flex-row items-center justify-between">
+        <Text className="font-medium text-text">{label}</Text>
+        <Text className="text-sm text-text-subtle">
+          {images.length}/{MAX_POST_IMAGES}
+        </Text>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingTop: 8 }}>
+        {images.map((image, i) => (
+          <View key={image.uri} className="mr-3">
+            <Image source={{ uri: image.uri }} contentFit="cover" style={{ width: 96, height: 96, borderRadius: 12 }} />
+            {i === 0 ? (
+              <View className="absolute bottom-1.5 left-1.5 rounded-full bg-black/60 px-2 py-0.5">
+                <Text className="text-xs text-surface">ปก</Text>
+              </View>
+            ) : null}
+            <TouchableOpacity
+              className="absolute -right-2 -top-2 rounded-full bg-surface"
+              onPress={() => onChange(images.filter((_, j) => j !== i))}
+              hitSlop={8}
+              accessibilityLabel={`ลบรูปที่ ${i + 1}`}
+            >
+              <Ionicons name="close-circle" size={24} color="#EF4444" />
+            </TouchableOpacity>
           </View>
-        )}
-      </TouchableOpacity>
+        ))}
+        {room > 0 ? (
+          <TouchableOpacity
+            onPress={add}
+            activeOpacity={0.8}
+            className="h-24 w-24 items-center justify-center rounded-xl border border-dashed border-border bg-background"
+            accessibilityLabel="เพิ่มรูป"
+          >
+            <Ionicons name="images-outline" size={28} color="#94A3B8" />
+            <Text className="mt-1 text-xs text-text-subtle">เพิ่มรูป</Text>
+          </TouchableOpacity>
+        ) : null}
+      </ScrollView>
+      <Text className="mt-2 text-xs text-text-subtle">รูปแรกจะเป็นรูปปก · ไม่บังคับ</Text>
     </View>
   );
 }
@@ -241,15 +275,19 @@ export function SubmitButton({
   onPress,
   loading,
   hasErrors,
+  status,
 }: {
   title: string;
   onPress: () => void;
   loading?: boolean;
   hasErrors?: boolean;
+  /** What a long save is doing, e.g. upload progress. */
+  status?: string;
 }) {
   return (
     <>
       {hasErrors ? <Text className="mb-3 text-center text-red-500">กรุณากรอกข้อมูลที่ยังขาดให้ครบ</Text> : null}
+      {status ? <Text className="mb-3 text-center text-text-subtle">{status}</Text> : null}
       <PrimaryButton title={title} onPress={onPress} loading={loading} />
     </>
   );

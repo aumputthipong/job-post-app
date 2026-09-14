@@ -19,7 +19,7 @@ export default function EditHire() {
   return (
     <HirePostForm
       initial={hire}
-      initialImage={postImages(hire)[0]?.url}
+      initialImages={postImages(hire)}
       submitLabel="บันทึก"
       onSubmit={async (data) => {
         await api.updatePost("hire", id, data);

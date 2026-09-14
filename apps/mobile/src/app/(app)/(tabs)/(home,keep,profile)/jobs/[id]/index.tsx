@@ -3,7 +3,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { CommentList } from "@/components/comment-list";
-import { PostImage } from "@/components/media";
+import { ImageCarousel } from "@/components/image-carousel";
 import { FavoriteButton, RatePost } from "@/components/post-actions";
 import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
 import { useAuth } from "@/lib/auth-context";
@@ -33,7 +33,7 @@ export default function JobDetail() {
         bottomOffset={24}
         {...hideTabBar}
       >
-        <PostImage uri={postImages(job)[0]?.url} className="h-56 w-full" />
+        <ImageCarousel images={postImages(job)} height={280} />
 
         <View className="p-5">
           <Text className="text-2xl font-bold text-primary">{job.jobTitle}</Text>

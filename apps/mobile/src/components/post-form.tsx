@@ -3,6 +3,7 @@ import {
   type CreateJobPostInput,
   createHirePostSchema,
   createJobPostSchema,
+  type Media,
   type PostKind,
 } from "@jobapp-platform/shared";
 import { router } from "expo-router";
@@ -15,8 +16,9 @@ import {
   ChoiceChips,
   fieldErrors,
   FormScrollView,
+  type FormImage,
   FormSection,
-  ImageField,
+  ImagesField,
   ListField,
   PrimaryButton,
   SubmitButton,
@@ -28,7 +30,7 @@ type HireFields = Omit<CreateHirePostInput, "images">;
 
 type FormProps<Fields, Input> = {
   initial?: Partial<Fields>;
-  initialImage?: string;
+  initialImages?: Media[];
   submitLabel: string;
   onSubmit: (data: Input) => Promise<void>;
   /** Extra controls under the submit button (the edit screen's delete). */
@@ -72,7 +74,7 @@ export function JobPostForm({ initial, ...props }: FormProps<JobFields, CreateJo
         <ChoiceChips label="ประเภทงาน" options={CATEGORIES} value={values.category} onChange={set("category")} error={errors.category} />
         <ChoiceChips label="ประเภทการจ้าง" options={EMPLOYMENT_TYPES} value={values.employmentType} onChange={set("employmentType")} error={errors.employmentType} />
         <TextField label="ค่าจ้าง (บาท)" placeholder="เช่น 15000" value={values.wage} onChangeText={set("wage")} error={errors.wage} keyboardType="numeric" />
-        <ImageField label="รูปภาพประกาศ" uri={form.image} onChange={form.setImage} />
+        <ImagesField label="รูปภาพประกาศ" images={form.images} onChange={form.setImages} />
       </FormSection>
 
       <FormSection title="คุณสมบัติและสวัสดิการ">
@@ -95,7 +97,7 @@ export function HirePostForm({ initial, ...props }: FormProps<HireFields, Create
         <TextField label="หัวข้อ" placeholder="เช่น รับออกแบบโลโก้" value={values.hireTitle} onChangeText={set("hireTitle")} error={errors.hireTitle} autoCapitalize="sentences" />
         <ChoiceChips label="ประเภทงาน" options={CATEGORIES} value={values.category} onChange={set("category")} error={errors.category} />
         <TextField label="รายละเอียด" placeholder="ทักษะ ประสบการณ์ ขอบเขตงานที่รับ..." value={values.detail} onChangeText={set("detail")} error={errors.detail} multiline autoCapitalize="sentences" />
-        <ImageField label="เรซูเม่ / ผลงาน" uri={form.image} onChange={form.setImage} />
+        <ImagesField label="รูปผลงาน" images={form.images} onChange={form.setImages} />
       </FormSection>
 
       <ContactCard values={values} errors={errors} set={set} />
@@ -108,13 +110,16 @@ type Form = ReturnType<typeof usePostForm<any, any>>;
 function usePostForm<Fields extends Record<string, unknown>, Input>(
   initial: Fields,
   schema: ZodType<Input, ZodTypeDef, unknown>,
-  { initialImage, onSubmit }: Pick<FormProps<Fields, Input>, "initialImage" | "onSubmit">,
+  { initialImages = [], onSubmit }: Pick<FormProps<Fields, Input>, "initialImages" | "onSubmit">,
 ) {
   const [values, setValues] = useState(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [picked, setPicked] = useState<string>();
+  const [images, setImages] = useState<FormImage[]>(() => initialImages.map((media) => ({ uri: media.url, media })));
   const [submitting, setSubmitting] = useState(false);
-  const uploaded = useRef<{ uri: string; url: string; publicId: string }>(undefined);
+  const [status, setStatus] = useState<string>();
+  // Uploads by local uri: a retry after a failed save reuses them instead of
+  // uploading (and orphaning) the same photo again.
+  const uploads = useRef(new Map<string, Media>());
 
   const set =
     <K extends keyof Fields>(key: K) =>
@@ -131,23 +136,30 @@ function usePostForm<Fields extends Record<string, unknown>, Input>(
     }
     setSubmitting(true);
     try {
-      // Only a newly picked image is uploaded; an unchanged one stays as it is.
-      // A retry after a failed save reuses the upload instead of orphaning it.
-      if (picked && uploaded.current?.uri !== picked) {
-        uploaded.current = { uri: picked, ...(await api.uploadImage(picked, "posts")) };
-      }
-      // Still one image until the form takes several (MIGRATION.md 5.3); sending
-      // `images` replaces the post's list, so it's only sent for a new pick.
-      const media = picked ? uploaded.current : undefined;
-      await onSubmit({ ...parsed.data, ...(media && { images: [{ url: media.url, publicId: media.publicId }] }) });
+      const pending = images.filter((image) => !image.media && !uploads.current.has(image.uri));
+      let done = 0;
+      const progress = () => setStatus(`กำลังอัปโหลดรูป ${done}/${pending.length}`);
+      if (pending.length) progress();
+      await Promise.all(
+        pending.map(async ({ uri }) => {
+          uploads.current.set(uri, await api.uploadImage(uri, "posts"));
+          done += 1;
+          progress();
+        }),
+      );
+      setStatus(undefined);
+      // The whole list, in order: the API keeps what's still there and deletes the rest.
+      const media = images.map((image) => image.media ?? uploads.current.get(image.uri)!);
+      await onSubmit({ ...parsed.data, images: media });
     } catch (error) {
+      setStatus(undefined);
       Alert.alert("บันทึกไม่สำเร็จ", (error as Error).message);
     } finally {
       setSubmitting(false);
     }
   };
 
-  return { values, errors, set, image: picked ?? initialImage, setImage: setPicked, submit, submitting };
+  return { values, errors, set, images, setImages, submit, submitting, status };
 }
 
 function FormShell({
@@ -163,6 +175,7 @@ function FormShell({
         title={submitLabel}
         onPress={form.submit}
         loading={form.submitting}
+        status={form.status}
         hasErrors={Object.keys(form.errors).length > 0}
       />
       {footer ? <View className="mt-3">{footer}</View> : null}
