@@ -8,7 +8,7 @@ import { ImageCarousel } from "@/components/image-carousel";
 import { Avatar } from "@/components/media";
 import { RatePost } from "@/components/post-actions";
 import { ResumeButton } from "@/components/resume";
-import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
+import { useTabBarHeight } from "@/components/tab-bar";
 import { useAuth } from "@/lib/auth-context";
 import { EmptyState, ErrorState, Fab, InfoRow, Loading, Section, Stars } from "@/components/ui";
 import { fullName, useHirePost, useRatingSummary, useUser } from "@/lib/data";
@@ -19,7 +19,6 @@ export default function HireDetail() {
   const { data: author } = useUser(hire?.postById);
   const rating = useRatingSummary("hire", id);
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll(!!hire && !error);
   const { user } = useAuth();
 
   if (error) return <ErrorState error={error} />;
@@ -35,7 +34,6 @@ export default function HireDetail() {
         contentContainerStyle={{ paddingBottom: tabBarHeight + (isOwner ? 96 : 0) }}
         keyboardShouldPersistTaps="handled"
         bottomOffset={24}
-        {...hideTabBar}
       >
         <Link href={`/users/${hire.postById}`} asChild>
           <TouchableOpacity className="m-4 flex-row items-center rounded-card bg-surface p-4" style={{ elevation: 3 }}>

@@ -20,8 +20,6 @@ export default function MyPosts() {
   const hires = useHirePosts();
   const [kind, setKind] = useState<PostKind>("find");
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll();
-  const listProps = { contentContainerStyle: { paddingBottom: tabBarHeight + 100 }, ...hideTabBar };
 
   // Filters the lists the app already listens to, as Keep does.
   const mine = {
@@ -29,6 +27,8 @@ export default function MyPosts() {
     hire: (hires.data ?? []).filter((hire) => hire.postById === user?.uid),
   };
   const current = kind === "find" ? jobs : hires;
+  const hideTabBar = useHideTabBarOnScroll(!current.loading && !current.error);
+  const listProps = { contentContainerStyle: { paddingBottom: tabBarHeight + 100 }, ...hideTabBar };
 
   return (
     <View className="flex-1 bg-background">

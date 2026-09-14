@@ -4,7 +4,7 @@ import { Link, router, Stack } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
 import { Avatar } from "@/components/media";
-import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
+import { useTabBarHeight } from "@/components/tab-bar";
 import { EmptyState, ErrorState, Loading } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -21,7 +21,6 @@ export default function Notifications() {
   const { data, loading, error, unread } = useNotifications(user?.uid);
   const { byId } = useUsers();
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll(!loading && !error);
   const [markingAll, setMarkingAll] = useState(false);
 
   const markAll = async () => {
@@ -71,7 +70,6 @@ export default function Notifications() {
             <EmptyState icon="notifications-off-outline" message="ยังไม่มีการแจ้งเตือน เมื่อมีคนคอมเมนต์ ให้คะแนน หรือมีประกาศใหม่ในหมวดที่ติดตาม จะแสดงที่นี่" />
           }
           contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}
-          {...hideTabBar}
         />
       )}
     </View>

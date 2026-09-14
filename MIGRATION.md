@@ -302,6 +302,10 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
      creating a post couldn't tell which tab to land in and opened the post in Home with no
      back button. Deleting now returns to the list the post was opened from
      (`router.dismiss(2)`) instead of always the job board.
+     **Narrowed 2026-09-13 (owner's request):** only the post feeds hide the bar — the two
+     boards, Keep and My posts — since those can run very long. Post details, profiles and
+     notifications keep it in place. A feed that stops being scrollable while the bar is
+     hidden (a search with few results, an empty segment) shows the bar again.
    - 5.2 **Several images per post — data and API. Done 2026-09-13.** Both post kinds get
      `images: { url, publicId }[]`, at most 10, the first one the cover. Old posts keep
      `imageUrl` / `resumeUrl` and are read as a one-image list (`postImages()` in

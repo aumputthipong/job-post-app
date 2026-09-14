@@ -9,7 +9,7 @@ export default function Jobs() {
   const { data: jobs, loading, error } = useJobPosts();
   const [search, setSearch] = useState("");
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll();
+  const hideTabBar = useHideTabBarOnScroll(!loading && !error);
 
   const shown = useMemo(() => {
     const term = search.trim().toLowerCase();
