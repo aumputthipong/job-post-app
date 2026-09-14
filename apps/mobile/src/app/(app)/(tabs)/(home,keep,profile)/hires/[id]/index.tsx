@@ -4,10 +4,10 @@ import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Modal, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CommentList } from "@/components/comment-list";
 import { Avatar, PostImage } from "@/components/media";
 import { RatePost } from "@/components/post-actions";
+import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
 import { useAuth } from "@/lib/auth-context";
 import { EmptyState, ErrorState, Fab, InfoRow, Loading, Section, Stars } from "@/components/ui";
 import { fullName, useHirePost, useRatingSummary, useUser } from "@/lib/data";
@@ -18,7 +18,8 @@ export default function HireDetail() {
   const { data: author } = useUser(hire?.postById);
   const rating = useRatingSummary("hire", id);
   const [viewerOpen, setViewerOpen] = useState(false);
-  const insets = useSafeAreaInsets();
+  const tabBarHeight = useTabBarHeight();
+  const hideTabBar = useHideTabBarOnScroll();
   const { user } = useAuth();
 
   if (error) return <ErrorState error={error} />;
@@ -30,9 +31,10 @@ export default function HireDetail() {
     <View className="flex-1">
       <KeyboardAwareScrollView
         style={{ flex: 1, backgroundColor: "#F5F7FA" }}
-        contentContainerStyle={{ paddingBottom: insets.bottom + (isOwner ? 96 : 0) }}
+        contentContainerStyle={{ paddingBottom: tabBarHeight + (isOwner ? 96 : 0) }}
         keyboardShouldPersistTaps="handled"
         bottomOffset={24}
+        {...hideTabBar}
       >
         <Link href={`/users/${hire.postById}`} asChild>
           <TouchableOpacity className="m-4 flex-row items-center rounded-card bg-surface p-4" style={{ elevation: 3 }}>

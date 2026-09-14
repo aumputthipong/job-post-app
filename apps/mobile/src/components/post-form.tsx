@@ -176,8 +176,9 @@ export function DeletePostButton({ kind, id }: { kind: PostKind; id: string }) {
     setDeleting(true);
     try {
       await api.deletePost(kind, id);
-      // The detail screen underneath now points at nothing; go back past it.
-      router.dismissTo(kind === "find" ? "/jobs" : "/hires");
+      // Close the form and the detail screen under it, which now points at
+      // nothing — back to whichever list the post was opened from.
+      router.dismiss(2);
     } catch (error) {
       setDeleting(false);
       Alert.alert("ลบไม่สำเร็จ", (error as Error).message);

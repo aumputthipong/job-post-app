@@ -269,7 +269,8 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
        API must run in production mode) and browse. Real documents may have shapes the seed
        doesn't — missing fields, numbers where strings are expected, dead image URLs.
 
-   Route tree, mapped from `navigation/MyNavigator.js`:
+   Route tree, mapped from `navigation/MyNavigator.js` (as built in Phase 4; 5.1b moved the
+   browsing screens and forms into per-tab stacks under `(tabs)/(home,keep,profile)/`):
 
    ```
    app/_layout.tsx          providers + guard: (auth) or (app)
@@ -291,6 +292,16 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
 
    - 5.1 **My posts.** Profile → "โพสต์ของฉัน", jobs and freelance posts in two segments.
      Filters the lists the app already listens to, as Keep does, so no extra listener.
+   - 5.1b **Tab bar everywhere, hiding on scroll** (owner's request, 2026-09-13). Every
+     screen used to sit in one stack above the tabs, so the bar vanished as soon as you left a
+     tab. Now each tab has its own stack: `(tabs)/(home,keep,profile)/` is one folder that
+     Expo Router copies into all three tabs ("shared routes"), so a post opened from Keep
+     goes back to Keep. The bar slides away while scrolling down and returns on the way up,
+     like Facebook; the FAB follows it. Forms (`new`, `edit`, `edit-profile`) live in the tab
+     stacks too, with the bar hidden: when they sat outside the tabs, `router.replace` after
+     creating a post couldn't tell which tab to land in and opened the post in Home with no
+     back button. Deleting now returns to the list the post was opened from
+     (`router.dismiss(2)`) instead of always the job board.
    - 5.2 **Several images per post — data and API.** Both post kinds get
      `images: { url, publicId }[]`, at most 10, the first one the cover. Old posts keep
      `imageUrl` / `resumeUrl` and are read as a one-image list; saving an edit rewrites them as

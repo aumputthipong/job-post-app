@@ -1,12 +1,15 @@
 import { FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { JobCard } from "@/components/job-card";
+import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
 import { EmptyState, ErrorState, Loading } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
 import { useFavoriteIds, useJobPosts } from "@/lib/data";
 
 export default function Keep() {
   const { user } = useAuth();
+  const tabBarHeight = useTabBarHeight();
+  const hideTabBar = useHideTabBarOnScroll();
   const jobs = useJobPosts();
   const favorites = useFavoriteIds(user?.uid);
   const saved = (jobs.data ?? []).filter((job) => favorites.ids.has(job.id));
@@ -28,7 +31,8 @@ export default function Keep() {
           ListEmptyComponent={
             <EmptyState icon="bookmark-outline" message="คุณยังไม่ได้บันทึกงานใดๆ ไว้ แตะ ☆ ในหน้ารายละเอียดงานเพื่อบันทึก" />
           }
-          contentContainerStyle={{ paddingBottom: 24 }}
+          contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}
+          {...hideTabBar}
         />
       )}
     </SafeAreaView>
