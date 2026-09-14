@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { uploadFolder } from "@jobapp-platform/shared";
 import { v2 as cloudinary } from "cloudinary";
 import { usingEmulators } from "../firebaseAdmin.js";
@@ -55,13 +56,20 @@ export function isOwnUpload(media: { url: string; publicId?: string }, folder: s
 
 export type UploadResult = { url: string; publicId: string };
 
-/** Uploads raw bytes and returns the CDN url plus the id needed to delete it later. */
-export async function uploadImage(buffer: Buffer, folder: string): Promise<UploadResult> {
+/**
+ * Uploads bytes and returns the CDN url plus the id needed to delete it later.
+ *
+ * PDFs go up as "raw" files. As images, Cloudinary rasterises every page on
+ * upload, and the free plan answers that with 429 "Out of Processing
+ * Capacity". A raw public id keeps its extension, so `.pdf` also tells
+ * deleteImage which resource type to remove.
+ */
+export async function uploadImage(buffer: Buffer, folder: string, pdf = false): Promise<UploadResult> {
   assertCloudinary();
 
   const result = await new Promise<any>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: "image" },
+      pdf ? { folder, resource_type: "raw", public_id: `${randomUUID()}.pdf` } : { folder, resource_type: "image" },
       (error, uploaded) => (error ? reject(error) : resolve(uploaded)),
     );
     stream.end(buffer);
@@ -77,7 +85,9 @@ export async function uploadImage(buffer: Buffer, folder: string): Promise<Uploa
 export async function deleteImage(publicId: string): Promise<boolean> {
   assertCloudinary();
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: publicId.endsWith(".pdf") ? "raw" : "image",
+    });
     return result.result === "ok" || result.result === "not found";
   } catch {
     return false;

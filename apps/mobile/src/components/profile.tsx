@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Text, View } from "react-native";
 import { fullName, type UserDoc } from "@/lib/data";
 import { Avatar } from "./media";
+import { ResumeButton, ResumeEditor } from "./resume";
 import { InfoRow, Section } from "./ui";
 
 const orDash = (value?: string) => value?.trim() || "-";
@@ -29,11 +30,22 @@ export function ProfileCard({
   );
 }
 
-export function ProfileDetails({ user }: { user: UserDoc }) {
+/** `editable` is the owner's own profile: the résumé can be uploaded or changed there. */
+export function ProfileDetails({ user, editable }: { user: UserDoc; editable?: boolean }) {
   return (
     <View className="mx-4 mb-8 rounded-card bg-surface p-5">
       <Section title="เกี่ยวกับฉัน">
         <Text className="text-base leading-6 text-text">{orDash(user.aboutme)}</Text>
+      </Section>
+
+      <Section title="เรซูเม่">
+        {editable ? (
+          <ResumeEditor resume={user.resume} />
+        ) : user.resume ? (
+          <ResumeButton resume={user.resume} />
+        ) : (
+          <Text className="text-text-subtle">ยังไม่มีเรซูเม่</Text>
+        )}
       </Section>
 
       <Section title="ช่องทางติดต่อ">

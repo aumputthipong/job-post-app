@@ -7,6 +7,7 @@ import { CommentList } from "@/components/comment-list";
 import { ImageCarousel } from "@/components/image-carousel";
 import { Avatar } from "@/components/media";
 import { RatePost } from "@/components/post-actions";
+import { ResumeButton } from "@/components/resume";
 import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
 import { useAuth } from "@/lib/auth-context";
 import { EmptyState, ErrorState, Fab, InfoRow, Loading, Section, Stars } from "@/components/ui";
@@ -18,7 +19,7 @@ export default function HireDetail() {
   const { data: author } = useUser(hire?.postById);
   const rating = useRatingSummary("hire", id);
   const tabBarHeight = useTabBarHeight();
-  const hideTabBar = useHideTabBarOnScroll();
+  const hideTabBar = useHideTabBarOnScroll(!!hire && !error);
   const { user } = useAuth();
 
   if (error) return <ErrorState error={error} />;
@@ -68,6 +69,13 @@ export default function HireDetail() {
             <InfoRow icon="mail-outline">{hire.email || "ไม่ระบุ"}</InfoRow>
             <InfoRow icon="call-outline">{hire.phone || "ไม่ระบุ"}</InfoRow>
           </Section>
+
+          {/* The résumé lives on the author's profile, so every post of theirs shares it. */}
+          {author?.resume ? (
+            <Section title="เรซูเม่">
+              <ResumeButton resume={author.resume} />
+            </Section>
+          ) : null}
 
           <Section title="ผลงาน">
             {images.length ? (

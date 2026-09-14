@@ -57,6 +57,8 @@ async function request<T>(
       signal: controller.signal,
     });
   } catch (error) {
+    // The message below is a guess for the user; the real cause goes to the Metro log.
+    if (__DEV__) console.warn(`${method} ${path} failed before a response:`, error);
     throw new ApiError(
       (error as Error)?.name === "AbortError"
         ? "เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาลองใหม่"
@@ -107,7 +109,7 @@ export const api = {
   updateMe: (data: UpdateUserProfileInput) => request("/users/me", { method: "PUT", body: data }),
 
   /** Uploads a local image (file:// URI) to Cloudinary through the API. */
-  uploadImage: (uri: string, folder: "posts" | "profiles") => {
+  uploadImage: (uri: string, folder: "posts" | "profiles" | "resumes") => {
     const form = new FormData();
     // `folder` must come before the file: the API reads fields up to the file part.
     form.append("folder", folder);

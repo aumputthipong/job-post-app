@@ -74,7 +74,8 @@ export function ImageCarousel({ images, height, rounded }: { images: Media[]; he
   );
 }
 
-function ImageViewer({ images, start, onClose }: { images: Media[]; start?: number; onClose: () => void }) {
+/** Full-screen, swipeable. Shown while `start` (the first image to show) is set. */
+export function ImageViewer({ images, start, onClose }: { images: Media[]; start?: number; onClose: () => void }) {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [index, setIndex] = useState(0);

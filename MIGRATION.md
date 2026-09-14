@@ -327,11 +327,27 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
      image. New images upload in parallel with a progress line; uploads are remembered by
      local uri, so retrying a failed save doesn't upload the same photo twice. Reordering
      isn't there yet — remove and re-add to change the cover.
-   - Freelance posts' "เรซูเม่ / ผลงาน" splits in two, pending the owner's confirmation:
-     a résumé belongs to the person, not to one post, so it moves to the profile (one PDF or
-     image, shown on the public profile and linked from each freelance post), and the post's
-     images become its portfolio. Cloudinary free accounts block PDF delivery until "Allow
-     delivery of PDF and ZIP files" is switched on in its security settings.
+   - 5.3b **Résumé on the profile. Done 2026-09-13** (owner chose PDF + image). A résumé
+     belongs to the person, not to one post: `resume: { url, publicId, name }` on
+     `User Info`, uploaded from the owner's profile, shown on the public profile and on each of
+     their freelance posts. The post's images are its portfolio. Replacing or removing it
+     deletes the old file; it must come from the user's own `resumes/<uid>` folder.
+     - *PDFs are uploaded as Cloudinary "raw" files.* As `image`, Cloudinary rasterises every
+       page on upload and the free plan answers 429 "Out of Processing Capacity" — every time,
+       not a passing limit. Raw files keep a `.pdf` public id, which is also how delete picks
+       the resource type. The owner had switched on "Allow delivery of PDF and ZIP files"
+       (Settings → Security); that applies to image-type PDFs, so raw delivery doesn't depend
+       on it.
+     - A PDF opens in the in-app browser (Chrome's viewer); an image opens full screen.
+     - *Expo Go can't read expo-document-picker's cache copy* ("Missing 'READ' permission" from
+       `File.bytes`), so the picker returns the original `content://` uri
+       (`copyToCacheDirectory: false`), which reads fine.
+     - Cloudinary failures on upload now answer a Thai 503/502 instead of a bare 500.
+     - `api.ts` logs the real cause of a request that fails before any response to the Metro
+       log in development; the user-facing message had hidden the READ-permission error.
+     - Found while testing: a detail screen whose post is deleted while the tab bar is hidden
+       showed the not-found state with no bar and nothing to scroll to bring it back. The
+       scroll hook now takes whether the content is showing and shows the bar when it isn't.
    - 5.4 **Notifications — API.** New collection `Notifications`, one row per recipient:
      `{ userId, type, postKind, postId, postTitle, actorIds, count, read, updatedAt }`.
 

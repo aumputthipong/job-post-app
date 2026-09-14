@@ -39,17 +39,31 @@ export async function usersRoutes(app: FastifyInstance) {
     if (changingAvatar && !isOwnUpload({ url: imageUrl ?? "", publicId: imagePublicId }, "profiles", request.userId!)) {
       return reply.code(403).send({ error: "ใช้ได้เฉพาะรูปที่คุณอัปโหลดเอง" });
     }
+    // Same reasoning for the résumé, which is replaced and removed the same way.
+    const { resume } = parsed.data;
+    if (resume && !isOwnUpload(resume, "resumes", request.userId!)) {
+      return reply.code(403).send({ error: "ใช้ได้เฉพาะไฟล์ที่คุณอัปโหลดเอง" });
+    }
 
     await ref.set(
-      { ...parsed.data, updatedAt: FieldValue.serverTimestamp() },
+      {
+        ...parsed.data,
+        ...(resume === null && { resume: FieldValue.delete() }),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
       { merge: true },
     );
 
-    // Replacing the avatar? Remove the old one instead of orphaning it.
+    // Replaced or removed files are deleted instead of orphaned.
     const previousImageId = snap.data()?.imagePublicId;
     if (previousImageId && imagePublicId && previousImageId !== imagePublicId) {
       const removed = await deleteImage(previousImageId);
       if (!removed) request.log.warn({ previousImageId }, "old avatar not deleted");
+    }
+    const previousResumeId = snap.data()?.resume?.publicId;
+    if (previousResumeId && resume !== undefined && resume?.publicId !== previousResumeId) {
+      const removed = await deleteImage(previousResumeId);
+      if (!removed) request.log.warn({ previousResumeId }, "old résumé not deleted");
     }
 
     return reply.send({ id: request.userId });

@@ -99,7 +99,7 @@ export default function Profile() {
               <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
             </TouchableOpacity>
           </Link>
-          <ProfileDetails user={profile} />
+          <ProfileDetails user={profile} editable />
         </ScrollView>
       )}
     </SafeAreaView>
