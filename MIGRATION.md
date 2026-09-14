@@ -12,12 +12,9 @@ Same Firebase project and Firestore data are reused — nothing is migrated at t
 
 ## Known issues carried over from the legacy code (tracked, not yet all fixed)
 
-**Deferred, by request (2026-09-11):** the notification-preferences flow
-(`EditNoti.js` / `PUT /users/me/noti-preferences`) works — saves correctly, no
-error — but the underlying feature is incomplete in the legacy design: there
-is no code anywhere that reads `User Noti` and actually sends a notification.
-It only stores a preference nobody consumes. Revisit this as a feature, not a
-bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
+**Picked up in Phase 5 (2026-09-13):** the notification-preferences flow
+(`EditNoti.js` / `PUT /users/me/noti-preferences`) saved a preference nothing ever read.
+It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 below.
 
 1. **Fixed by `packages/shared`**: `jobsReducer.js` wrote ratings to a Firestore collection
    named `"RatingJobs"` while `data/Jobs-data.js` read from `"JobRatings"` — two different
@@ -283,3 +280,59 @@ bug fix, in Phase 4 or later rather than polishing the current dead-end flow.
    app/(app)/hires/         index, new, [id], [id]/edit
    app/(app)/users/[id].tsx another user's profile
    ```
+
+6. **Phase 5 — planned 2026-09-13.** Features on top of the rebuilt app. All of it runs in
+   Expo Go: no new native modules.
+
+   **No push notifications for now.** Expo Go on Android can't receive remote push since
+   SDK 53, so it would need a development build plus FCM credentials, and the API only runs
+   on the owner's machine anyway. In-app notifications show the same backend fan-out; push
+   can later be sent from the same place the `Notifications` rows are written.
+
+   - 5.1 **My posts.** Profile → "โพสต์ของฉัน", jobs and freelance posts in two segments.
+     Filters the lists the app already listens to, as Keep does, so no extra listener.
+   - 5.2 **Several images per post — data and API.** Both post kinds get
+     `images: { url, publicId }[]`, at most 10, the first one the cover. Old posts keep
+     `imageUrl` / `resumeUrl` and are read as a one-image list; saving an edit rewrites them as
+     `images`, so nothing is migrated up front. The API deletes from Cloudinary only the
+     images that were on the post before and aren't any more, so a caller can't delete media
+     by naming someone else's `publicId`. Deleting a post deletes all of its images.
+   - 5.3 **Several images per post — app.** Pick several at once (no crop: the system picker
+     can't crop a multi-selection; the carousel crops to fill instead), thumbnails with a
+     remove button, a swipeable carousel with dots on the detail screens, and an image count
+     on the cover in lists.
+   - Freelance posts' "เรซูเม่ / ผลงาน" splits in two, pending the owner's confirmation:
+     a résumé belongs to the person, not to one post, so it moves to the profile (one PDF or
+     image, shown on the public profile and linked from each freelance post), and the post's
+     images become its portfolio. Cloudinary free accounts block PDF delivery until "Allow
+     delivery of PDF and ZIP files" is switched on in its security settings.
+   - 5.4 **Notifications — API.** New collection `Notifications`, one row per recipient:
+     `{ userId, type, postKind, postId, postTitle, actorIds, count, read, updatedAt }`.
+
+     | Event | Recipient |
+     | --- | --- |
+     | `new_post` | users whose `User Noti` categories contain the post's category, not the author |
+     | `comment` | the post's owner, unless they wrote the comment |
+     | `rating` | the post's owner |
+
+     Keeping repeated taps from flooding anyone, the way most apps do it:
+     - *Grouping instead of one row per event.* The row id is
+       `{recipient}_{type}_{postId}`, so ten comments on one post are one row reading
+       "สมชาย และอีก 9 คนแสดงความคิดเห็น". A new event updates it (latest actor first, count
+       up, `read: false`, moved to the top) instead of adding rows. Rows can't grow faster than
+       recipients × posts, and no query is needed to find the row to update.
+     - *A rating is counted once per person.* Changing your stars updates the same entry
+       instead of counting again.
+     - *Rate limits on the API* (`@fastify/rate-limit`, keyed by user id): posting,
+       commenting and rating each get a per-minute cap and a Thai 429.
+     - *The rating stars wait* ~1 s after the last tap before saving, so tapping 1→5 is one
+       request.
+     - No delayed digest: it needs a scheduler, and grouping already gives the same result.
+     - Notification writes happen after the post/comment/rating is saved and never fail it;
+       they are logged instead.
+     - Deleting a post deletes its notifications. Deleting a comment leaves the grouped row.
+     - Rules: a user reads only rows with their own `userId`; clients write nothing.
+     - The app sorts by `updatedAt` itself (like the lists), so no composite index is needed.
+   - 5.5 **Notifications — app.** A bell with an unread badge on the home screen, a list
+     screen (tap = read + open the post; "อ่านทั้งหมด"), and Profile → "ตั้งค่าการแจ้งเตือน"
+     for choosing categories with the existing endpoint.

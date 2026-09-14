@@ -85,6 +85,17 @@ export default function Profile() {
               </TouchableOpacity>
             </Link>
           </ProfileCard>
+          <Link href="/my-posts" asChild>
+            <TouchableOpacity
+              className="mx-4 mb-4 flex-row items-center rounded-card bg-surface p-4"
+              style={{ elevation: 2 }}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="documents-outline" size={22} color="#083C6B" />
+              <Text className="ml-3 flex-1 text-base font-semibold text-text">โพสต์ของฉัน</Text>
+              <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+            </TouchableOpacity>
+          </Link>
           <ProfileDetails user={profile} />
         </ScrollView>
       )}

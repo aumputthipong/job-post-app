@@ -104,12 +104,15 @@ console on the Spark plan; that's harmless while the bucket is unreachable.
 
 ## Status and what's next
 
-All four phases are built. **Phase 4 ended with 4.7**: the SDK 49 app was deleted and the
-rebuilt one took its place at `apps/mobile`. Decided and not to be revisited without the
-owner: no in-place SDK upgrade, **no Zustand**, no notification tab.
+Phases 0–4 are built and merged. **Phase 4 ended with 4.7**: the SDK 49 app was deleted and
+the rebuilt one took its place at `apps/mobile`. Decided and not to be revisited without the
+owner: no in-place SDK upgrade, **no Zustand**, no push notifications while the app runs in
+Expo Go.
+
+**Phase 5 is in progress** (MIGRATION.md 5.1–5.5): my posts, several images per post,
+in-app notifications grouped per post.
 
 Still open, and the owner's call:
-- They review and test PRs #3–#9; nothing is merged to `main` yet.
 - The new app has only run against the emulators. One run against the real project is
   wanted before trusting it there (MIGRATION.md 4.7).
 
@@ -118,9 +121,6 @@ Still open, and the owner's call:
 RN 0.72 / expo 49 as peers of the old async-storage that `apps/api`'s firebase brings in.
 Uploads must send an `expo-file-system` `File`, not a `{ uri, name, type }` object
 (MIGRATION.md 4.5).
-
-Deferred by request: notification preferences (`EditNoti`) save fine, but nothing ever reads
-`User Noti` to send a notification. Treat it as a feature to build later, not a bug to polish.
 
 The legacy app's lists read module-scope arrays mutated in place, so a new post only
 appeared after navigating away and back. The rebuilt lists are live listeners; that's gone.
