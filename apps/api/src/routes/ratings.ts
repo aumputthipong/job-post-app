@@ -1,7 +1,9 @@
 import type { FastifyInstance } from "fastify";
 import { COLLECTIONS, upsertRatingSchema } from "@jobapp-platform/shared";
 import { db } from "../firebaseAdmin.js";
+import { notifyRating, postTitle } from "../lib/notifications.js";
 import { requireAuth } from "../plugins/auth.js";
+import { rateLimit } from "../plugins/rate-limit.js";
 
 /**
  * Replaces SCORE_RATING (jobsReducer.js) and HIRE_RATING (hireReducer.js).
@@ -15,7 +17,9 @@ import { requireAuth } from "../plugins/auth.js";
  * Firestore console before relying on this in production.
  */
 export async function ratingsRoutes(app: FastifyInstance) {
-  app.put("/ratings", { preHandler: requireAuth }, async (request, reply) => {
+  const limitRatings = rateLimit("ratings", 20);
+
+  app.put("/ratings", { preHandler: [requireAuth, limitRatings] }, async (request, reply) => {
     const parsed = upsertRatingSchema.safeParse(request.body);
     if (!parsed.success) {
       return reply.code(400).send({ error: parsed.error.flatten() });
@@ -23,6 +27,11 @@ export async function ratingsRoutes(app: FastifyInstance) {
     const { postKind, postId, rating } = parsed.data;
     const userId = request.userId!;
     const collectionName = postKind === "find" ? COLLECTIONS.JOB_RATINGS : COLLECTIONS.HIRE_RATINGS;
+
+    const post = await db.collection(postKind === "find" ? COLLECTIONS.JOB_POSTS : COLLECTIONS.HIRE_POSTS).doc(postId).get();
+    if (!post.exists) {
+      return reply.code(404).send({ error: "ไม่พบประกาศนี้ อาจถูกลบไปแล้ว" });
+    }
 
     const ratings = db.collection(collectionName);
     const existing = await ratings
@@ -37,6 +46,7 @@ export async function ratingsRoutes(app: FastifyInstance) {
       await existing.docs[0]!.ref.update({ rating });
     }
 
+    await notifyRating(request.log, { kind: postKind, id: postId, title: postTitle(postKind, post.data()!), ownerId: post.data()!.postById }, userId);
     return reply.send({ postId, userId, rating });
   });
 }

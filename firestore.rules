@@ -60,6 +60,13 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Each row belongs to one recipient. As with User Noti, a query has to filter
+    // on userId == the caller, or it is refused.
+    match /Notifications/{notificationId} {
+      allow read: if signedIn() && resource.data.userId == uid();
+      allow write: if false;
+    }
+
     // "User Info" and "User Noti" contain a space, which cannot be written as
     // a literal path segment in the rules grammar — matched via a wildcard and
     // narrowed by name instead. This block only ever grants access to those

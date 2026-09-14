@@ -2,7 +2,9 @@ import type { FastifyInstance } from "fastify";
 import { FieldValue } from "firebase-admin/firestore";
 import { COLLECTIONS, createCommentSchema, postKindSchema } from "@jobapp-platform/shared";
 import { db } from "../firebaseAdmin.js";
+import { notifyComment, postTitle } from "../lib/notifications.js";
 import { requireAuth } from "../plugins/auth.js";
+import { rateLimit } from "../plugins/rate-limit.js";
 
 /**
  * Replaces the inline JobComments/HireComments writes in the two detail
@@ -10,7 +12,9 @@ import { requireAuth } from "../plugins/auth.js";
  * so comments can't be posted under someone else's name.
  */
 export async function commentsRoutes(app: FastifyInstance) {
-  app.post("/comments/:postKind", { preHandler: requireAuth }, async (request, reply) => {
+  const limitComments = rateLimit("comments", 10);
+
+  app.post("/comments/:postKind", { preHandler: [requireAuth, limitComments] }, async (request, reply) => {
     const kind = postKindSchema.safeParse((request.params as { postKind: string }).postKind);
     if (!kind.success) {
       return reply.code(400).send({ error: "postKind must be 'find' or 'hire'" });
@@ -36,6 +40,11 @@ export async function commentsRoutes(app: FastifyInstance) {
       createdAt: FieldValue.serverTimestamp(),
     });
 
+    await notifyComment(
+      request.log,
+      { kind: kind.data, id: post.id, title: postTitle(kind.data, post.data()!), ownerId: post.data()!.postById },
+      request.userId!,
+    );
     return reply.code(201).send({ id: doc.id });
   });
 

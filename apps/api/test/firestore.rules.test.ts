@@ -57,6 +57,8 @@ beforeEach(async () => {
     await setDoc(doc(db, COLLECTIONS.USER_INFO, "alice"), { email: "alice@example.test" });
     await setDoc(doc(db, COLLECTIONS.USER_NOTI, "noti-alice"), { notiBy: "alice", category: ["งานไอที"] });
     await setDoc(doc(db, COLLECTIONS.USER_NOTI, "noti-bob"), { notiBy: "bob", category: ["งานบัญชี"] });
+    await setDoc(doc(db, COLLECTIONS.NOTIFICATIONS, "n-alice"), { userId: "alice", type: "comment", postId: "job-1", read: false });
+    await setDoc(doc(db, COLLECTIONS.NOTIFICATIONS, "n-bob"), { userId: "bob", type: "comment", postId: "job-1", read: false });
   });
 });
 
@@ -110,6 +112,25 @@ describe("notification preferences are private", () => {
     await assertFails(
       getDocs(query(collection(db, COLLECTIONS.USER_NOTI), where("notiBy", "==", "bob"))),
     );
+  });
+});
+
+describe("notifications are private", () => {
+  it("lets a user query their own rows", async () => {
+    await assertSucceeds(
+      getDocs(query(collection(alice(), COLLECTIONS.NOTIFICATIONS), where("userId", "==", "alice"))),
+    );
+  });
+
+  it("refuses an unfiltered list and someone else's rows", async () => {
+    const db = alice();
+    await assertFails(getDocs(collection(db, COLLECTIONS.NOTIFICATIONS)));
+    await assertFails(getDoc(doc(db, COLLECTIONS.NOTIFICATIONS, "n-bob")));
+    await assertFails(getDocs(query(collection(db, COLLECTIONS.NOTIFICATIONS), where("userId", "==", "bob"))));
+  });
+
+  it("refuses marking one read from the client; that goes through the API", async () => {
+    await assertFails(updateDoc(doc(alice(), COLLECTIONS.NOTIFICATIONS, "n-alice"), { read: true }));
   });
 });
 

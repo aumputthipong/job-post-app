@@ -348,8 +348,10 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
      - Found while testing: a detail screen whose post is deleted while the tab bar is hidden
        showed the not-found state with no bar and nothing to scroll to bring it back. The
        scroll hook now takes whether the content is showing and shows the bar when it isn't.
-   - 5.4 **Notifications — API.** New collection `Notifications`, one row per recipient:
-     `{ userId, type, postKind, postId, postTitle, actorIds, count, read, updatedAt }`.
+   - 5.4 **Notifications — API. Done 2026-09-13.** New collection `Notifications`, one row
+     per recipient:
+     `{ userId, type, postKind, postId, postTitle, actorIds, actorCount, read, updatedAt }`
+     (schema in `packages/shared/src/schemas/notification.ts`).
 
      | Event | Recipient |
      | --- | --- |
@@ -365,8 +367,19 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
        recipients × posts, and no query is needed to find the row to update.
      - *A rating is counted once per person.* Changing your stars updates the same entry
        instead of counting again.
-     - *Rate limits on the API* (`@fastify/rate-limit`, keyed by user id): posting,
-       commenting and rating each get a per-minute cap and a Thai 429.
+     - *Rate limits on the API*, keyed by user id: new posts 5, comments 10, ratings 20 per
+       minute, then a Thai 429 with `retry-after`. A small in-memory limiter
+       (`plugins/rate-limit.ts`) rather than `@fastify/rate-limit`: it has to run after
+       requireAuth to know the user, and the API is a single local process with nothing to
+       share counts with. It would need a shared store once there is more than one instance.
+     - `actorIds` keeps the 10 most recent people; `actorCount` counts distinct people since
+       the row was last read, and a read row starts over at the next event.
+     - `PUT /ratings` now answers 404 for a post that doesn't exist (it needs the post's owner
+       and title). `POST /notifications/:id/read` answers 404 for someone else's row, so ids
+       can't be probed; `POST /notifications/read-all` marks the caller's unread rows.
+     - Tests plant-checked: dropping the "read row starts over" rule or the author exclusion
+       fails `test/notifications.test.ts`.
+     - The seed adds notification preferences and sample rows for Somchai and Malee.
      - *The rating stars wait* ~1 s after the last tap before saving, so tapping 1→5 is one
        request.
      - No delayed digest: it needs a scheduler, and grouping already gives the same result.
