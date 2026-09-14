@@ -3,6 +3,7 @@ import { type Href, Link } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar } from "@/components/media";
+import { NotificationBell } from "@/components/notification-bell";
 import { useAuth } from "@/lib/auth-context";
 import { fullName, useUser } from "@/lib/data";
 
@@ -35,11 +36,14 @@ export default function Home() {
               คุณ {profile?.firstName || "ผู้ใช้งาน"}
             </Text>
           </View>
-          <Link href="/profile" asChild>
-            <TouchableOpacity>
-              <Avatar uri={profile?.imageUrl} name={fullName(profile)} />
-            </TouchableOpacity>
-          </Link>
+          <View className="flex-row items-center">
+            <NotificationBell />
+            <Link href="/profile" asChild>
+              <TouchableOpacity>
+                <Avatar uri={profile?.imageUrl} name={fullName(profile)} />
+              </TouchableOpacity>
+            </Link>
+          </View>
         </View>
 
         <Text className="mb-5 text-lg font-semibold text-text">เลือกรูปแบบการใช้งาน</Text>

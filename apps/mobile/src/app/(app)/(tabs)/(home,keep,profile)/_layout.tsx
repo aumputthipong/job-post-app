@@ -22,6 +22,8 @@ const TITLES: Record<string, string> = {
   "hires/[id]/index": "รายละเอียดฟรีแลนซ์",
   "users/[id]": "โปรไฟล์",
   "my-posts": "โพสต์ของฉัน",
+  notifications: "การแจ้งเตือน",
+  "notification-settings": "ตั้งค่าการแจ้งเตือน",
   "jobs/new": "สร้างประกาศงาน",
   "jobs/[id]/edit": "แก้ไขประกาศงาน",
   "hires/new": "สร้างประกาศฟรีแลนซ์",

@@ -4,6 +4,8 @@ import {
   type Favorite,
   type HirePost,
   type JobPost,
+  type Notification,
+  type NotiPreference,
   type PostKind,
   type Rating,
   type UserProfile,
@@ -26,6 +28,7 @@ export type JobPostDoc = Doc<JobPost>;
 export type HirePostDoc = Doc<HirePost>;
 export type UserDoc = Doc<UserProfile>;
 export type CommentDoc = Doc<Comment>;
+export type NotificationDoc = Doc<Notification> & { updatedAt?: Timestamp };
 
 const toDocs = <T>(snap: QuerySnapshot) => snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
 
@@ -33,6 +36,7 @@ const toDocs = <T>(snap: QuerySnapshot) => snap.docs.map((d) => ({ id: d.id, ...
 // orderBy — Firestore drops documents missing the orderBy field entirely.
 const millis = (d: { createdAt?: Timestamp }) =>
   typeof d.createdAt?.toMillis === "function" ? d.createdAt.toMillis() : 0;
+const stamp = (t?: Timestamp) => (typeof t?.toMillis === "function" ? t.toMillis() : 0);
 const newestFirst = (a: { createdAt?: Timestamp }, b: { createdAt?: Timestamp }) => millis(b) - millis(a);
 
 function listen<T>(q: Query, transform: (docs: T[]) => T[] = (docs) => docs): Subscribe<T[]> {
@@ -105,6 +109,31 @@ export function useRatingSummary(kind: PostKind, postId: string | undefined) {
   const ratings = result.data ?? [];
   const average = ratings.length ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length : 0;
   return { ...result, ratings, average, count: ratings.length };
+}
+
+/** The user's notifications, newest activity first. */
+export function useNotifications(userId: string | undefined) {
+  const result = useLiveQuery(
+    ["notifications", userId],
+    userId
+      ? listen<NotificationDoc>(
+          query(collection(db, COLLECTIONS.NOTIFICATIONS), where("userId", "==", userId)),
+          // Sorted here rather than with orderBy, which would need a composite index.
+          (d) => d.sort((a, b) => stamp(b.updatedAt) - stamp(a.updatedAt)),
+        )
+      : null,
+  );
+  const unread = (result.data ?? []).filter((n) => !n.read).length;
+  return { ...result, unread };
+}
+
+/** Categories the user follows. The rules only allow this query with the notiBy filter. */
+export function useNotiPreference(userId: string | undefined) {
+  const result = useLiveQuery(
+    ["notiPreference", userId],
+    userId ? listen<Doc<NotiPreference>>(query(collection(db, COLLECTIONS.USER_NOTI), where("notiBy", "==", userId))) : null,
+  );
+  return { ...result, categories: result.data?.[0]?.category ?? [] };
 }
 
 export const fullName = (user?: Pick<UserProfile, "firstName" | "lastName"> | null) =>
