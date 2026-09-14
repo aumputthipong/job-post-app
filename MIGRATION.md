@@ -302,12 +302,23 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
      creating a post couldn't tell which tab to land in and opened the post in Home with no
      back button. Deleting now returns to the list the post was opened from
      (`router.dismiss(2)`) instead of always the job board.
-   - 5.2 **Several images per post — data and API.** Both post kinds get
+   - 5.2 **Several images per post — data and API. Done 2026-09-13.** Both post kinds get
      `images: { url, publicId }[]`, at most 10, the first one the cover. Old posts keep
-     `imageUrl` / `resumeUrl` and are read as a one-image list; saving an edit rewrites them as
-     `images`, so nothing is migrated up front. The API deletes from Cloudinary only the
-     images that were on the post before and aren't any more, so a caller can't delete media
-     by naming someone else's `publicId`. Deleting a post deletes all of its images.
+     `imageUrl` / `resumeUrl` and are read as a one-image list (`postImages()` in
+     `packages/shared`); saving `images` in an edit drops those fields, so nothing is migrated
+     up front. Deleting a post deletes all of its images.
+     - *Whose file is it?* Uploads now go to a folder per user
+       (`jobapp[-dev]/posts/<uid>/…`), and a post or avatar may only take a **new** image from
+       its author's folder. Before this, anyone could put another user's `publicId` on their
+       own post or avatar, replace it, and the API would delete the other user's file.
+     - Images already on a post are matched by url and keep their **stored** `publicId`;
+       whatever the client sends for them is ignored, so an edit can't relabel a kept image
+       with someone else's file. Dropped images are deleted only after the post is saved.
+     - Files uploaded before this sit directly in `jobapp[-dev]/posts`. They stay valid on the
+       posts that have them; only new additions must come from the user's folder.
+     - The app still picks one image until 5.3; it sends `images: [that one]`.
+     - Tests: `test/post-images.test.ts` mocks Cloudinary's delete and checks exactly which
+       files would be removed.
    - 5.3 **Several images per post — app.** Pick several at once (no crop: the system picker
      can't crop a multi-selection; the carousel crops to fill instead), thumbnails with a
      remove button, a swipeable carousel with dots on the detail screens, and an image count

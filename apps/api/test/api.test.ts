@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { buildApp } from "../src/app.js";
 import { auth, db } from "../src/firebaseAdmin.js";
-import { bearer, createUser, hirePost, jobPost, resetEmulators, type TestUser } from "./helpers.js";
+import { bearer, createUser, hirePost, jobPost, resetEmulators, type TestUser, uploaded } from "./helpers.js";
 
 let app: FastifyInstance;
 
@@ -317,17 +317,35 @@ describe("users", () => {
   it("saves the avatar as imageUrl, the field every screen reads", async () => {
     const user = await createUser();
     await db.collection(COLLECTIONS.USER_INFO).doc(user.uid).set({ email: user.email, firstName: "A" });
+    const avatar = uploaded(user, "profiles", "avatar");
 
     const res = await app.inject({
       method: "PUT",
       url: "/users/me",
       headers: bearer(user),
-      payload: { imageUrl: "https://example.test/avatar.png" },
+      payload: { imageUrl: avatar.url, imagePublicId: avatar.publicId },
     });
 
     expect(res.statusCode).toBe(200);
     const doc = await db.collection(COLLECTIONS.USER_INFO).doc(user.uid).get();
-    expect(doc.data()?.imageUrl).toBe("https://example.test/avatar.png");
+    expect(doc.data()?.imageUrl).toBe(avatar.url);
+  });
+
+  it("refuses an avatar the caller didn't upload", async () => {
+    // Replacing an avatar deletes the old file, so claiming another user's
+    // upload and then replacing it would delete theirs.
+    const user = await createUser("user");
+    const other = await createUser("other");
+    const theirs = uploaded(other, "profiles", "avatar");
+
+    const res = await app.inject({
+      method: "PUT",
+      url: "/users/me",
+      headers: bearer(user),
+      payload: { imageUrl: theirs.url, imagePublicId: theirs.publicId },
+    });
+
+    expect(res.statusCode).toBe(403);
   });
 
   it("returns 404 for a user with no profile document", async () => {

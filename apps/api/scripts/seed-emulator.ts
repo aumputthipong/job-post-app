@@ -80,7 +80,8 @@ const jobPosts = [
     detail: "พัฒนาเว็บและแอปด้วย React / React Native ทำงานแบบ hybrid",
     attributes: ["มีประสบการณ์ React 1 ปีขึ้นไป", "สื่อสารภาษาอังกฤษได้"],
     welfareBenefits: ["ประกันสุขภาพ", "Work from home 2 วัน/สัปดาห์"],
-    imageUrl: image("frontend"),
+    // Several images; the other seeded posts keep the old single-image fields.
+    images: ["frontend", "office", "team"].map((seed) => ({ url: image(seed) })),
   },
   {
     id: "job-accountant",
@@ -134,7 +135,7 @@ const hirePosts = [
     detail: "ออกแบบโลโก้ นามบัตร และสื่อโซเชียล ส่งงานภายใน 5 วัน",
     phone: "0898765432",
     email: "malee@example.test",
-    resumeUrl: image("designer"),
+    images: ["designer", "logo", "brand"].map((seed) => ({ url: image(seed) })),
   },
   {
     id: "hire-dev",

@@ -1,3 +1,4 @@
+import { postImages } from "@jobapp-platform/shared";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { Link, useLocalSearchParams } from "expo-router";
@@ -26,6 +27,7 @@ export default function HireDetail() {
   if (loading) return <Loading />;
   if (!hire) return <EmptyState icon="alert-circle-outline" message="ไม่พบประกาศนี้ อาจถูกลบไปแล้ว" />;
   const isOwner = user?.uid === hire.postById;
+  const cover = postImages(hire)[0]?.url;
 
   return (
     <View className="flex-1">
@@ -70,9 +72,9 @@ export default function HireDetail() {
           </Section>
 
           <Section title="เรซูเม่ / ผลงาน">
-            {hire.resumeUrl ? (
+            {cover ? (
               <TouchableOpacity activeOpacity={0.8} onPress={() => setViewerOpen(true)}>
-                <PostImage uri={hire.resumeUrl} className="h-56 w-full rounded-xl" />
+                <PostImage uri={cover} className="h-56 w-full rounded-xl" />
                 <View className="absolute bottom-3 right-3 flex-row items-center rounded-full bg-black/60 px-3 py-1.5">
                   <Ionicons name="expand-outline" size={16} color="#FFFFFF" />
                   <Text className="ml-1.5 text-xs text-surface" numberOfLines={1}>
@@ -93,7 +95,7 @@ export default function HireDetail() {
 
         <Modal visible={viewerOpen} transparent animationType="fade" onRequestClose={() => setViewerOpen(false)}>
           <Pressable className="flex-1 bg-black" onPress={() => setViewerOpen(false)}>
-            <Image source={{ uri: hire.resumeUrl }} contentFit="contain" style={{ flex: 1 }} />
+            <Image source={{ uri: cover }} contentFit="contain" style={{ flex: 1 }} />
             <View className="absolute right-5 top-12">
               <Ionicons name="close" size={32} color="#FFFFFF" />
             </View>

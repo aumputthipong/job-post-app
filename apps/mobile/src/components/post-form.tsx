@@ -23,8 +23,8 @@ import {
   TextField,
 } from "./form";
 
-type JobFields = Omit<CreateJobPostInput, "imageUrl" | "imagePublicId">;
-type HireFields = Omit<CreateHirePostInput, "resumeUrl" | "resumePublicId">;
+type JobFields = Omit<CreateJobPostInput, "images">;
+type HireFields = Omit<CreateHirePostInput, "images">;
 
 type FormProps<Fields, Input> = {
   initial?: Partial<Fields>;
@@ -56,7 +56,7 @@ const present = <T extends object>(values?: Partial<T>) =>
   Object.fromEntries(Object.entries(values ?? {}).filter(([, v]) => v != null)) as Partial<T>;
 
 export function JobPostForm({ initial, ...props }: FormProps<JobFields, CreateJobPostInput>) {
-  const form = usePostForm({ ...EMPTY_JOB, ...present(initial) }, createJobPostSchema, ["imageUrl", "imagePublicId"], props);
+  const form = usePostForm({ ...EMPTY_JOB, ...present(initial) }, createJobPostSchema, props);
   const { values, errors, set } = form;
 
   return (
@@ -86,7 +86,7 @@ export function JobPostForm({ initial, ...props }: FormProps<JobFields, CreateJo
 }
 
 export function HirePostForm({ initial, ...props }: FormProps<HireFields, CreateHirePostInput>) {
-  const form = usePostForm({ ...EMPTY_HIRE, ...present(initial) }, createHirePostSchema, ["resumeUrl", "resumePublicId"], props);
+  const form = usePostForm({ ...EMPTY_HIRE, ...present(initial) }, createHirePostSchema, props);
   const { values, errors, set } = form;
 
   return (
@@ -108,7 +108,6 @@ type Form = ReturnType<typeof usePostForm<any, any>>;
 function usePostForm<Fields extends Record<string, unknown>, Input>(
   initial: Fields,
   schema: ZodType<Input, ZodTypeDef, unknown>,
-  [urlKey, idKey]: [string, string],
   { initialImage, onSubmit }: Pick<FormProps<Fields, Input>, "initialImage" | "onSubmit">,
 ) {
   const [values, setValues] = useState(initial);
@@ -137,8 +136,10 @@ function usePostForm<Fields extends Record<string, unknown>, Input>(
       if (picked && uploaded.current?.uri !== picked) {
         uploaded.current = { uri: picked, ...(await api.uploadImage(picked, "posts")) };
       }
+      // Still one image until the form takes several (MIGRATION.md 5.3); sending
+      // `images` replaces the post's list, so it's only sent for a new pick.
       const media = picked ? uploaded.current : undefined;
-      await onSubmit({ ...parsed.data, ...(media && { [urlKey]: media.url, [idKey]: media.publicId }) });
+      await onSubmit({ ...parsed.data, ...(media && { images: [{ url: media.url, publicId: media.publicId }] }) });
     } catch (error) {
       Alert.alert("บันทึกไม่สำเร็จ", (error as Error).message);
     } finally {

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { postImagesSchema } from "./media.js";
 
 const required = (message: string) => z.string().trim().min(1, message);
 
@@ -10,9 +11,10 @@ export const jobPostSchema = z.object({
   agency: required("กรุณากรอกบริษัท / หน่วยงาน"),
   attributes: z.array(z.string()).default([]),
   welfareBenefits: z.array(z.string()).default([]),
+  /** First one is the cover. Read through postImages(), which covers old posts. */
+  images: postImagesSchema.optional(),
+  /** Legacy single image, kept on old posts until they are edited. */
   imageUrl: z.string().url().optional(),
-  /** Cloudinary public_id, needed to delete the image when the post is deleted.
-   *  Absent on posts created before the move off Firebase Storage. */
   imagePublicId: z.string().optional(),
   wage: required("กรุณากรอกค่าจ้าง"),
   detail: required("กรุณากรอกรายละเอียดงาน"),
@@ -24,7 +26,7 @@ export const jobPostSchema = z.object({
 });
 
 /** Body accepted by POST /posts/find — createdAt/postById are set server-side. */
-export const createJobPostSchema = jobPostSchema.omit({ postById: true });
+export const createJobPostSchema = jobPostSchema.omit({ postById: true, imageUrl: true, imagePublicId: true });
 export const updateJobPostSchema = createJobPostSchema.partial();
 
 export type JobPost = z.infer<typeof jobPostSchema>;

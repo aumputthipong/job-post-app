@@ -1,4 +1,5 @@
 export * from "./collections.js";
+export * from "./schemas/media.js";
 export * from "./schemas/jobPost.js";
 export * from "./schemas/hirePost.js";
 export * from "./schemas/userProfile.js";

@@ -43,6 +43,12 @@ export async function createUser(name = "user"): Promise<TestUser> {
 
 export const bearer = (user: TestUser) => ({ authorization: `Bearer ${user.idToken}` });
 
+/** What POST /uploads would have returned for this user, without calling Cloudinary. */
+export function uploaded(user: TestUser, folder: "posts" | "profiles", name: string) {
+  const publicId = `jobapp-dev/${folder}/${user.uid}/${name}`;
+  return { url: `https://res.cloudinary.com/demo/image/upload/v1/${publicId}.jpg`, publicId };
+}
+
 export function jobPost(overrides: Partial<CreateJobPostInput> = {}): CreateJobPostInput {
   return {
     jobTitle: "Frontend Developer",

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { postImagesSchema } from "./media.js";
 
 const required = (message: string) => z.string().trim().min(1, message);
 
@@ -6,9 +7,10 @@ const required = (message: string) => z.string().trim().min(1, message);
  *  Messages are Thai: the API's 400s and the app's forms show them as-is. */
 export const hirePostSchema = z.object({
   hireTitle: required("กรุณากรอกหัวข้อประกาศ"),
+  /** Portfolio images, first one the cover. Read through postImages(). */
+  images: postImagesSchema.optional(),
+  /** Legacy single "résumé / portfolio" image, kept on old posts until they are edited. */
   resumeUrl: z.string().url().optional(),
-  /** Cloudinary public_id, needed to delete the file when the post is deleted.
-   *  Absent on posts created before the move off Firebase Storage. */
   resumePublicId: z.string().optional(),
   category: required("กรุณาเลือกประเภทงาน"),
   detail: required("กรุณากรอกรายละเอียด"),
@@ -17,7 +19,7 @@ export const hirePostSchema = z.object({
   email: z.string().trim().email("กรุณากรอกอีเมลให้ถูกต้อง"),
 });
 
-export const createHirePostSchema = hirePostSchema.omit({ postById: true });
+export const createHirePostSchema = hirePostSchema.omit({ postById: true, resumeUrl: true, resumePublicId: true });
 export const updateHirePostSchema = createHirePostSchema.partial();
 
 export type HirePost = z.infer<typeof hirePostSchema>;

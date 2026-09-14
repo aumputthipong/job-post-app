@@ -1,3 +1,4 @@
+import { postImages } from "@jobapp-platform/shared";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -32,7 +33,7 @@ export default function JobDetail() {
         bottomOffset={24}
         {...hideTabBar}
       >
-        <PostImage uri={job.imageUrl} className="h-56 w-full" />
+        <PostImage uri={postImages(job)[0]?.url} className="h-56 w-full" />
 
         <View className="p-5">
           <Text className="text-2xl font-bold text-primary">{job.jobTitle}</Text>

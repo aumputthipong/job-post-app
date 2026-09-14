@@ -1,3 +1,4 @@
+import { postImages } from "@jobapp-platform/shared";
 import { router, useLocalSearchParams } from "expo-router";
 import { DeletePostButton, HirePostForm } from "@/components/post-form";
 import { EmptyState, ErrorState, Loading } from "@/components/ui";
@@ -18,7 +19,7 @@ export default function EditHire() {
   return (
     <HirePostForm
       initial={hire}
-      initialImage={hire.resumeUrl}
+      initialImage={postImages(hire)[0]?.url}
       submitLabel="บันทึก"
       onSubmit={async (data) => {
         await api.updatePost("hire", id, data);
