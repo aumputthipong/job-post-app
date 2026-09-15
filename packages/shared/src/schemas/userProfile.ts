@@ -16,6 +16,11 @@ export const userProfileSchema = z.object({
   bachelor: optionalText,
   master: optionalText,
   doctoral: optionalText,
+  /** The user's company, used to fill in a new job post. */
+  companyName: optionalText,
+  companyLocation: optionalText,
+  companyEmail: z.union([z.literal(""), z.string().trim().email("กรุณากรอกอีเมลให้ถูกต้อง")]).default(""),
+  companyPhone: optionalText,
   /** The avatar. Named imageUrl because that is the field the existing
    *  documents already use — every screen reads user.imageUrl. */
   imageUrl: z.string().url().optional(),

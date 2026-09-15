@@ -161,6 +161,24 @@ describe("posts", () => {
     expect(doc.data()?.wage).toBe("45000");
   });
 
+  it("keeps the step-by-step form's fields and rejects a non-numeric wageMax", async () => {
+    const author = await createUser();
+    const extra = { wageMax: "50000", jobType: "งานเต็มเวลา", workModel: "ไฮบริด", location: "สาทร", openings: 2 };
+    const id = await createJob(author, extra);
+
+    const doc = await db.collection(COLLECTIONS.JOB_POSTS).doc(id).get();
+    expect(doc.data()).toMatchObject(extra);
+
+    const bad = await app.inject({
+      method: "PUT",
+      url: `/posts/find/${id}`,
+      headers: bearer(author),
+      payload: { wageMax: "ห้าหมื่น", openings: 0 },
+    });
+    expect(bad.statusCode).toBe(400);
+    expect(Object.keys(bad.json().error.fieldErrors)).toEqual(expect.arrayContaining(["wageMax", "openings"]));
+  });
+
   it("deletes a post with more dependents than one write batch holds", async () => {
     // A batch takes 500 operations; the route has to split the work up.
     const author = await createUser("author");
@@ -329,6 +347,23 @@ describe("users", () => {
     expect(res.statusCode).toBe(200);
     const doc = await db.collection(COLLECTIONS.USER_INFO).doc(user.uid).get();
     expect(doc.data()?.imageUrl).toBe(avatar.url);
+  });
+
+  it("saves the company details and allows the company email to be cleared", async () => {
+    const user = await createUser();
+    await db.collection(COLLECTIONS.USER_INFO).doc(user.uid).set({ email: user.email, firstName: "A" });
+    const put = (payload: object) =>
+      app.inject({ method: "PUT", url: "/users/me", headers: bearer(user), payload });
+
+    const saved = await put({ companyName: "Acme", companyEmail: "hr@acme.test" });
+    const cleared = await put({ companyEmail: "" });
+    const bad = await put({ companyEmail: "not-an-email" });
+
+    expect(saved.statusCode).toBe(200);
+    expect(cleared.statusCode).toBe(200);
+    expect(bad.statusCode).toBe(400);
+    const doc = await db.collection(COLLECTIONS.USER_INFO).doc(user.uid).get();
+    expect(doc.data()).toMatchObject({ companyName: "Acme", companyEmail: "" });
   });
 
   it("refuses an avatar the caller didn't upload", async () => {
