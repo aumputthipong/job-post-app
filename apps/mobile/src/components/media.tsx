@@ -75,7 +75,7 @@ export function Avatar({
   }
   return (
     <View
-      className="items-center justify-center bg-secondary"
+      className="items-center justify-center bg-primary"
       style={{ width: px, height: px, borderRadius: px / 2 }}
     >
       <Text className="font-bold text-surface" style={{ fontSize: px * 0.38 }}>

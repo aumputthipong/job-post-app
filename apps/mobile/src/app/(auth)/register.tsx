@@ -90,7 +90,7 @@ export default function Register() {
             <Text className="text-text-muted">มีบัญชีอยู่แล้ว? </Text>
             <Link href="/login" replace asChild>
               <TouchableOpacity>
-                <Text className="font-bold text-primary underline">เข้าสู่ระบบ</Text>
+                <Text className="font-bold text-primary-dark underline">เข้าสู่ระบบ</Text>
               </TouchableOpacity>
             </Link>
           </View>

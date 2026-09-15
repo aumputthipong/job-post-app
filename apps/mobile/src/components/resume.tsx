@@ -27,7 +27,7 @@ export function ResumeButton({ resume }: { resume: Resume }) {
         activeOpacity={0.8}
         className="flex-row items-center rounded-xl border border-border bg-background p-4"
       >
-        <Ionicons name={pdf ? "document-text-outline" : "image-outline"} size={28} color={colors.secondary.DEFAULT} />
+        <Ionicons name={pdf ? "document-text-outline" : "image-outline"} size={28} color={colors.primary.DEFAULT} />
         <View className="ml-3 flex-1">
           <Text className="font-semibold text-text" numberOfLines={1}>
             {resume.name || (pdf ? "เรซูเม่.pdf" : "เรซูเม่")}
@@ -114,7 +114,7 @@ export function ResumeEditor({ resume }: { resume?: Resume | null }) {
       <View className="mt-3 flex-row">
         <TouchableOpacity onPress={pick} className="mr-5 flex-row items-center py-1" hitSlop={8}>
           <Ionicons name="swap-horizontal-outline" size={18} color={colors.primary.DEFAULT} />
-          <Text className="ml-1 font-semibold text-primary">เปลี่ยนไฟล์</Text>
+          <Text className="ml-1 font-semibold text-primary-dark">เปลี่ยนไฟล์</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={remove} className="flex-row items-center py-1" hitSlop={8}>
           <Ionicons name="trash-outline" size={18} color={colors.danger.DEFAULT} />

@@ -217,7 +217,7 @@ export function JobPostForm({
           ) : null}
         </View>
         <TouchableOpacity className="-mt-2 flex-row items-center" onPress={() => setUseRange((r) => !r)} accessibilityState={{ checked: useRange }}>
-          <Ionicons name={useRange ? "checkbox" : "square-outline"} size={22} color={useRange ? colors.secondary.DEFAULT : colors.placeholder} />
+          <Ionicons name={useRange ? "checkbox" : "square-outline"} size={22} color={useRange ? colors.primary.DEFAULT : colors.placeholder} />
           <Text className="ml-2 text-base text-text">ระบุเป็นช่วงค่าจ้าง</Text>
         </TouchableOpacity>
       </FormSection>
@@ -229,11 +229,11 @@ export function JobPostForm({
           <Text className="text-[15px] font-semibold text-text">จำนวนที่รับ</Text>
           <View className="flex-row items-center rounded-xl border border-border">
             <TouchableOpacity className="h-11 w-11 items-center justify-center" onPress={() => set("openings")(Math.max(1, (values.openings ?? 1) - 1))} accessibilityLabel="ลดจำนวน">
-              <Ionicons name="remove" size={20} color={colors.secondary.DEFAULT} />
+              <Ionicons name="remove" size={20} color={colors.primary.DEFAULT} />
             </TouchableOpacity>
             <Text className="min-w-[48px] text-center text-base font-bold text-text">{values.openings ?? 1} อัตรา</Text>
             <TouchableOpacity className="h-11 w-11 items-center justify-center" onPress={() => set("openings")(Math.min(999, (values.openings ?? 1) + 1))} accessibilityLabel="เพิ่มจำนวน">
-              <Ionicons name="add" size={20} color={colors.secondary.DEFAULT} />
+              <Ionicons name="add" size={20} color={colors.primary.DEFAULT} />
             </TouchableOpacity>
           </View>
         </View>
@@ -267,7 +267,7 @@ export function JobPostForm({
 
     <>
       <ReviewHero images={form.images} title={values.jobTitle} subtitle={values.agency}>
-        <Text className="mt-3 text-lg font-bold text-primary">{formatWage({ ...values, wageMax: useRange ? values.wageMax : "" })}</Text>
+        <Text className="mt-3 text-lg font-bold text-primary-dark">{formatWage({ ...values, wageMax: useRange ? values.wageMax : "" })}</Text>
       </ReviewHero>
       <FormSection title="ตำแหน่ง" icon={JOB_STEPS[0]!.icon} action={<EditLink onPress={() => flow.goTo(0)} />}>
         <ReviewRow label="ชื่อตำแหน่ง" value={values.position} />
@@ -489,11 +489,11 @@ function ProfileBanner({
 }) {
   return (
     <TouchableOpacity
-      className={`mb-4 flex-row items-center rounded-card p-4 ${muted ? "border border-dashed border-border-strong bg-surface" : "border border-border-strong bg-secondary-soft"}`}
+      className={`mb-4 flex-row items-center rounded-card p-4 ${muted ? "border border-dashed border-border-strong bg-surface" : "border border-primary bg-primary-soft"}`}
       onPress={onPress}
       activeOpacity={0.85}
     >
-      <Ionicons name={icon} size={22} color={colors.secondary.DEFAULT} />
+      <Ionicons name={icon} size={22} color={colors.primary.DEFAULT} />
       <View className="mx-3 flex-1">
         <Text className="text-base font-bold text-text" numberOfLines={1}>{title}</Text>
         <Text className="text-sm text-text-subtle" numberOfLines={1}>{subtitle}</Text>
@@ -518,7 +518,7 @@ function ReviewHero({ images, title, subtitle, children }: { images: FormImage[]
 
 const EditLink = ({ onPress }: { onPress: () => void }) => (
   <TouchableOpacity onPress={onPress} hitSlop={8}>
-    <Text className="text-base font-bold text-primary">แก้ไข</Text>
+    <Text className="text-base font-bold text-primary-dark">แก้ไข</Text>
   </TouchableOpacity>
 );
 

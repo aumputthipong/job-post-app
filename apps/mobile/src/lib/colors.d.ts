@@ -1,5 +1,7 @@
+type Pastel = { bg: string; fg: string };
+
 export declare const colors: {
-  primary: { DEFAULT: string; light: string; soft: string };
+  primary: { DEFAULT: string; dark: string; soft: string; tint: string; light: string };
   secondary: { DEFAULT: string; soft: string };
   background: string;
   surface: string;
@@ -10,4 +12,5 @@ export declare const colors: {
   success: { DEFAULT: string; soft: string };
   danger: { DEFAULT: string; soft: string };
   onPrimary: string;
+  pastel: Record<"peach" | "mint" | "butter" | "rose" | "sky" | "lilac", Pastel>;
 };

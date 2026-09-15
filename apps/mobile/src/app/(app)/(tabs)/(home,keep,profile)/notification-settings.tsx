@@ -53,12 +53,12 @@ export default function NotificationSettings() {
                 key={category}
                 onPress={() => toggle(category)}
                 className={`mb-2 mr-2 flex-row items-center rounded-full border px-4 py-2 ${
-                  on ? "border-secondary bg-secondary" : "border-border bg-background"
+                  on ? "border-primary bg-primary-soft" : "border-border bg-surface"
                 }`}
                 accessibilityState={{ checked: on }}
               >
-                {on ? <Ionicons name="checkmark" size={16} color={colors.onPrimary} style={{ marginRight: 4 }} /> : null}
-                <Text className={on ? "text-surface" : "text-text"} numberOfLines={1}>
+                {on ? <Ionicons name="checkmark" size={16} color={colors.primary.DEFAULT} style={{ marginRight: 4 }} /> : null}
+                <Text className={on ? "font-semibold text-primary-dark" : "text-text"} numberOfLines={1}>
                   {category}
                 </Text>
               </TouchableOpacity>

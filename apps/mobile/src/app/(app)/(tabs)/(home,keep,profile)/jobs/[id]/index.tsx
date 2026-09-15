@@ -77,8 +77,8 @@ export default function JobDetail() {
           {job.welfareBenefits?.length ? (
             <View className="flex-row flex-wrap">
               {job.welfareBenefits.map((benefit, i) => (
-                <View key={i} className="mb-2 mr-2 rounded-full bg-secondary-soft px-3 py-1.5">
-                  <Text className="text-sm text-secondary" numberOfLines={1}>{benefit}</Text>
+                <View key={i} className="mb-2 mr-2 rounded-full bg-primary-soft px-3 py-1.5">
+                  <Text className="text-sm text-primary-dark" numberOfLines={1}>{benefit}</Text>
                 </View>
               ))}
             </View>

@@ -47,7 +47,7 @@ export function FavoriteButton({ postId, variant = "icon" }: { postId: string; v
         accessibilityState={{ selected: shown }}
       >
         <Ionicons name={icon} size={20} color={shown ? colors.primary.DEFAULT : colors.secondary.DEFAULT} />
-        <Text className={`ml-1.5 text-base font-bold ${shown ? "text-primary" : "text-secondary"}`} numberOfLines={1}>
+        <Text className={`ml-1.5 text-base font-bold ${shown ? "text-primary-dark" : "text-secondary"}`} numberOfLines={1}>
           {shown ? "บันทึกแล้ว" : "บันทึกงาน"}
         </Text>
       </TouchableOpacity>
