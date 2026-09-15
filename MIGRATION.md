@@ -441,3 +441,35 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
        the old shape, so both render. Tests cover the new fields and the company email.
      - Checked on the emulator: validation per page, the wage range error, company prefill,
        publish, edit + save from the review page, and the unsaved-changes prompt.
+   - 5.7 **New palette (60-30-10), the rest of the screens, tab bar. Done 2026-09-15** (owner's
+     request). The navy is replaced by an orange primary on warm grays, applied with the
+     60-30-10 rule, and the 5.6 layout rules are carried to every other screen.
+     - *Palette in one file.* `src/lib/colors.js` holds every color; `tailwind.config.js`
+       builds the classes from it and code imports it for raw values. No hex literal is left in
+       `src/`. Its header comment states the split:
+       60 background + white cards · 30 `secondary` warm ink (text, icons, icon tiles, selected
+       chips, tags, secondary buttons, finished steps) · 10 `primary` orange (the main button,
+       current tab and step, pay, links, saved and unread). Orange marking structure means it has
+       left its 10%.
+     - `#D9480F` keeps white text at ~5.5:1 (AA). Errors use a deeper red (`#B91C1C`) so they
+       don't read as an orange highlight. Stars stay amber and mean ratings only; saving a job
+       is now a bookmark, matching the บันทึกไว้ tab.
+     - *Tab bar.* Hidden on post details as well as forms. The current tab has a filled icon on
+       a tinted pill and a bold label; the bar is taller, with a line height, because Thai labels
+       were clipped at the bottom.
+     - *Detail screens* (job and freelance) share `components/detail.tsx` and end in a pinned
+       action bar instead of the edit FAB: the owner gets แก้ไขประกาศ; others get บันทึกงาน +
+       ติดต่อสมัครงาน (job) or ดูโปรไฟล์ + ติดต่อจ้างงาน (freelance). Contact asks call or email.
+     - *Freelance form* is now four steps (บริการ → ผลงาน → ติดต่อ → ตรวจสอบ) on the same step
+       machinery as the job form (`useStepFlow` + `StepLayout` in `post-form.tsx`), with email and
+       phone filled from the profile.
+     - *Freelance card* follows the job card: title and author first, a thumbnail, two lines of
+       description, category and time.
+     - *Profile.* One card per topic with labelled rows, the company as a pill under the name,
+       menu rows with icon tiles, and ออกจากระบบ moved from the header to the end of the page
+       (destructive actions sit apart). Edit profile stays one page — people come to change a
+       field or two — with the sections ordered general → contact → education → company, the
+       login email shown locked, and save pinned at the bottom.
+     - Home, login and register: dark headings, orange left for the actions.
+     - Checked on the emulator: home, job list and detail (owner and not), save toggle, freelance
+       list, detail and the four-step form through to publish, profile, edit profile.

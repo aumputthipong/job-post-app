@@ -96,7 +96,9 @@ console on the Spark plan; that's harmless while the bucket is unreachable.
 ## Android emulator notes (Windows)
 
 - AVD `Medium_Phone`; open the app with
-  `adb shell am start -a android.intent.action.VIEW -d "exp://<LAN-IP>:8081"`
+  `adb shell am start -a android.intent.action.VIEW -d "exp://<LAN-IP>:8081" -p host.exp.exponent`
+  — `-p` matters when a development build is also installed: it claims `exp://` too and fails
+  with "Attempting to call JS function on a bad application bundle".
 - **Never run `adb shell pm clear host.exp.exponent`** — it corrupts Expo Go
   ("Failed to load all assets"). If that happens, `adb uninstall host.exp.exponent` and let
   `npx expo start --android --go` reinstall the matching Expo Go build.
