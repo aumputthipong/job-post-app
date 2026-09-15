@@ -1,3 +1,8 @@
+import type { Ionicons } from "@expo/vector-icons";
+import type { ComponentProps } from "react";
+
+type IconName = ComponentProps<typeof Ionicons>["name"];
+
 // Same strings as the legacy dropdowns: existing posts store these values.
 export const CATEGORIES = [
   "งานบัญชี",
@@ -14,4 +19,41 @@ export const CATEGORIES = [
   "อื่นๆ",
 ];
 
-export const EMPLOYMENT_TYPES = ["รายเดือน", "รายวัน", "ต่อชิ้นงาน"];
+export const CATEGORY_ICONS: Record<string, IconName> = {
+  งานบัญชี: "calculator-outline",
+  งานทรัพยากรบุคคล: "people-outline",
+  งานธนาคาร: "business-outline",
+  งานสุขภาพ: "medkit-outline",
+  งานก่อสร้าง: "construct-outline",
+  งานออกแบบ: "color-palette-outline",
+  งานไอที: "code-slash-outline",
+  งานการศึกษา: "school-outline",
+  งานอาหาร: "restaurant-outline",
+  งานธรรมชาติ: "leaf-outline",
+  งานทั่วไป: "briefcase-outline",
+  อื่นๆ: "ellipsis-horizontal-outline",
+};
+
+/** How often the wage is paid; stored in the legacy `employmentType` field. */
+export const EMPLOYMENT_TYPES = ["รายเดือน", "รายวัน", "รายชั่วโมง", "ต่อชิ้นงาน"];
+
+export const JOB_TYPES = ["งานเต็มเวลา", "พาร์ทไทม์", "สัญญาจ้าง", "ฝึกงาน", "ฟรีแลนซ์"];
+
+export const WORK_MODELS = ["ทำงานที่ออฟฟิศ", "ไฮบริด", "ทำงานจากที่บ้าน"];
+
+export const SUGGESTED_ATTRIBUTES = [
+  "ไม่จำกัดวุฒิการศึกษา",
+  "ปริญญาตรีขึ้นไป",
+  "รับนักศึกษาจบใหม่",
+  "มีประสบการณ์ 1 ปีขึ้นไป",
+  "สื่อสารภาษาอังกฤษได้",
+];
+
+export const SUGGESTED_BENEFITS = [
+  "ประกันสังคม",
+  "ประกันสุขภาพ",
+  "โบนัสประจำปี",
+  "ปรับเงินเดือนประจำปี",
+  "ทำงานจากที่บ้านได้",
+  "ค่าล่วงเวลา",
+];

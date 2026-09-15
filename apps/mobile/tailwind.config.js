@@ -9,7 +9,11 @@ module.exports = {
         primary: {
           DEFAULT: "#083C6B",
           light: "#2B6CB0",
+          // Tinted backgrounds: selected rows, icon tiles, the current step.
+          soft: "#EBF4FF",
         },
+        success: { DEFAULT: "#15803D", soft: "#DCFCE7" },
+        danger: { DEFAULT: "#EF4444", soft: "#FEF2F2" },
         background: "#F5F7FA",
         surface: "#FFFFFF",
         border: {
