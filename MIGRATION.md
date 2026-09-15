@@ -473,3 +473,22 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
      - Home, login and register: dark headings, orange left for the actions.
      - Checked on the emulator: home, job list and detail (owner and not), save toggle, freelance
        list, detail and the four-step form through to publish, profile, edit profile.
+   - 5.8 **Livelier palette and a fuller Home. Done 2026-09-15** (owner: the 5.7 colors looked
+     washed out and some screens empty; reference: an orange grocery app). Layout unchanged.
+     - *60-30-10 re-read.* 5.7 spent the 30% on warm ink, so screens were gray text on white
+       with a little orange. The 30% is now orange tints (`primary.soft` #FFF3EA, `primary.tint`
+       #FFE2CC): icon tiles, selected chips, the facts panel, badges, the pay label, done steps.
+       The 10% is a brighter orange (#EE6A0A) on the main button, the active tab (a solid pill
+       with a white icon), the Home banner and key icons. The 60% moved to a cool light gray.
+     - Orange text uses `text-primary-dark` (#C2410C): the bright orange is ~3.2:1 on white, so
+       it is only used for fills and icons, and button labels grew to 19 px bold (AA large).
+     - *Pastels per category* (`colors.pastel`, `categoryPastel()`), like the reference's
+       produce cards: each category keeps one background/icon pair wherever it is a tile.
+     - *Home* opens on an orange banner with the count of jobs posted in the last three days,
+       then a search field, category tiles (open the job list filtered by that category, with a
+       chip to clear it), the two services as pastel cards, and the six latest jobs.
+     - *Job card*: pay sits in an orange-tint label. *Profile*: an orange band behind the card.
+     - *Empty states* show the icon on an orange circle and, where there is a next step, a
+       button (Keep → ประกาศงาน, My posts → ลงประกาศ). Keep's hint still said "tap ☆"; saving has
+       been a bookmark since 5.7.
+     - Checked on the emulator: Home, category filter, job list and detail, profile.
