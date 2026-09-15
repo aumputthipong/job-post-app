@@ -25,7 +25,7 @@ export default function EditHire() {
         await api.updatePost("hire", id, data);
         router.back();
       }}
-      footer={<DeletePostButton kind="hire" id={id} />}
+      footer={(allowLeave) => <DeletePostButton kind="hire" id={id} onBeforeLeave={allowLeave} />}
     />
   );
 }
