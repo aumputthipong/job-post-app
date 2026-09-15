@@ -48,6 +48,13 @@ export function ProfileDetails({ user, editable }: { user: UserDoc; editable?: b
         )}
       </Section>
 
+      {user.companyName ? (
+        <Section title="บริษัท">
+          <InfoRow icon="business-outline">{user.companyName}</InfoRow>
+          {user.companyLocation ? <InfoRow icon="location-outline">{user.companyLocation}</InfoRow> : null}
+        </Section>
+      ) : null}
+
       <Section title="ช่องทางติดต่อ">
         <InfoRow icon="mail-outline">{orDash(user.email)}</InfoRow>
         <InfoRow icon="call-outline">{orDash(user.phone)}</InfoRow>

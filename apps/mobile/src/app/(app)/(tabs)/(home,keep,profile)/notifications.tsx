@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import type { Timestamp } from "firebase/firestore";
 import { Link, router, Stack } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
@@ -9,6 +8,7 @@ import { EmptyState, ErrorState, Loading } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { fullName, type NotificationDoc, type UserDoc, useNotifications, useUsers } from "@/lib/data";
+import { timeAgo } from "@/lib/format";
 
 const VERBS = {
   comment: "แสดงความคิดเห็นในโพสต์ของคุณ",
@@ -105,16 +105,4 @@ function NotificationRow({ notification: n, actor }: { notification: Notificatio
       {n.read ? null : <View className="ml-2 mt-2 h-2.5 w-2.5 rounded-full bg-primary" />}
     </TouchableOpacity>
   );
-}
-
-function timeAgo(at?: Timestamp) {
-  if (typeof at?.toMillis !== "function") return "";
-  const minutes = Math.floor((Date.now() - at.toMillis()) / 60_000);
-  if (minutes < 1) return "เมื่อสักครู่";
-  if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} ชั่วโมงที่แล้ว`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days} วันที่แล้ว`;
-  return at.toDate().toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" });
 }
