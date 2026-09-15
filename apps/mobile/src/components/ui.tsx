@@ -117,17 +117,29 @@ export function Loading() {
   );
 }
 
+/** An empty screen is an invitation: say what's missing and, where it helps, offer the next step. */
 export function EmptyState({
   icon,
   message,
+  action,
 }: {
   icon: React.ComponentProps<typeof Ionicons>["name"];
   message: string;
+  action?: { label: string; href: Href };
 }) {
   return (
     <View className="mt-16 items-center px-8">
-      <Ionicons name={icon} size={60} color={colors.border.strong} />
-      <Text className="mt-4 text-center text-base text-text-subtle">{message}</Text>
+      <View className="h-24 w-24 items-center justify-center rounded-full bg-primary-tint">
+        <Ionicons name={icon} size={44} color={colors.primary.DEFAULT} />
+      </View>
+      <Text className="mt-5 text-center text-base leading-6 text-text-muted">{message}</Text>
+      {action ? (
+        <Link href={action.href} asChild>
+          <TouchableOpacity className="mt-5 rounded-full bg-primary px-6 py-3" activeOpacity={0.85}>
+            <Text className="text-base font-bold text-surface">{action.label}</Text>
+          </TouchableOpacity>
+        </Link>
+      ) : null}
     </View>
   );
 }
@@ -148,7 +160,7 @@ export function Bullets({ items, empty = "ไม่ระบุ" }: { items?: st
     <View>
       {items.map((item, i) => (
         <View key={i} className="mb-2 flex-row items-start">
-          <View className="mr-3 mt-2 h-1.5 w-1.5 rounded-full bg-secondary" />
+          <View className="mr-3 mt-2 h-1.5 w-1.5 rounded-full bg-primary" />
           <Text className="flex-1 text-base text-text">{item}</Text>
         </View>
       ))}
