@@ -17,7 +17,7 @@ export default function Keep() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      <Text className="px-6 pb-2 pt-5 text-2xl font-bold text-primary">บันทึกไว้</Text>
+      <Text className="px-6 pb-2 pt-5 text-2xl font-bold text-text">บันทึกไว้</Text>
       {error ? (
         <ErrorState error={error} />
       ) : jobs.loading || favorites.loading ? (

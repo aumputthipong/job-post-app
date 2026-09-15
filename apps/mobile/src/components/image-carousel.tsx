@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PostImage } from "./media";
+import { colors } from "@/lib/colors";
 
 const pageOf = (event: NativeSyntheticEvent<NativeScrollEvent>, width: number) =>
   width ? Math.round(event.nativeEvent.contentOffset.x / width) : 0;
@@ -101,7 +102,7 @@ export function ImageViewer({ images, start, onClose }: { images: Media[]; start
         <View className="absolute w-full flex-row items-center justify-between px-5" style={{ top: insets.top + 12 }}>
           <Text className="text-base text-surface">{images.length > 1 ? `${index + 1}/${images.length}` : ""}</Text>
           <TouchableOpacity onPress={onClose} hitSlop={12} accessibilityLabel="ปิด">
-            <Ionicons name="close" size={32} color="#FFFFFF" />
+            <Ionicons name="close" size={32} color={colors.onPrimary} />
           </TouchableOpacity>
         </View>
       </View>
