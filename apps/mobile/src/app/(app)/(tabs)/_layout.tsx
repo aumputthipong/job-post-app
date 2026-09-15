@@ -8,11 +8,11 @@ import { colors } from "@/lib/colors";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
-/** The current tab: filled icon on a tinted pill, so it reads at a glance. */
+/** The current tab: a solid orange pill with a white icon, so it reads at a glance. */
 function TabIcon({ name, focused, color }: { name: string; focused: boolean; color: ColorValue }) {
   return (
-    <View className={`h-8 w-14 items-center justify-center rounded-full ${focused ? "bg-primary-soft" : ""}`}>
-      <Ionicons name={(focused ? name : `${name}-outline`) as IconName} color={color} size={22} />
+    <View className={`h-8 w-14 items-center justify-center rounded-full ${focused ? "bg-primary" : ""}`}>
+      <Ionicons name={(focused ? name : `${name}-outline`) as IconName} color={focused ? colors.onPrimary : color} size={22} />
     </View>
   );
 }
@@ -25,7 +25,7 @@ export default function TabsLayout() {
         tabBar={(props) => <HidingTabBar {...props} />}
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: colors.primary.DEFAULT,
+          tabBarActiveTintColor: colors.primary.dark,
           tabBarInactiveTintColor: colors.text.subtle,
           // Thai vowels above and below the line need the extra line height, or the label clips
           // (see "Thai label clipping" in MIGRATION.md 4.3); the bar grows to fit the pill.

@@ -63,7 +63,7 @@ export function CommentList({ kind, postId }: { kind: PostKind; postId: string }
           editable={!sending}
         />
         <TouchableOpacity
-          className="h-11 w-11 items-center justify-center rounded-full bg-secondary"
+          className="h-11 w-11 items-center justify-center rounded-full bg-primary"
           style={{ opacity: text.trim() ? 1 : 0.4 }}
           onPress={send}
           disabled={sending || !text.trim()}

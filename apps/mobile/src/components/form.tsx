@@ -113,12 +113,12 @@ export function ChoiceChips({
               key={option}
               onPress={() => onChange(option)}
               className={`mb-2 mr-2 flex-row items-center rounded-full border px-4 py-2 ${
-                selected ? "border-secondary bg-secondary" : "border-border bg-surface"
+                selected ? "border-primary bg-primary-soft" : "border-border bg-surface"
               }`}
               accessibilityState={{ selected }}
             >
-              {icon ? <Ionicons name={icon} size={15} color={selected ? colors.onPrimary : colors.text.subtle} style={{ marginRight: 6 }} /> : null}
-              <Text className={selected ? "font-semibold text-surface" : "text-text"} numberOfLines={1}>
+              {icon ? <Ionicons name={icon} size={15} color={selected ? colors.primary.DEFAULT : colors.text.subtle} style={{ marginRight: 6 }} /> : null}
+              <Text className={selected ? "font-semibold text-primary-dark" : "text-text"} numberOfLines={1}>
                 {option}
               </Text>
             </TouchableOpacity>
@@ -157,8 +157,8 @@ export function ListField({
     <View className="mb-5">
       <FieldLabel label={label} optional={optional} />
       {items.map((item, i) => (
-        <View key={`${i}-${item}`} className="mb-2 flex-row items-center rounded-xl bg-secondary-soft px-4 py-3">
-          <Ionicons name="checkmark-circle" size={18} color={colors.secondary.DEFAULT} />
+        <View key={`${i}-${item}`} className="mb-2 flex-row items-center rounded-xl bg-primary-soft px-4 py-3">
+          <Ionicons name="checkmark-circle" size={18} color={colors.primary.DEFAULT} />
           <Text className="mx-2 flex-1 text-base text-text">{item}</Text>
           <TouchableOpacity
             onPress={() => onChange(items.filter((_, j) => j !== i))}
@@ -181,7 +181,7 @@ export function ListField({
           submitBehavior="submit"
         />
         <TouchableOpacity
-          className="h-[50px] w-[50px] items-center justify-center rounded-xl bg-secondary"
+          className="h-[50px] w-[50px] items-center justify-center rounded-xl bg-primary"
           style={{ opacity: draft.trim() ? 1 : 0.4 }}
           onPress={() => add(draft)}
           disabled={!draft.trim()}
@@ -337,8 +337,8 @@ export function FormSection({
     <View className="mb-4 rounded-card border border-border bg-surface p-5">
       <View className={`flex-row items-center ${description ? "mb-1" : "mb-4"}`}>
         {icon ? (
-          <View className="mr-3 h-9 w-9 items-center justify-center rounded-xl bg-secondary-soft">
-            <Ionicons name={icon} size={18} color={colors.secondary.DEFAULT} />
+          <View className="mr-3 h-9 w-9 items-center justify-center rounded-xl bg-primary-soft">
+            <Ionicons name={icon} size={18} color={colors.primary.DEFAULT} />
           </View>
         ) : null}
         <Text className="flex-1 text-lg font-bold text-text" numberOfLines={1}>
@@ -410,7 +410,7 @@ export function PrimaryButton({
       ) : (
         <>
           {icon ? <Ionicons name={icon} size={20} color={styles.color} style={{ marginRight: 6 }} /> : null}
-          <Text className={`text-lg font-bold ${styles.text}`} numberOfLines={1}>
+          <Text className={`text-[19px] font-bold ${styles.text}`} numberOfLines={1}>
             {title}
           </Text>
         </>
@@ -432,7 +432,7 @@ export function StepHeader({ steps, current, onStepPress }: { steps: Step[]; cur
           const active = i === current;
           return (
             <Fragment key={s.short}>
-              {i > 0 ? <View className={`mt-[13px] h-0.5 flex-1 ${i <= current ? "bg-secondary" : "bg-border"}`} /> : null}
+              {i > 0 ? <View className={`mt-[13px] h-0.5 flex-1 ${i <= current ? "bg-primary" : "bg-border"}`} /> : null}
               <TouchableOpacity
                 className="w-14 items-center"
                 onPress={() => onStepPress(i)}
@@ -441,17 +441,17 @@ export function StepHeader({ steps, current, onStepPress }: { steps: Step[]; cur
               >
                 <View
                   className={`h-7 w-7 items-center justify-center rounded-full border-2 ${
-                    active ? "border-primary bg-primary" : done ? "border-secondary bg-secondary" : "border-border bg-surface"
+                    active ? "border-primary bg-primary" : done ? "border-primary bg-primary-tint" : "border-border bg-surface"
                   }`}
                 >
                   {done ? (
-                    <Ionicons name="checkmark" size={14} color={colors.onPrimary} />
+                    <Ionicons name="checkmark" size={14} color={colors.primary.dark} />
                   ) : (
                     <Text className={`text-xs font-bold ${active ? "text-surface" : "text-text-subtle"}`}>{i + 1}</Text>
                   )}
                 </View>
                 <Text
-                  className={`mt-1 text-[11px] ${active ? "font-semibold text-primary" : done ? "font-semibold text-secondary" : "text-text-subtle"}`}
+                  className={`mt-1 text-[11px] ${active ? "font-semibold text-primary-dark" : done ? "font-semibold text-primary-dark" : "text-text-subtle"}`}
                   numberOfLines={1}
                 >
                   {s.short}
@@ -463,7 +463,7 @@ export function StepHeader({ steps, current, onStepPress }: { steps: Step[]; cur
       </View>
 
       <View className="mt-3 flex-row items-center">
-        <Text className="mr-2 rounded-full bg-secondary-soft px-2.5 py-0.5 text-xs font-bold text-secondary">
+        <Text className="mr-2 rounded-full bg-primary-tint px-2.5 py-0.5 text-xs font-bold text-primary-dark">
           {current + 1}/{steps.length}
         </Text>
         <Text className="flex-1 text-xl font-bold text-text" numberOfLines={1}>

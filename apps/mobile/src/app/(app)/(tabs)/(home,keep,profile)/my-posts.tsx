@@ -32,7 +32,7 @@ export default function MyPosts() {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="mx-4 my-3 flex-row rounded-xl bg-border p-1">
+      <View className="mx-4 my-3 flex-row rounded-xl bg-primary-soft p-1">
         {SEGMENTS.map((segment) => {
           const active = segment.kind === kind;
           return (
@@ -43,7 +43,7 @@ export default function MyPosts() {
               style={active ? { elevation: 2 } : undefined}
               accessibilityState={{ selected: active }}
             >
-              <Text className={`font-semibold ${active ? "text-text" : "text-text-muted"}`} numberOfLines={1}>
+              <Text className={`font-semibold ${active ? "text-primary-dark" : "text-text-muted"}`} numberOfLines={1}>
                 {segment.label} ({mine[segment.kind].length})
               </Text>
             </TouchableOpacity>
@@ -60,7 +60,7 @@ export default function MyPosts() {
           data={mine.find}
           keyExtractor={(job) => job.id}
           renderItem={({ item }) => <JobCard job={item} />}
-          ListEmptyComponent={<EmptyState icon="document-text-outline" message="คุณยังไม่มีประกาศหางาน" />}
+          ListEmptyComponent={<EmptyState icon="document-text-outline" message="คุณยังไม่มีประกาศหางาน" action={{ label: "ลงประกาศงาน", href: "/jobs/new" }} />}
           {...listProps}
         />
       ) : (
@@ -68,7 +68,7 @@ export default function MyPosts() {
           data={mine.hire}
           keyExtractor={(hire) => hire.id}
           renderItem={({ item }) => <HireCard hire={item} author={profile ?? undefined} />}
-          ListEmptyComponent={<EmptyState icon="people-outline" message="คุณยังไม่มีประกาศฟรีแลนซ์" />}
+          ListEmptyComponent={<EmptyState icon="people-outline" message="คุณยังไม่มีประกาศฟรีแลนซ์" action={{ label: "ลงประกาศฟรีแลนซ์", href: "/hires/new" }} />}
           {...listProps}
         />
       )}
