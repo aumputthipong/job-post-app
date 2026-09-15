@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { type CommentDoc, fullName, useComments, useUsers } from "@/lib/data";
 import { Avatar } from "./media";
+import { colors } from "@/lib/colors";
 
 const MAX_LENGTH = 100;
 
@@ -46,14 +47,14 @@ export function CommentList({ kind, postId }: { kind: PostKind; postId: string }
 
   return (
     <View>
-      <Text className="mb-3 text-lg font-bold text-primary">ความคิดเห็น ({comments.length})</Text>
+      <Text className="mb-3 text-[15px] font-semibold text-text-muted">ความคิดเห็น ({comments.length})</Text>
 
       <View className="mb-5 flex-row items-center">
         <Avatar uri={me?.imageUrl} name={fullName(me)} size="sm" />
         <TextInput
           className="mx-3 h-11 flex-1 rounded-full border border-border bg-background px-4 text-base text-text"
           placeholder="แสดงความคิดเห็น..."
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor={colors.placeholder}
           value={text}
           onChangeText={setText}
           maxLength={MAX_LENGTH}
@@ -62,13 +63,13 @@ export function CommentList({ kind, postId }: { kind: PostKind; postId: string }
           editable={!sending}
         />
         <TouchableOpacity
-          className="h-11 w-11 items-center justify-center rounded-full bg-primary"
+          className="h-11 w-11 items-center justify-center rounded-full bg-secondary"
           style={{ opacity: text.trim() ? 1 : 0.4 }}
           onPress={send}
           disabled={sending || !text.trim()}
           accessibilityLabel="ส่งความคิดเห็น"
         >
-          {sending ? <ActivityIndicator color="#FFFFFF" /> : <Ionicons name="send" size={18} color="#FFFFFF" />}
+          {sending ? <ActivityIndicator color={colors.onPrimary} /> : <Ionicons name="send" size={18} color={colors.onPrimary} />}
         </TouchableOpacity>
       </View>
 
@@ -87,7 +88,7 @@ export function CommentList({ kind, postId }: { kind: PostKind; postId: string }
                 <Text className="flex-1 font-bold text-text">{fullName(author)}</Text>
                 {c.userId === user?.uid ? (
                   <TouchableOpacity onPress={() => confirmDelete(c)} hitSlop={8} accessibilityLabel="ลบความคิดเห็น">
-                    <Ionicons name="trash-outline" size={16} color="#94A3B8" />
+                    <Ionicons name="trash-outline" size={16} color={colors.placeholder} />
                   </TouchableOpacity>
                 ) : null}
               </View>

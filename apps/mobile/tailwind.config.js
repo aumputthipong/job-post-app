@@ -1,32 +1,11 @@
-// Colors taken from the March 2026 redesign in apps/mobile (Login, Register,
-// Home, MyProFile, job list/detail screens) — a continuation, not a reset.
+const { colors } = require("./src/lib/colors");
+
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-      colors: {
-        primary: {
-          DEFAULT: "#083C6B",
-          light: "#2B6CB0",
-          // Tinted backgrounds: selected rows, icon tiles, the current step.
-          soft: "#EBF4FF",
-        },
-        success: { DEFAULT: "#15803D", soft: "#DCFCE7" },
-        danger: { DEFAULT: "#EF4444", soft: "#FEF2F2" },
-        background: "#F5F7FA",
-        surface: "#FFFFFF",
-        border: {
-          DEFAULT: "#E4E9F2",
-          strong: "#CBD5E1",
-        },
-        text: {
-          DEFAULT: "#333333",
-          muted: "#666666",
-          subtle: "#64748B",
-        },
-        accent: "#FF9800",
-      },
+      colors,
       borderRadius: {
         card: "16px",
       },

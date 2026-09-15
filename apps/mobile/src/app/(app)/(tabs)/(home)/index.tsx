@@ -6,6 +6,7 @@ import { Avatar } from "@/components/media";
 import { NotificationBell } from "@/components/notification-bell";
 import { useAuth } from "@/lib/auth-context";
 import { fullName, useUser } from "@/lib/data";
+import { colors } from "@/lib/colors";
 
 const menu: { title: string; description: string; href: Href; image: number }[] = [
   {
@@ -32,7 +33,7 @@ export default function Home() {
         <View className="mb-8 flex-row items-center justify-between">
           <View className="flex-1 pr-4">
             <Text className="mb-1 text-base text-text-muted">สวัสดี,</Text>
-            <Text className="text-2xl font-bold text-primary" numberOfLines={1}>
+            <Text className="text-2xl font-bold text-text" numberOfLines={1}>
               คุณ {profile?.firstName || "ผู้ใช้งาน"}
             </Text>
           </View>
@@ -46,25 +47,24 @@ export default function Home() {
           </View>
         </View>
 
-        <Text className="mb-5 text-lg font-semibold text-text">เลือกรูปแบบการใช้งาน</Text>
+        <Text className="mb-4 text-lg font-bold text-text">เลือกรูปแบบการใช้งาน</Text>
 
         {menu.map((item) => (
           <Link key={item.title} href={item.href} asChild>
             <TouchableOpacity
-              className="mb-4 flex-row items-center rounded-card bg-surface p-5"
-              style={{ elevation: 3 }}
+              className="mb-4 flex-row items-center rounded-card border border-border bg-surface p-5"
               activeOpacity={0.7}
             >
-              <View className="mr-4 h-[120px] w-[120px] items-center justify-center rounded-xl bg-[#F0F4F8] p-2">
+              <View className="mr-4 h-[120px] w-[120px] items-center justify-center rounded-xl bg-secondary-soft p-2">
                 <Image source={item.image} className="h-full w-full" resizeMode="contain" />
               </View>
               <View className="flex-1 pr-2">
-                <Text className="mb-1.5 text-lg font-bold text-primary">{item.title}</Text>
+                <Text className="mb-1.5 text-lg font-bold text-text">{item.title}</Text>
                 <Text className="text-sm leading-5 text-text-muted" numberOfLines={2}>
                   {item.description}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={24} color="#A0AABF" />
+              <Ionicons name="chevron-forward" size={24} color={colors.border.strong} />
             </TouchableOpacity>
           </Link>
         ))}

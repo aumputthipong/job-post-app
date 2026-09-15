@@ -51,7 +51,8 @@ export default function Register() {
     <SafeAreaView className="flex-1 bg-surface">
       <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView contentContainerClassName="px-8 py-10" keyboardShouldPersistTaps="handled">
-          <Text className="mb-8 text-3xl font-bold text-primary">สร้างบัญชีใหม่</Text>
+          <Text className="text-3xl font-bold text-text">สร้างบัญชีใหม่</Text>
+          <Text className="mb-8 mt-1 text-base text-text-subtle">ใช้เวลาไม่ถึงนาที กรอกให้ครบทุกช่อง</Text>
 
           <TextField label="ชื่อ" value={form.firstName} onChangeText={set("firstName")} autoCapitalize="words" error={errors.firstName} />
           <TextField label="นามสกุล" value={form.lastName} onChangeText={set("lastName")} autoCapitalize="words" error={errors.lastName} />
@@ -79,7 +80,7 @@ export default function Register() {
             error={errors.confirmPassword}
           />
 
-          {formError ? <Text className="mb-4 text-center text-red-500">{formError}</Text> : null}
+          {formError ? <Text className="mb-4 text-center text-danger">{formError}</Text> : null}
 
           <View className="mt-2">
             <PrimaryButton title="สมัครสมาชิก" onPress={submit} loading={loading} />
