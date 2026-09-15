@@ -4,7 +4,6 @@ Backend + modernized frontend for the original [job-app-project](https://github.
 (archived) — same Firebase project, same Firestore data, new architecture.
 
 ## Structure
-
 ```
 apps/
   mobile/    Expo app — current SDK, TypeScript, Expo Router, NativeWind, TanStack Query
@@ -12,6 +11,22 @@ apps/
 packages/
   shared/    Zod schemas + Firestore collection name constants, used by both apps
 ```
+##  Screenshots
+
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/5d58cb69-f6f2-40be-86ba-2e329fb89659" width="180" alt="Home Screen" /></td>
+    <td><img src="https://github.com/user-attachments/assets/3eff77d5-0305-4b73-921f-9ee9f0acf494" width="180" alt="Job Details" /></td>
+    <td><img src="https://github.com/user-attachments/assets/541ae2f5-36f9-4199-ab76-ac136ae56d72" width="180" alt="Application Form" /></td>
+    <td><img src="https://github.com/user-attachments/assets/d410928f-4e39-46ac-a9cf-e0735ec9a08b" width="180" alt="Hiring List" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/ce5f7eff-c2ed-4af8-988e-be56205dbe7a" width="180" alt="Candidate Details" /></td>
+    <td><img src="https://github.com/user-attachments/assets/cfa854c6-5bd0-4afa-a124-13e30546ab8b" width="180" alt="User Profile" /></td>
+    <td><img src="https://github.com/user-attachments/assets/c8fd56cb-c386-4ba2-8d1a-022cd94304f6" width="180" alt="About App" /></td>
+    <td><img src="https://github.com/user-attachments/assets/27b2bde1-2a93-4256-98b8-74ee33940795" width="180" alt="Settings" /></td>
+  </tr>
+</table>
 
 ## Status
 
