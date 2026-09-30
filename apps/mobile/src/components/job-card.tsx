@@ -6,6 +6,7 @@ import type { JobPostDoc } from "@/lib/data";
 import { formatWage, isNew, timeAgo } from "@/lib/format";
 import { PostImage } from "./media";
 import { FavoriteButton } from "./post-actions";
+import { colors } from "@/lib/colors";
 
 // Reading order on the card: what job and who (title, company) → pay → where and how →
 // qualifications → when it was posted. The image is a thumbnail so it doesn't outrank the title.
@@ -47,14 +48,14 @@ export function JobCard({ job }: { job: JobPostDoc }) {
 
         {facts.length ? (
           <View className="mt-1.5 flex-row items-center">
-            <Ionicons name="location-outline" size={15} color="#64748B" />
+            <Ionicons name="location-outline" size={15} color={colors.text.subtle} />
             <Text className="ml-1.5 flex-1 text-sm text-text-subtle" numberOfLines={1}>
               {facts.join(" · ")}
             </Text>
           </View>
         ) : (
           <View className="mt-1.5 flex-row items-center">
-            <Ionicons name="briefcase-outline" size={15} color="#64748B" />
+            <Ionicons name="briefcase-outline" size={15} color={colors.text.subtle} />
             <Text className="ml-1.5 flex-1 text-sm text-text-subtle" numberOfLines={1}>
               {job.position}
             </Text>
@@ -64,9 +65,9 @@ export function JobCard({ job }: { job: JobPostDoc }) {
         {tags.length ? (
           <View className="mt-3 flex-row flex-wrap">
             {tags.slice(0, 3).map((tag, i) => (
-              <View key={i} className="mb-1.5 mr-1.5 rounded-md bg-primary-soft px-2 py-1">
+              <View key={i} className="mb-1.5 mr-1.5 rounded-md bg-secondary-soft px-2 py-1">
                 {/* numberOfLines: see "Thai label clipping" in MIGRATION.md 4.3 */}
-                <Text className="text-xs font-semibold text-primary-light" numberOfLines={1}>
+                <Text className="text-xs font-semibold text-secondary" numberOfLines={1}>
                   {tag}
                 </Text>
               </View>

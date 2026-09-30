@@ -1,9 +1,11 @@
 import { updateUserProfileSchema } from "@jobapp-platform/shared";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Text } from "react-native";
-import { fieldErrors, FormScrollView, FormSection, SubmitButton, TextField } from "@/components/form";
-import { EmptyState, ErrorState, Loading } from "@/components/ui";
+import { Ionicons } from "@expo/vector-icons";
+import { Alert, Text, View } from "react-native";
+import { fieldErrors, FormScrollView, FormSection, PrimaryButton, TextField } from "@/components/form";
+import { ActionBar, EmptyState, ErrorState, Loading } from "@/components/ui";
+import { colors } from "@/lib/colors";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { type UserDoc, useUser } from "@/lib/data";
@@ -68,37 +70,52 @@ function ProfileForm({ profile }: { profile: UserDoc }) {
     }
   };
 
+  // One page rather than steps: people come here to change a field or two, not to fill it all in.
+  // Sections run from what everyone fills to what only posters need; save stays in reach below.
   return (
-    <FormScrollView>
-      <FormSection title="ข้อมูลทั่วไป" icon="person-outline">
-        <TextField label="ชื่อจริง" required {...field("firstName")} autoCapitalize="words" />
-        <TextField label="นามสกุล" required {...field("lastName")} autoCapitalize="words" />
-        <TextField label="อาชีพ / ตำแหน่ง" placeholder="เช่น Graphic Designer" {...field("job")} autoCapitalize="words" />
-        <TextField label="เกี่ยวกับฉัน" placeholder="แนะนำตัวสั้นๆ" {...field("aboutme")} multiline autoCapitalize="sentences" />
-      </FormSection>
+    <View className="flex-1 bg-background">
+      <FormScrollView footerBelow>
+        <FormSection title="ข้อมูลทั่วไป" icon="person-outline">
+          <TextField label="ชื่อจริง" required {...field("firstName")} autoCapitalize="words" />
+          <TextField label="นามสกุล" required {...field("lastName")} autoCapitalize="words" />
+          <TextField label="อาชีพ / ตำแหน่ง" placeholder="เช่น Graphic Designer" {...field("job")} autoCapitalize="words" />
+          <TextField label="เกี่ยวกับฉัน" placeholder="แนะนำตัวสั้นๆ" {...field("aboutme")} multiline autoCapitalize="sentences" />
+        </FormSection>
 
-      <FormSection title="ข้อมูลบริษัท" icon="business-outline" description="ไม่บังคับ · ใช้กรอกให้อัตโนมัติเมื่อลงประกาศงาน">
-        <TextField label="ชื่อบริษัท / หน่วยงาน" placeholder="เช่น บริษัท ไทยเทค จำกัด" {...field("companyName")} autoCapitalize="words" />
-        <TextField label="ที่ตั้ง" placeholder="เช่น สาทร กรุงเทพมหานคร" {...field("companyLocation")} autoCapitalize="sentences" />
-        <TextField label="อีเมลฝ่ายบุคคล" placeholder="hr@company.com" {...field("companyEmail")} keyboardType="email-address" />
-        <TextField label="เบอร์ติดต่อบริษัท" placeholder="02X-XXX-XXXX" {...field("companyPhone")} keyboardType="phone-pad" maxLength={10} />
-      </FormSection>
+        <FormSection title="ช่องทางติดต่อ" icon="call-outline">
+          <View className="mb-5">
+            <Text className="mb-2 text-[15px] font-semibold text-text">อีเมล</Text>
+            <View className="h-[50px] flex-row items-center rounded-xl border border-border bg-border/40 px-4">
+              <Text className="flex-1 text-base text-text-muted" numberOfLines={1}>{profile.email}</Text>
+              <Ionicons name="lock-closed-outline" size={16} color={colors.text.subtle} />
+            </View>
+            <Text className="mt-1.5 text-xs text-text-subtle">ใช้เข้าสู่ระบบ แก้ไขที่นี่ไม่ได้</Text>
+          </View>
+          <TextField label="เบอร์โทรศัพท์" placeholder="08X-XXX-XXXX" {...field("phone")} keyboardType="phone-pad" maxLength={10} />
+          <TextField label="Line ID" {...field("line")} />
+          <TextField label="Facebook" placeholder="ชื่อหรือลิงก์" {...field("facebook")} />
+        </FormSection>
 
-      <FormSection title="ช่องทางติดต่อ" icon="call-outline">
-        <Text className="mb-2 font-medium text-text">อีเมล</Text>
-        <Text className="mb-5 text-base text-text-subtle">{profile.email} (ใช้เข้าสู่ระบบ แก้ไขที่นี่ไม่ได้)</Text>
-        <TextField label="เบอร์โทรศัพท์" placeholder="08X-XXX-XXXX" {...field("phone")} keyboardType="phone-pad" maxLength={10} />
-        <TextField label="Line ID" {...field("line")} />
-        <TextField label="Facebook" placeholder="ชื่อหรือลิงก์" {...field("facebook")} />
-      </FormSection>
+        <FormSection title="การศึกษา" icon="school-outline">
+          <TextField label="ปริญญาตรี" placeholder="สาขา / มหาวิทยาลัย" {...field("bachelor")} autoCapitalize="words" />
+          <TextField label="ปริญญาโท" {...field("master")} autoCapitalize="words" />
+          <TextField label="ปริญญาเอก" {...field("doctoral")} autoCapitalize="words" />
+        </FormSection>
 
-      <FormSection title="การศึกษา" icon="school-outline">
-        <TextField label="ปริญญาตรี" placeholder="สาขา / มหาวิทยาลัย" {...field("bachelor")} autoCapitalize="words" />
-        <TextField label="ปริญญาโท" {...field("master")} autoCapitalize="words" />
-        <TextField label="ปริญญาเอก" {...field("doctoral")} autoCapitalize="words" />
-      </FormSection>
+        <FormSection title="ข้อมูลบริษัท" icon="business-outline" description="สำหรับผู้ลงประกาศงาน · ระบบจะกรอกให้อัตโนมัติตอนสร้างประกาศ">
+          <TextField label="ชื่อบริษัท / หน่วยงาน" placeholder="เช่น บริษัท ไทยเทค จำกัด" {...field("companyName")} autoCapitalize="words" />
+          <TextField label="ที่ตั้ง" placeholder="เช่น สาทร กรุงเทพมหานคร" {...field("companyLocation")} autoCapitalize="sentences" />
+          <TextField label="อีเมลฝ่ายบุคคล" placeholder="hr@company.com" {...field("companyEmail")} keyboardType="email-address" />
+          <TextField label="เบอร์ติดต่อบริษัท" placeholder="02X-XXX-XXXX" {...field("companyPhone")} keyboardType="phone-pad" maxLength={10} />
+        </FormSection>
 
-      <SubmitButton title="บันทึก" onPress={save} loading={saving} hasErrors={Object.keys(errors).length > 0} />
-    </FormScrollView>
+        {Object.keys(errors).length ? <Text className="text-center text-danger">กรุณาแก้ข้อมูลที่ไม่ถูกต้อง</Text> : null}
+      </FormScrollView>
+      <ActionBar>
+        <View className="flex-1">
+          <PrimaryButton title="บันทึก" icon="checkmark" onPress={save} loading={saving} />
+        </View>
+      </ActionBar>
+    </View>
   );
 }

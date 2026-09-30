@@ -76,7 +76,9 @@ export function useFollowTabBar() {
   return useAnimatedStyle(() => ({ transform: [{ translateY: (hidden?.value ?? 0) * height }] }));
 }
 
-const FORMS = /(^|\/)(new|edit|edit-profile)$/;
+// Forms get the whole screen for the keyboard and the submit button; post details for
+// reading and their own actions. Those screens pad by the safe area, not the bar.
+const FULL_SCREEN = /(^|\/)(new|edit|edit-profile|\[id\]\/index)$/;
 
 /** Absolutely positioned so screens run underneath it; they pad by useTabBarHeight(). */
 export function HidingTabBar(props: BottomTabBarProps) {
@@ -92,8 +94,7 @@ export function HidingTabBar(props: BottomTabBarProps) {
     if (hidden) show(hidden, 0);
   }, [hidden, focused?.key, nested?.key]);
 
-  // Forms get the whole screen, for the keyboard and the submit button.
-  if (nested && FORMS.test(nested.name)) return null;
+  if (nested && FULL_SCREEN.test(nested.name)) return null;
 
   return (
     <Animated.View

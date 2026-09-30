@@ -9,6 +9,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { fullName, type NotificationDoc, type UserDoc, useNotifications, useUsers } from "@/lib/data";
 import { timeAgo } from "@/lib/format";
+import { colors } from "@/lib/colors";
 
 const VERBS = {
   comment: "แสดงความคิดเห็นในโพสต์ของคุณ",
@@ -40,7 +41,7 @@ export default function Notifications() {
         options={{
           headerRight: () =>
             markingAll ? (
-              <ActivityIndicator color="#083C6B" />
+              <ActivityIndicator color={colors.primary.DEFAULT} />
             ) : unread ? (
               <TouchableOpacity onPress={markAll} hitSlop={8}>
                 <Text className="font-semibold text-primary">อ่านทั้งหมด</Text>
@@ -60,9 +61,9 @@ export default function Notifications() {
           ListHeaderComponent={
             <Link href="/notification-settings" asChild>
               <TouchableOpacity className="mx-4 my-3 flex-row items-center rounded-card bg-surface p-4" activeOpacity={0.8}>
-                <Ionicons name="options-outline" size={20} color="#083C6B" />
+                <Ionicons name="options-outline" size={20} color={colors.secondary.DEFAULT} />
                 <Text className="ml-3 flex-1 text-text">เลือกหมวดงานที่อยากรับแจ้งเตือน</Text>
-                <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+                <Ionicons name="chevron-forward" size={18} color={colors.border.strong} />
               </TouchableOpacity>
             </Link>
           }
@@ -89,7 +90,7 @@ function NotificationRow({ notification: n, actor }: { notification: Notificatio
     <TouchableOpacity
       onPress={open}
       activeOpacity={0.7}
-      className={`flex-row border-b border-border px-4 py-3 ${n.read ? "bg-background" : "bg-[#EBF8FF]"}`}
+      className={`flex-row border-b border-border px-4 py-3 ${n.read ? "bg-background" : "bg-primary-soft"}`}
     >
       <Avatar uri={actor?.imageUrl} name={fullName(actor)} />
       <View className="ml-3 flex-1">

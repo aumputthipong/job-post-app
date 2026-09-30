@@ -32,7 +32,7 @@ export default function MyPosts() {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="mx-4 my-3 flex-row rounded-xl bg-[#E2E8F0] p-1">
+      <View className="mx-4 my-3 flex-row rounded-xl bg-border p-1">
         {SEGMENTS.map((segment) => {
           const active = segment.kind === kind;
           return (
@@ -43,7 +43,7 @@ export default function MyPosts() {
               style={active ? { elevation: 2 } : undefined}
               accessibilityState={{ selected: active }}
             >
-              <Text className={`font-semibold ${active ? "text-primary" : "text-text-muted"}`} numberOfLines={1}>
+              <Text className={`font-semibold ${active ? "text-text" : "text-text-muted"}`} numberOfLines={1}>
                 {segment.label} ({mine[segment.kind].length})
               </Text>
             </TouchableOpacity>

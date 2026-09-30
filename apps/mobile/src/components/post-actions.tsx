@@ -6,11 +6,16 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useFavoriteIds, useRatingSummary } from "@/lib/data";
 import { StarPicker } from "./ui";
+import { colors } from "@/lib/colors";
 
 // Both controls show the new value straight away; the Firestore listener
 // confirms it a moment later, and that clears the local override.
 
-export function FavoriteButton({ postId }: { postId: string }) {
+/**
+ * Save a job to the บันทึกไว้ tab. A bookmark, like that tab's icon — stars mean ratings.
+ * `button` is the labelled version for a detail screen's action bar.
+ */
+export function FavoriteButton({ postId, variant = "icon" }: { postId: string; variant?: "icon" | "button" }) {
   const { user } = useAuth();
   const saved = useFavoriteIds(user?.uid).ids.has(postId);
   const [override, setOverride] = useState<boolean | null>(null);
@@ -32,9 +37,25 @@ export function FavoriteButton({ postId }: { postId: string }) {
   };
 
   const shown = override ?? saved;
+  const icon = shown ? "bookmark" : "bookmark-outline";
+  if (variant === "button") {
+    return (
+      <TouchableOpacity
+        onPress={toggle}
+        disabled={pending}
+        className={`h-14 flex-1 flex-row items-center justify-center rounded-2xl border ${shown ? "border-primary bg-primary-soft" : "border-border bg-surface"}`}
+        accessibilityState={{ selected: shown }}
+      >
+        <Ionicons name={icon} size={20} color={shown ? colors.primary.DEFAULT : colors.secondary.DEFAULT} />
+        <Text className={`ml-1.5 text-base font-bold ${shown ? "text-primary" : "text-secondary"}`} numberOfLines={1}>
+          {shown ? "บันทึกแล้ว" : "บันทึกงาน"}
+        </Text>
+      </TouchableOpacity>
+    );
+  }
   return (
-    <TouchableOpacity onPress={toggle} disabled={pending} hitSlop={8} accessibilityLabel="บันทึกงานนี้">
-      <Ionicons name={shown ? "star" : "star-outline"} size={24} color={shown ? "#FF9800" : "#083C6B"} />
+    <TouchableOpacity onPress={toggle} disabled={pending} hitSlop={8} accessibilityLabel={shown ? "เลิกบันทึกงานนี้" : "บันทึกงานนี้"}>
+      <Ionicons name={icon} size={24} color={shown ? colors.primary.DEFAULT : colors.text.subtle} />
     </TouchableOpacity>
   );
 }

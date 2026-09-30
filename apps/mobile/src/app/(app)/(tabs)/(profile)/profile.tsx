@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useUser } from "@/lib/data";
 import { auth } from "@/lib/firebase";
 import { queryClient } from "@/lib/query-client";
+import { colors } from "@/lib/colors";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -51,12 +52,8 @@ export default function Profile() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      <View className="flex-row items-center justify-between px-6 pb-2 pt-5">
-        <Text className="text-2xl font-bold text-primary">โปรไฟล์</Text>
-        <TouchableOpacity onPress={confirmSignOut} className="flex-row items-center py-2" hitSlop={8}>
-          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
-          <Text className="ml-1 font-semibold text-red-500">ออกจากระบบ</Text>
-        </TouchableOpacity>
+      <View className="px-5 pb-3 pt-5">
+        <Text className="text-2xl font-bold text-text">โปรไฟล์</Text>
       </View>
 
       {error ? (
@@ -73,26 +70,30 @@ export default function Profile() {
               <TouchableOpacity
                 onPress={changePhoto}
                 disabled={uploading}
-                className="absolute bottom-0 right-0 h-9 w-9 items-center justify-center rounded-full border-2 border-surface bg-primary"
+                className="absolute bottom-0 right-0 h-9 w-9 items-center justify-center rounded-full border-2 border-surface bg-secondary"
                 accessibilityLabel="เปลี่ยนรูปโปรไฟล์"
               >
-                {uploading ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Ionicons name="camera" size={16} color="#FFFFFF" />}
+                {uploading ? <ActivityIndicator size="small" color={colors.onPrimary} /> : <Ionicons name="camera" size={16} color={colors.onPrimary} />}
               </TouchableOpacity>
             }
           >
             <Link href="/edit-profile" asChild>
-              <TouchableOpacity className="mt-4 flex-row items-center rounded-full border border-primary px-5 py-2">
-                <Ionicons name="create-outline" size={16} color="#083C6B" />
-                <Text className="ml-2 font-semibold text-primary">แก้ไขโปรไฟล์</Text>
+              <TouchableOpacity className="mt-4 flex-row items-center rounded-full bg-primary px-5 py-2.5">
+                <Ionicons name="create-outline" size={16} color={colors.onPrimary} />
+                <Text className="ml-2 font-semibold text-surface">แก้ไขโปรไฟล์</Text>
               </TouchableOpacity>
             </Link>
           </ProfileCard>
-          <View className="mx-4 mb-4 overflow-hidden rounded-card bg-surface" style={{ elevation: 2 }}>
+          <View className="mx-4 mt-3 overflow-hidden rounded-card border border-border bg-surface">
             <MenuRow href="/my-posts" icon="documents-outline" title="โพสต์ของฉัน" />
-            <View className="ml-14 h-px bg-border" />
+            <View className="ml-16 h-px bg-border" />
             <MenuRow href="/notification-settings" icon="notifications-outline" title="ตั้งค่าการแจ้งเตือน" />
           </View>
           <ProfileDetails user={profile} editable />
+          <TouchableOpacity onPress={confirmSignOut} className="mx-4 mb-4 flex-row items-center justify-center rounded-2xl border border-border bg-surface py-4">
+            <Ionicons name="log-out-outline" size={20} color={colors.danger.DEFAULT} />
+            <Text className="ml-2 text-base font-semibold text-danger">ออกจากระบบ</Text>
+          </TouchableOpacity>
         </ScrollView>
       )}
     </SafeAreaView>
@@ -103,9 +104,11 @@ function MenuRow({ href, icon, title }: { href: Href; icon: React.ComponentProps
   return (
     <Link href={href} asChild>
       <TouchableOpacity className="flex-row items-center p-4" activeOpacity={0.7}>
-        <Ionicons name={icon} size={22} color="#083C6B" />
+        <View className="h-9 w-9 items-center justify-center rounded-xl bg-secondary-soft">
+          <Ionicons name={icon} size={20} color={colors.secondary.DEFAULT} />
+        </View>
         <Text className="ml-3 flex-1 text-base font-semibold text-text">{title}</Text>
-        <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+        <Ionicons name="chevron-forward" size={20} color={colors.border.strong} />
       </TouchableOpacity>
     </Link>
   );

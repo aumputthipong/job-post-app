@@ -3,6 +3,7 @@ import type { Media } from "@jobapp-platform/shared";
 import { Image } from "expo-image";
 import { useState } from "react";
 import { Text, View, type ViewStyle } from "react-native";
+import { colors } from "@/lib/colors";
 
 const PLACEHOLDER = require("@/assets/images/PostPlaceholder.png");
 
@@ -32,7 +33,7 @@ export function PostCover({ images, className }: { images: Media[]; className?: 
       <PostImage uri={images[0]?.url} className={className} />
       {images.length > 1 ? (
         <View className="absolute right-3 top-3 flex-row items-center rounded-full bg-black/60 px-2.5 py-1">
-          <Ionicons name="images-outline" size={14} color="#FFFFFF" />
+          <Ionicons name="images-outline" size={14} color={colors.onPrimary} />
           <Text className="ml-1 text-xs text-surface">{images.length}</Text>
         </View>
       ) : null}
@@ -68,13 +69,13 @@ export function Avatar({
       <Image
         source={{ uri }}
         onError={() => setFailedUri(uri)}
-        style={{ width: px, height: px, borderRadius: px / 2, backgroundColor: "#E4E9F2" }}
+        style={{ width: px, height: px, borderRadius: px / 2, backgroundColor: colors.border.DEFAULT }}
       />
     );
   }
   return (
     <View
-      className="items-center justify-center bg-primary"
+      className="items-center justify-center bg-secondary"
       style={{ width: px, height: px, borderRadius: px / 2 }}
     >
       <Text className="font-bold text-surface" style={{ fontSize: px * 0.38 }}>

@@ -1,13 +1,15 @@
 import type { ComponentProps } from "react";
 import type { Stack } from "expo-router";
+import { colors } from "@/lib/colors";
 
 type StackOptions = NonNullable<ComponentProps<typeof Stack>["screenOptions"]>;
 
 export const STACK_OPTIONS = {
-  headerTintColor: "#083C6B",
-  headerTitleStyle: { fontWeight: "bold" },
-  headerStyle: { backgroundColor: "#F5F7FA" },
+  // Orange back arrow, dark title: the title names the page, the arrow is the action.
+  headerTintColor: colors.primary.DEFAULT,
+  headerTitleStyle: { fontWeight: "bold", color: colors.text.DEFAULT },
+  headerStyle: { backgroundColor: colors.background },
   headerShadowVisible: false,
   headerBackButtonDisplayMode: "minimal",
-  contentStyle: { backgroundColor: "#F5F7FA" },
+  contentStyle: { backgroundColor: colors.background },
 } satisfies StackOptions;

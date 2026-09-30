@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useNotiPreference } from "@/lib/data";
 import { CATEGORIES } from "@/lib/post-options";
+import { colors } from "@/lib/colors";
 
 export default function NotificationSettings() {
   const { user } = useAuth();
@@ -40,7 +41,7 @@ export default function NotificationSettings() {
   return (
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
       <View className="mb-4 rounded-card bg-surface p-5" style={{ elevation: 2 }}>
-        <Text className="mb-1 text-lg font-bold text-primary">หมวดงานที่ติดตาม</Text>
+        <Text className="mb-1 text-lg font-bold text-text">หมวดงานที่ติดตาม</Text>
         <Text className="mb-4 text-sm text-text-subtle">
           เมื่อมีประกาศใหม่ในหมวดที่เลือก จะแจ้งเตือนในแอป · เลือกได้หลายหมวด
         </Text>
@@ -52,11 +53,11 @@ export default function NotificationSettings() {
                 key={category}
                 onPress={() => toggle(category)}
                 className={`mb-2 mr-2 flex-row items-center rounded-full border px-4 py-2 ${
-                  on ? "border-primary bg-primary" : "border-border bg-background"
+                  on ? "border-secondary bg-secondary" : "border-border bg-background"
                 }`}
                 accessibilityState={{ checked: on }}
               >
-                {on ? <Ionicons name="checkmark" size={16} color="#FFFFFF" style={{ marginRight: 4 }} /> : null}
+                {on ? <Ionicons name="checkmark" size={16} color={colors.onPrimary} style={{ marginRight: 4 }} /> : null}
                 <Text className={on ? "text-surface" : "text-text"} numberOfLines={1}>
                   {category}
                 </Text>

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from "react-native";
 import { api } from "@/lib/api";
 import { ImageViewer } from "./image-carousel";
+import { colors } from "@/lib/colors";
 
 type Resume = NonNullable<UserProfile["resume"]>;
 
@@ -26,14 +27,14 @@ export function ResumeButton({ resume }: { resume: Resume }) {
         activeOpacity={0.8}
         className="flex-row items-center rounded-xl border border-border bg-background p-4"
       >
-        <Ionicons name={pdf ? "document-text-outline" : "image-outline"} size={28} color="#083C6B" />
+        <Ionicons name={pdf ? "document-text-outline" : "image-outline"} size={28} color={colors.secondary.DEFAULT} />
         <View className="ml-3 flex-1">
           <Text className="font-semibold text-text" numberOfLines={1}>
             {resume.name || (pdf ? "เรซูเม่.pdf" : "เรซูเม่")}
           </Text>
           <Text className="text-sm text-text-subtle">แตะเพื่อเปิด</Text>
         </View>
-        <Ionicons name="open-outline" size={20} color="#94A3B8" />
+        <Ionicons name="open-outline" size={20} color={colors.placeholder} />
       </TouchableOpacity>
       {pdf ? null : (
         <ImageViewer images={[{ url: resume.url }]} start={viewing ? 0 : undefined} onClose={() => setViewing(false)} />
@@ -88,7 +89,7 @@ export function ResumeEditor({ resume }: { resume?: Resume | null }) {
   if (busy) {
     return (
       <View className="h-20 flex-row items-center justify-center rounded-xl bg-background">
-        <ActivityIndicator color="#083C6B" />
+        <ActivityIndicator color={colors.primary.DEFAULT} />
         <Text className="ml-3 text-text-subtle">กำลังบันทึก...</Text>
       </View>
     );
@@ -101,7 +102,7 @@ export function ResumeEditor({ resume }: { resume?: Resume | null }) {
         activeOpacity={0.8}
         className="h-20 flex-row items-center justify-center rounded-xl border border-dashed border-border bg-background"
       >
-        <Ionicons name="cloud-upload-outline" size={24} color="#94A3B8" />
+        <Ionicons name="cloud-upload-outline" size={24} color={colors.placeholder} />
         <Text className="ml-2 text-text-subtle">อัปโหลดเรซูเม่ (PDF หรือรูปภาพ)</Text>
       </TouchableOpacity>
     );
@@ -112,12 +113,12 @@ export function ResumeEditor({ resume }: { resume?: Resume | null }) {
       <ResumeButton resume={resume} />
       <View className="mt-3 flex-row">
         <TouchableOpacity onPress={pick} className="mr-5 flex-row items-center py-1" hitSlop={8}>
-          <Ionicons name="swap-horizontal-outline" size={18} color="#083C6B" />
+          <Ionicons name="swap-horizontal-outline" size={18} color={colors.primary.DEFAULT} />
           <Text className="ml-1 font-semibold text-primary">เปลี่ยนไฟล์</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={remove} className="flex-row items-center py-1" hitSlop={8}>
-          <Ionicons name="trash-outline" size={18} color="#EF4444" />
-          <Text className="ml-1 font-semibold text-red-500">ลบ</Text>
+          <Ionicons name="trash-outline" size={18} color={colors.danger.DEFAULT} />
+          <Text className="ml-1 font-semibold text-danger">ลบ</Text>
         </TouchableOpacity>
       </View>
     </View>

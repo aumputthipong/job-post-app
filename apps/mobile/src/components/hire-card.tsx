@@ -2,36 +2,55 @@ import { postImages } from "@jobapp-platform/shared";
 import { Link } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { fullName, type HirePostDoc, type UserDoc } from "@/lib/data";
-import { Avatar, PostCover } from "./media";
+import { isNew, timeAgo } from "@/lib/format";
+import { Avatar, PostImage } from "./media";
 
+// Same reading order as the job card: what's offered and by whom → a short description →
+// when and in which category. The portfolio image is a thumbnail beside the title.
 export function HireCard({ hire, author }: { hire: HirePostDoc; author?: UserDoc }) {
   const images = postImages(hire);
   return (
     <Link href={`/hires/${hire.id}`} asChild>
-      <TouchableOpacity className="mx-4 mb-4 rounded-card bg-surface p-4" style={{ elevation: 3 }} activeOpacity={0.8}>
-        <View className="mb-3 flex-row items-center">
-          <Avatar uri={author?.imageUrl} name={fullName(author)} />
-          <View className="ml-3 flex-1">
-            <Text className="text-base font-bold text-text" numberOfLines={1}>
-              {fullName(author)}
+      <TouchableOpacity className="mx-4 mb-3 rounded-card border border-border bg-surface p-4" activeOpacity={0.8}>
+        <View className="flex-row">
+          <View className="flex-1">
+            <Text className="text-lg font-bold leading-6 text-text" numberOfLines={2}>
+              {hire.hireTitle}
             </Text>
-            <Text className="text-sm text-text-subtle" numberOfLines={1}>
-              {author?.job || "ไม่ระบุตำแหน่ง"}
-            </Text>
+            <View className="mt-2 flex-row items-center">
+              <Avatar uri={author?.imageUrl} name={fullName(author)} size="sm" />
+              <Text className="ml-2 flex-1 text-[15px] text-text-muted" numberOfLines={1}>
+                {fullName(author)}
+                {author?.job ? ` · ${author.job}` : ""}
+              </Text>
+            </View>
           </View>
+          {images.length ? (
+            <View className="ml-3">
+              <PostImage uri={images[0]?.url} className="h-16 w-16 rounded-xl" />
+              {images.length > 1 ? (
+                <View className="absolute bottom-1 right-1 rounded-full bg-black/60 px-1.5">
+                  <Text className="text-[10px] text-surface">+{images.length - 1}</Text>
+                </View>
+              ) : null}
+            </View>
+          ) : null}
         </View>
-        <Text className="mb-1 text-lg font-bold text-primary" numberOfLines={2}>
-          {hire.hireTitle}
-        </Text>
-        <Text className="text-sm leading-5 text-text-muted" numberOfLines={3}>
+
+        <Text className="mt-3 text-sm leading-5 text-text-muted" numberOfLines={2}>
           {hire.detail}
         </Text>
-        {/* Portfolio first image; a freelance post without one stays text only. */}
-        {images.length ? (
-          <View className="mt-3">
-            <PostCover images={images} className="h-40 w-full rounded-xl" />
-          </View>
-        ) : null}
+
+        <View className="mt-3 flex-row items-center border-t border-border pt-3">
+          {isNew(hire.createdAt) ? (
+            <View className="mr-2 rounded-md bg-success-soft px-2 py-0.5">
+              <Text className="text-xs font-bold text-success">ใหม่</Text>
+            </View>
+          ) : null}
+          <Text className="flex-1 text-xs text-text-subtle" numberOfLines={1}>
+            {[hire.category, timeAgo(hire.createdAt)].filter(Boolean).join(" · ")}
+          </Text>
+        </View>
       </TouchableOpacity>
     </Link>
   );

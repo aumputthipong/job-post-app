@@ -42,7 +42,8 @@ export default function Login() {
     <SafeAreaView className="flex-1 bg-surface">
       <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView contentContainerClassName="flex-grow justify-center px-8 py-10" keyboardShouldPersistTaps="handled">
-          <Text className="mb-10 text-3xl font-bold text-primary">เข้าสู่ระบบ</Text>
+          <Text className="text-3xl font-bold text-text">เข้าสู่ระบบ</Text>
+          <Text className="mb-10 mt-1 text-base text-text-subtle">ยินดีต้อนรับกลับมา</Text>
 
           <TextField
             label="อีเมล"
@@ -61,7 +62,7 @@ export default function Login() {
             error={errors.password}
           />
 
-          {formError ? <Text className="mb-4 text-center text-red-500">{formError}</Text> : null}
+          {formError ? <Text className="mb-4 text-center text-danger">{formError}</Text> : null}
 
           <View className="mt-2">
             <PrimaryButton title="เข้าสู่ระบบ" onPress={submit} loading={loading} />

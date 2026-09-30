@@ -17,7 +17,7 @@ export default function Welcome() {
         </View>
 
         <View className="mt-6 items-center">
-          <Text className="text-3xl font-bold text-primary">Job Search</Text>
+          <Text className="text-3xl font-bold text-text">Job Search</Text>
           <Text className="text-lg text-text-subtle">Application</Text>
         </View>
 
