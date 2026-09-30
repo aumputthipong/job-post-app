@@ -8,7 +8,9 @@ import { queryClient } from "@/lib/query-client";
 export function Providers({ children }: PropsWithChildren) {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <KeyboardProvider>
+      {/* Without statusBarTranslucent it keeps Android from drawing under the status bar, which
+          left a white strip above the navy headers. Screens pad by the safe area themselves. */}
+      <KeyboardProvider statusBarTranslucent>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>{children}</AuthProvider>
         </QueryClientProvider>

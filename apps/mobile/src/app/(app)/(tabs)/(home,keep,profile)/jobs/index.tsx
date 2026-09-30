@@ -11,9 +11,9 @@ import { CATEGORY_ICONS } from "@/lib/post-options";
 
 export default function Jobs() {
   const { data: jobs, loading, error } = useJobPosts();
-  // Set by the category tiles on Home.
-  const { category } = useLocalSearchParams<{ category?: string }>();
-  const [search, setSearch] = useState("");
+  // Set by the search and the category list on Home.
+  const { category, q } = useLocalSearchParams<{ category?: string; q?: string }>();
+  const [search, setSearch] = useState(q ?? "");
   const tabBarHeight = useTabBarHeight();
   const hideTabBar = useHideTabBarOnScroll(!loading && !error);
 
@@ -40,20 +40,22 @@ export default function Jobs() {
           ListHeaderComponent={
             <>
               <SearchBar value={search} onChangeText={setSearch} placeholder="ค้นหาตำแหน่งงาน..." />
-              {category ? (
-                <View className="mx-4 mb-3 flex-row items-center">
+              <View className="flex-row items-center px-4 py-3">
+                <Text className="flex-1 text-[15px] text-text-muted">
+                  พบ <Text className="font-bold text-text">{shown.length}</Text> ตำแหน่งงาน
+                </Text>
+                {category ? (
                   <TouchableOpacity
                     className="flex-row items-center rounded-full border border-primary bg-primary-soft py-1.5 pl-3 pr-2"
                     onPress={() => router.setParams({ category: undefined })}
                     accessibilityLabel={`ล้างตัวกรอง ${category}`}
                   >
                     <Ionicons name={CATEGORY_ICONS[category] ?? "pricetag-outline"} size={15} color={colors.primary.DEFAULT} />
-                    <Text className="mx-1.5 font-semibold text-primary-dark">{category}</Text>
+                    <Text className="mx-1.5 font-semibold text-primary-dark" numberOfLines={1}>{category}</Text>
                     <Ionicons name="close" size={16} color={colors.primary.dark} />
                   </TouchableOpacity>
-                  <Text className="ml-3 text-sm text-text-subtle">{shown.length} ตำแหน่ง</Text>
-                </View>
-              ) : null}
+                ) : null}
+              </View>
             </>
           }
           ListEmptyComponent={

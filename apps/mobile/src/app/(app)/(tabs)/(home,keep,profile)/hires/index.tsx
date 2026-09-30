@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import { HireCard } from "@/components/hire-card";
 import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
 import { EmptyState, ErrorState, Fab, Loading, SearchBar } from "@/components/ui";
@@ -34,7 +34,12 @@ export default function Hires() {
           keyExtractor={(hire) => hire.id}
           renderItem={({ item }) => <HireCard hire={item} author={byId.get(item.postById)} />}
           ListHeaderComponent={
-            <SearchBar value={search} onChangeText={setSearch} placeholder="ค้นหางาน หรือ ฟรีแลนซ์..." />
+            <>
+              <SearchBar value={search} onChangeText={setSearch} placeholder="ค้นหางาน หรือ ฟรีแลนซ์..." />
+              <Text className="px-4 py-3 text-[15px] text-text-muted">
+                พบ <Text className="font-bold text-text">{shown.length}</Text> ประกาศ
+              </Text>
+            </>
           }
           ListEmptyComponent={
             <EmptyState

@@ -4,7 +4,7 @@ import { Link, router, useLocalSearchParams } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { CommentList } from "@/components/comment-list";
-import { Badges, chooseContact, ContactRows, DetailCard, Fact, FactPanel } from "@/components/detail";
+import { Badges, chooseContact, ContactRows, DetailHero, Fact, FactTable, Section } from "@/components/detail";
 import { PrimaryButton } from "@/components/form";
 import { ImageCarousel } from "@/components/image-carousel";
 import { Avatar } from "@/components/media";
@@ -41,64 +41,56 @@ export default function HireDetail() {
         keyboardShouldPersistTaps="handled"
         bottomOffset={24}
       >
-        <View className="bg-surface px-5 pb-5 pt-4">
-          <Text className="text-2xl font-bold leading-8 text-text">{hire.hireTitle}</Text>
-
+        <DetailHero mark={<Avatar uri={author?.imageUrl} name={fullName(author)} size="md" />} title={hire.hireTitle}>
           <Link href={`/users/${hire.postById}`} asChild>
-            <TouchableOpacity className="mt-3 flex-row items-center" activeOpacity={0.7}>
-              <Avatar uri={author?.imageUrl} name={fullName(author)} />
-              <View className="ml-3 flex-1">
-                <Text className="text-base font-semibold text-text" numberOfLines={1}>{fullName(author)}</Text>
-                <Text className="text-sm text-text-subtle" numberOfLines={1}>{author?.job || "ไม่ระบุตำแหน่ง"}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.border.strong} />
+            <TouchableOpacity className="ml-16 mt-2 flex-row items-center self-start" activeOpacity={0.7} hitSlop={8}>
+              <Text className="text-base text-surface/80" numberOfLines={1}>
+                {fullName(author)}
+                {author?.job ? `, ${author.job}` : ""}
+              </Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.onPrimary} style={{ marginLeft: 4, opacity: 0.8 }} />
             </TouchableOpacity>
           </Link>
+        </DetailHero>
 
+        <View className="bg-surface">
           {/* The category is in the facts below, so only the "new" badge goes here. */}
           <Badges items={isNew(hire.createdAt) ? [{ label: "ประกาศใหม่", tone: "new" }] : []} />
-
-          <FactPanel>
-            <Fact icon={CATEGORY_ICONS[hire.category] ?? "pricetag-outline"} label="หมวดหมู่" value={hire.category} />
-            <View className="flex-row items-center">
-              <View className="h-9 w-9 items-center justify-center rounded-xl bg-surface">
-                <Ionicons name="star-outline" size={18} color={colors.primary.DEFAULT} />
-              </View>
-              <View className="ml-3 flex-1">
-                <Text className="text-xs text-text-subtle">รีวิว</Text>
-                <View className="flex-row items-center">
-                  <Stars value={rating.average} size={14} />
-                  <Text className="ml-2 text-base text-text">{rating.count ? `${rating.average.toFixed(1)} (${rating.count})` : "ยังไม่มีรีวิว"}</Text>
-                </View>
-              </View>
+          <FactTable>
+            {hire.category ? <Fact icon={CATEGORY_ICONS[hire.category] ?? "pricetag-outline"} label="หมวดหมู่" value={hire.category} /> : null}
+            <View className="flex-row items-center border-b border-border py-3">
+              <Ionicons name="star-outline" size={18} color={colors.text.subtle} />
+              <Text className="ml-2.5 w-[100px] text-[15px] leading-6 text-text-subtle">รีวิว</Text>
+              <Stars value={rating.average} size={14} />
+              <Text className="ml-2 flex-1 text-[15px] text-text">{rating.count ? `${rating.average.toFixed(1)} (${rating.count})` : "ยังไม่มีรีวิว"}</Text>
             </View>
             {posted ? <Fact icon="time-outline" label="ลงประกาศ" value={posted} /> : null}
-          </FactPanel>
+          </FactTable>
         </View>
 
-        <DetailCard title="รายละเอียด" icon="document-text-outline">
+        <Section title="รายละเอียด">
           <Text className="text-base leading-7 text-text">{hire.detail}</Text>
-        </DetailCard>
+        </Section>
 
-        <DetailCard title="ผลงาน" icon="images-outline">
+        <Section title="ผลงาน">
           {images.length ? <ImageCarousel images={images} height={220} rounded /> : <Text className="text-text-subtle">ยังไม่มีรูปผลงาน</Text>}
-        </DetailCard>
+        </Section>
 
         {/* The résumé lives on the author's profile, so every post of theirs shares it. */}
         {author?.resume ? (
-          <DetailCard title="เรซูเม่" icon="document-attach-outline">
+          <Section title="เรซูเม่">
             <ResumeButton resume={author.resume} />
-          </DetailCard>
+          </Section>
         ) : null}
 
-        <DetailCard title="ช่องทางติดต่อ" icon="call-outline">
+        <Section title="ช่องทางติดต่อ">
           <ContactRows email={hire.email} phone={hire.phone} />
-        </DetailCard>
+        </Section>
 
-        <DetailCard title="รีวิวและความคิดเห็น" icon="chatbubbles-outline">
+        <Section title="รีวิวและความคิดเห็น">
           {isOwner ? null : <RatePost kind="hire" postId={hire.id} title="ให้คะแนนฟรีแลนซ์คนนี้" />}
           <CommentList kind="hire" postId={hire.id} />
-        </DetailCard>
+        </Section>
       </KeyboardAwareScrollView>
 
       <ActionBar>

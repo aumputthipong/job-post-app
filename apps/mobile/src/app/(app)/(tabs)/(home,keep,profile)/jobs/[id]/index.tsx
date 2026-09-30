@@ -3,9 +3,10 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { CommentList } from "@/components/comment-list";
-import { Badges, chooseContact, ContactRows, DetailCard, Fact, FactPanel } from "@/components/detail";
+import { Badges, chooseContact, ContactRows, DetailHero, Fact, FactTable, Section } from "@/components/detail";
 import { PrimaryButton } from "@/components/form";
 import { ImageCarousel } from "@/components/image-carousel";
+import { JobMark } from "@/components/job-card";
 import { FavoriteButton, RatePost } from "@/components/post-actions";
 import { ActionBar, Bullets, EmptyState, ErrorState, Loading, Stars } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
@@ -16,6 +17,7 @@ import { CATEGORY_ICONS } from "@/lib/post-options";
 
 // Reading order: what and who (hero) → the facts people decide on (pay, place) →
 // the job itself → how to get in touch → what others said. Actions are pinned below.
+// Photos come after the facts: on a job board the company comes first, not a picture.
 export default function JobDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: job, loading, error } = useJobPost(id);
@@ -37,64 +39,68 @@ export default function JobDetail() {
         keyboardShouldPersistTaps="handled"
         bottomOffset={24}
       >
-        {images.length ? <ImageCarousel images={images} height={220} /> : null}
-
-        <View className="bg-surface px-5 pb-5 pt-4">
-          <Text className="text-2xl font-bold leading-8 text-text">{job.jobTitle}</Text>
-          <Text className="mt-1 text-lg text-text-muted">{job.agency}</Text>
-          <View className="mt-2 flex-row items-center">
+        <DetailHero mark={<JobMark job={job} size={64} />} title={job.jobTitle} subtitle={job.agency}>
+          <View className="mt-3 flex-row items-center">
             <Stars value={rating.average} size={14} />
-            <Text className="ml-2 flex-1 text-sm text-text-subtle" numberOfLines={1}>
-              {[rating.count ? `${rating.average.toFixed(1)} (${rating.count})` : "ยังไม่มีรีวิว", posted && `ลงประกาศ ${posted}`]
-                .filter(Boolean)
-                .join(" · ")}
+            <Text className="ml-2 flex-1 text-sm text-surface/80" numberOfLines={1}>
+              {rating.count ? `${rating.average.toFixed(1)} จาก ${rating.count} รีวิว` : "ยังไม่มีรีวิว"}
             </Text>
           </View>
+        </DetailHero>
+
+        <View className="bg-surface">
           <Badges
             items={[
               ...(isNew(job.createdAt) ? [{ label: "ประกาศใหม่", tone: "new" as const }] : []),
               ...[job.jobType, job.workModel].filter((v): v is string => !!v).map((label) => ({ label })),
             ]}
           />
-
-          <FactPanel>
-            <Fact icon="cash-outline" label="ค่าตอบแทน" value={formatWage(job)} strong />
-            {job.location ? <Fact icon="location-outline" label="สถานที่ทำงาน" value={job.location} /> : null}
-            <Fact icon={CATEGORY_ICONS[job.category] ?? "pricetag-outline"} label="ตำแหน่ง · หมวดหมู่" value={[job.position, job.category].filter(Boolean).join(" · ")} />
+          <FactTable>
+            <Fact icon="cash-outline" label="เงินเดือน" value={formatWage(job)} strong />
+            {job.location ? <Fact icon="location-outline" label="สถานที่" value={job.location} /> : null}
+            {job.position ? <Fact icon="person-outline" label="ตำแหน่ง" value={job.position} /> : null}
+            {job.category ? <Fact icon={CATEGORY_ICONS[job.category] ?? "pricetag-outline"} label="สายงาน" value={job.category} /> : null}
             {job.openings ? <Fact icon="people-outline" label="จำนวนที่รับ" value={`${job.openings} อัตรา`} /> : null}
-          </FactPanel>
+            {posted ? <Fact icon="calendar-outline" label="ลงประกาศ" value={posted} /> : null}
+          </FactTable>
         </View>
 
-        <DetailCard title="รายละเอียดงาน" icon="document-text-outline">
+        {images.length ? (
+          <View className="mt-2">
+            <ImageCarousel images={images} height={220} />
+          </View>
+        ) : null}
+
+        <Section title="รายละเอียดงาน">
           <Text className="text-base leading-7 text-text">{job.detail}</Text>
-        </DetailCard>
+        </Section>
 
-        <DetailCard title="คุณสมบัติผู้สมัคร" icon="ribbon-outline">
+        <Section title="คุณสมบัติผู้สมัคร">
           <Bullets items={job.attributes} />
-        </DetailCard>
+        </Section>
 
-        <DetailCard title="สวัสดิการ" icon="gift-outline">
+        <Section title="สวัสดิการ">
           {job.welfareBenefits?.length ? (
             <View className="flex-row flex-wrap">
               {job.welfareBenefits.map((benefit, i) => (
-                <View key={i} className="mb-2 mr-2 rounded-full bg-primary-soft px-3 py-1.5">
-                  <Text className="text-sm text-primary-dark" numberOfLines={1}>{benefit}</Text>
+                <View key={i} className="mb-2 mr-2 rounded-md bg-secondary-soft px-3 py-1.5">
+                  <Text className="text-sm text-secondary" numberOfLines={1}>{benefit}</Text>
                 </View>
               ))}
             </View>
           ) : (
             <Text className="text-text-subtle">ไม่ระบุ</Text>
           )}
-        </DetailCard>
+        </Section>
 
-        <DetailCard title="ช่องทางติดต่อ" icon="call-outline">
+        <Section title="ช่องทางติดต่อ">
           <ContactRows email={job.email} phone={job.phone} />
-        </DetailCard>
+        </Section>
 
-        <DetailCard title="รีวิวและความคิดเห็น" icon="chatbubbles-outline">
+        <Section title="รีวิวและความคิดเห็น">
           {isOwner ? null : <RatePost kind="find" postId={job.id} title="ให้คะแนนประกาศนี้" />}
           <CommentList kind="find" postId={job.id} />
-        </DetailCard>
+        </Section>
       </KeyboardAwareScrollView>
 
       <ActionBar>

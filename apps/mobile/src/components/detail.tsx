@@ -6,17 +6,43 @@ import { colors } from "@/lib/colors";
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
 /*
- * Building blocks for the post detail screens, in reading order:
- *   hero (title, who, badges) → FactPanel of what people decide on → Card per topic →
- *   contact → reviews. Actions sit in the ActionBar pinned below.
+ * Building blocks for the post detail screens, in reading order, laid out like a job board's
+ * job page: DetailHero (what and who, on navy) → FactTable of what people decide on →
+ * a Section per topic → contact → reviews. Actions sit in the ActionBar pinned below.
  */
 
-export function DetailCard({ title, icon, children }: { title: string; icon: IconName; children: ReactNode }) {
+export function DetailHero({
+  mark,
+  title,
+  subtitle,
+  children,
+}: {
+  mark: ReactNode;
+  title: string;
+  subtitle?: string;
+  children?: ReactNode;
+}) {
   return (
-    <View className="mx-4 mt-3 rounded-card border border-border bg-surface p-5">
-      <View className="mb-3 flex-row items-center">
-        <Ionicons name={icon} size={20} color={colors.primary.DEFAULT} />
-        <Text className="ml-2 text-lg font-bold text-text">{title}</Text>
+    <View className="bg-secondary px-5 pb-6 pt-3">
+      <View className="flex-row items-start">
+        {mark}
+        <View className="ml-4 flex-1">
+          <Text className="text-[22px] font-bold leading-8 text-surface">{title}</Text>
+          {subtitle ? <Text className="mt-0.5 text-base text-surface/80">{subtitle}</Text> : null}
+        </View>
+      </View>
+      {children}
+    </View>
+  );
+}
+
+/** A full-width white section; the navy bar marks where each topic starts. */
+export function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View className="mt-2 bg-surface px-5 py-5">
+      <View className="mb-4 flex-row items-center">
+        <View className="h-5 w-1 rounded-full bg-secondary" />
+        <Text className="ml-2.5 text-lg font-bold text-secondary">{title}</Text>
       </View>
       {children}
     </View>
@@ -26,10 +52,10 @@ export function DetailCard({ title, icon, children }: { title: string; icon: Ico
 export function Badges({ items }: { items: { label: string; tone?: "new" }[] }) {
   if (!items.length) return null;
   return (
-    <View className="mt-3 flex-row flex-wrap">
+    <View className="flex-row flex-wrap px-5 pt-4">
       {items.map(({ label, tone }) => (
-        <View key={label} className={`mb-1.5 mr-2 rounded-md px-2.5 py-1 ${tone === "new" ? "bg-success-soft" : "bg-primary-tint"}`}>
-          <Text className={`text-xs font-semibold ${tone === "new" ? "text-success" : "text-primary-dark"}`} numberOfLines={1}>
+        <View key={label} className={`mb-1.5 mr-2 rounded-md px-2.5 py-1 ${tone === "new" ? "bg-fresh-soft" : "bg-secondary-soft"}`}>
+          <Text className={`text-xs font-semibold ${tone === "new" ? "text-fresh" : "text-secondary"}`} numberOfLines={1}>
             {label}
           </Text>
         </View>
@@ -38,20 +64,17 @@ export function Badges({ items }: { items: { label: string; tone?: "new" }[] }) 
   );
 }
 
-export function FactPanel({ children }: { children: ReactNode }) {
-  return <View className="mt-4 gap-3 rounded-2xl bg-primary-soft p-4">{children}</View>;
+/** The facts people decide on, as label / value rows. */
+export function FactTable({ children }: { children: ReactNode }) {
+  return <View className="px-5 pb-2 pt-1">{children}</View>;
 }
 
 export function Fact({ icon, label, value, strong }: { icon: IconName; label: string; value: string; strong?: boolean }) {
   return (
-    <View className="flex-row items-center">
-      <View className="h-9 w-9 items-center justify-center rounded-xl bg-surface">
-        <Ionicons name={icon} size={18} color={colors.primary.DEFAULT} />
-      </View>
-      <View className="ml-3 flex-1">
-        <Text className="text-xs text-text-subtle">{label}</Text>
-        <Text className={strong ? "text-base font-bold text-primary-dark" : "text-base text-text"}>{value}</Text>
-      </View>
+    <View className="flex-row items-start border-b border-border py-3">
+      <Ionicons name={icon} size={18} color={strong ? colors.primary.DEFAULT : colors.text.subtle} style={{ marginTop: 2 }} />
+      <Text className="ml-2.5 w-[100px] text-[15px] leading-6 text-text-subtle">{label}</Text>
+      <Text className={`flex-1 text-[15px] leading-6 ${strong ? "font-bold text-primary-dark" : "text-text"}`}>{value}</Text>
     </View>
   );
 }

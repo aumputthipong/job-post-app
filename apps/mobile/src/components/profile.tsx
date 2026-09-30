@@ -3,7 +3,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { Text, View } from "react-native";
 import { colors } from "@/lib/colors";
 import { fullName, type UserDoc } from "@/lib/data";
-import { DetailCard } from "./detail";
+import { Section } from "./detail";
 import { Avatar } from "./media";
 import { ResumeButton, ResumeEditor } from "./resume";
 
@@ -25,12 +25,12 @@ export function ProfileCard({
         <Avatar uri={user.imageUrl} name={fullName(user)} size="lg" />
         {avatarAction}
       </View>
-      <Text className="mt-3 text-2xl font-bold text-text">{fullName(user)}</Text>
+      <Text className="mt-3 text-2xl font-bold text-secondary">{fullName(user)}</Text>
       <Text className="mt-1 text-base text-text-muted">{user.job || "ไม่ระบุตำแหน่ง"}</Text>
       {user.companyName ? (
-        <View className="mt-2 flex-row items-center rounded-full bg-primary-tint px-3 py-1">
-          <Ionicons name="business-outline" size={14} color={colors.primary.dark} />
-          <Text className="ml-1.5 text-sm font-semibold text-primary-dark" numberOfLines={1}>
+        <View className="mt-2 flex-row items-center rounded-md bg-secondary-soft px-3 py-1">
+          <Ionicons name="business-outline" size={14} color={colors.secondary.DEFAULT} />
+          <Text className="ml-1.5 text-sm font-semibold text-secondary" numberOfLines={1}>
             {user.companyName}
           </Text>
         </View>
@@ -63,13 +63,13 @@ export function ProfileDetails({ user, editable }: { user: UserDoc; editable?: b
 
   return (
     <View className="mb-8">
-      <DetailCard title="เกี่ยวกับฉัน" icon="person-outline">
+      <Section title="เกี่ยวกับฉัน">
         <Text className={`text-base leading-6 ${user.aboutme?.trim() ? "text-text" : "text-text-subtle"}`}>
           {user.aboutme?.trim() || "ยังไม่มีข้อมูลแนะนำตัว"}
         </Text>
-      </DetailCard>
+      </Section>
 
-      <DetailCard title="เรซูเม่" icon="document-attach-outline">
+      <Section title="เรซูเม่">
         {editable ? (
           <ResumeEditor resume={user.resume} />
         ) : user.resume ? (
@@ -77,30 +77,30 @@ export function ProfileDetails({ user, editable }: { user: UserDoc; editable?: b
         ) : (
           <Text className="text-text-subtle">ยังไม่มีเรซูเม่</Text>
         )}
-      </DetailCard>
+      </Section>
 
       {user.companyName ? (
-        <DetailCard title="บริษัท" icon="business-outline">
+        <Section title="บริษัท">
           <Row icon="business-outline" label="ชื่อบริษัท" value={user.companyName} />
           <Row icon="location-outline" label="ที่ตั้ง" value={user.companyLocation} last />
-        </DetailCard>
+        </Section>
       ) : null}
 
-      <DetailCard title="ช่องทางติดต่อ" icon="call-outline">
+      <Section title="ช่องทางติดต่อ">
         <Row icon="mail-outline" label="อีเมล" value={user.email} />
         <Row icon="call-outline" label="เบอร์โทรศัพท์" value={user.phone} />
         <Row icon="chatbubble-ellipses-outline" label="Line" value={user.line} />
         <Row icon="logo-facebook" label="Facebook" value={user.facebook} last />
-      </DetailCard>
+      </Section>
 
       {/* The legacy screen showed the email address under ปริญญาตรี. */}
-      <DetailCard title="การศึกษา" icon="school-outline">
+      <Section title="การศึกษา">
         {education.length ? (
           education.map((e, i) => <Row key={e.label} icon="school-outline" label={e.label} value={e.value} last={i === education.length - 1} />)
         ) : (
           <Text className="text-text-subtle">ยังไม่ได้ระบุการศึกษา</Text>
         )}
-      </DetailCard>
+      </Section>
     </View>
   );
 }

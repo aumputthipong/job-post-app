@@ -8,7 +8,7 @@ import { colors } from "@/lib/colors";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
-/** The current tab: a solid orange pill with a white icon, so it reads at a glance. */
+/** The current tab: a solid indigo pill with a white icon, so it reads at a glance. */
 function TabIcon({ name, focused, color }: { name: string; focused: boolean; color: ColorValue }) {
   return (
     <View className={`h-8 w-14 items-center justify-center rounded-full ${focused ? "bg-primary" : ""}`}>
