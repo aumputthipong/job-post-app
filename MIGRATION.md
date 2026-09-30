@@ -492,3 +492,34 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
        button (Keep → ประกาศงาน, My posts → ลงประกาศ). Keep's hint still said "tap ☆"; saving has
        been a bookmark since 5.7.
      - Checked on the emulator: Home, category filter, job list and detail, profile.
+   - 5.9 **Job board redesign in the original navy and indigo. Built 2026-09-30** (owner: bring
+     back the old purple-blue, and make it look like JobsDB, JobThai, JobTopGun, JobBKK).
+     - *Palette.* The retired app's colors, found in its history: navy `#083C6B` (73 uses) and
+       indigo `#5A6BF5`. Navy (`secondary`) is the frame: headers, the Home band, job titles,
+       section bars, icon tiles. Indigo (`primary`) is what you tap: the main button, the current
+       tab, links, pay. Amber (`fresh`) marks "ใหม่" only. Indigo text uses `primary.dark`
+       (#3F4FD8); white on the indigo is ~4.3:1, so only large bold labels sit on it. The
+       category pastels (5.8) are gone: they came from a grocery-app reference.
+     - *Navy on every screen.* Stack screens get a navy header with a white title; tab roots
+       (Home, Keep, Profile) open on a navy band; the list search sits on a navy strip under
+       the header, as on the job boards' results pages.
+     - *Status bar.* It was a white strip with invisible white icons: `KeyboardProvider`
+       defaults `statusBarTranslucent` to false, which stops Android drawing under the status
+       bar, and on Android 16+ the bar can't be colored. It is now translucent; screens already
+       pad by the safe area.
+     - *Lists* are full-width rows, not cards: a mark (the first photo, or the category icon on
+       navy), title and company, then pay, place and kind of work on their own lines, then
+       "ใหม่" and the post's age. The bookmark sits top right. Qualification tags left the row.
+       Lists say how many results they found.
+     - *Home* opens on the search: "วันนี้อยากทำงานอะไร", a keyword field and a button that
+       counts what it searches (`/jobs?q=`), shortcuts to all jobs and freelance, the five
+       newest jobs as rows, and every category with its job count.
+     - *Details* open on a navy hero (mark, title, company or author, rating), then the facts as
+       a label/value table, then photos, then full-width sections marked by a navy bar
+       (`DetailCard` became `Section`, also used by the profile).
+     - Fonts stay the system's. A Thai face (e.g. IBM Plex Sans Thai) would need a family per
+       weight in place of every `font-bold` and a new check for clipped Thai labels (4.3).
+     - Not yet restyled beyond the new colors: the post forms, notifications, My posts, login
+       and register.
+     - Checked on the emulator: Home with data, the login screen. Not yet checked on the
+       device: the status bar fix, job list, details, Keep, Profile.
