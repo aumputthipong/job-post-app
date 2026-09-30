@@ -404,3 +404,40 @@ It was deferred on 2026-09-11 and becomes in-app notifications in 5.4–5.5 belo
      - Opening a notification doesn't wait on the mark-read request; the listener flips the
        row a moment later.
      - The legacy NotificationScreen / EditNoti row of the 4.7 parity table now points here.
+   - 5.6 **Job post in steps, company profile, visual hierarchy. Done 2026-09-15** (owner's
+     request, with reference screens from job boards). The one long job form is now five pages:
+     ตำแหน่ง → ค่าจ้าง → เนื้องาน → บริษัท → ตรวจสอบ, with numbered dots, "2/5", the page's title and
+     a one-line hint at the top, and ย้อนกลับ / ถัดไป pinned at the bottom.
+     - *Data.* New optional job fields `jobType`, `workModel`, `location`, `openings` (int) and
+       `wageMax` (digits; `wage` is the bottom of the range). `employmentType` keeps its values
+       and now reads "จ่ายแบบ", with รายชั่วโมง added. Optional so every older post still parses;
+       the form requires `location` and a numeric wage on top of the schema, so editing an old
+       post asks for them. The max ≥ min check is in the form only.
+     - *Company on the profile.* `companyName`, `companyLocation`, `companyEmail` (empty or an
+       email), `companyPhone` on `User Info`, edited under "ข้อมูลบริษัท". A new job post starts
+       with them filled in (email/phone fall back to the personal ones), and the company page of
+       the form has a banner to apply them again — or a link to set them up.
+     - *Defaults.* งานเต็มเวลา, ทำงานที่ออฟฟิศ, รายเดือน, 1 อัตรา. Qualifications and benefits offer
+       one-tap suggestions.
+     - Each page validates only its own fields (the schema's issues filtered by page, plus the
+       form's extra checks). Tapping a later dot jumps to the first page with a problem.
+     - Leaving with unsaved changes asks first (`beforeRemove`); saving and deleting skip it.
+     - The freelance form stays one page (five fields) but uses the same components.
+     - *Hierarchy, written down so later screens follow it:*
+       - Forms: step header (xl bold) → section card (icon tile + lg bold title, optional sm
+         description) → field label (15 semibold, red `*` required, "(ไม่บังคับ)" optional) →
+         helper or error (xs/sm, the error replaces the helper). One filled primary button per
+         screen; secondary is outlined; destructive is red-outlined and sits apart at the end.
+       - Job card: title and company → wage (bold primary) → place/type in one muted line →
+         up to three qualification tags → time and category with the save star. The cover
+         became a 64 px thumbnail so it no longer outranks the title.
+       - Job detail: hero (title, company, rating and time, badges) → a tinted block of the facts
+         people decide on (wage highlighted, place, position, openings) → one card per topic →
+         contact, tappable, with "ติดต่อสมัครงาน" (call or email) → reviews and comments last.
+       - Tokens added: `primary-soft`, `success`/`success-soft` (the "ใหม่" badge, 3 days),
+         `danger`/`danger-soft`.
+     - `timeAgo` moved to `lib/format.ts` (shared with notifications), next to `formatWage`.
+     - The seed gives Somchai a company and the Frontend post the new fields; the others stay
+       the old shape, so both render. Tests cover the new fields and the company email.
+     - Checked on the emulator: validation per page, the wage range error, company prefill,
+       publish, edit + save from the review page, and the unsaved-changes prompt.

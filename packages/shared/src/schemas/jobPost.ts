@@ -16,10 +16,18 @@ export const jobPostSchema = z.object({
   /** Legacy single image, kept on old posts until they are edited. */
   imageUrl: z.string().url().optional(),
   imagePublicId: z.string().optional(),
+  /** The pay, or the bottom of the range when wageMax is set. */
   wage: required("กรุณากรอกค่าจ้าง"),
+  wageMax: z.string().trim().regex(/^\d*$/, "กรุณากรอกค่าจ้างเป็นตัวเลข").optional(),
   detail: required("กรุณากรอกรายละเอียดงาน"),
   category: required("กรุณาเลือกประเภทงาน"),
+  /** How often the wage is paid (รายเดือน, รายวัน…) — the legacy field name. */
   employmentType: required("กรุณาเลือกประเภทการจ้าง"),
+  // Added with the step-by-step form; older posts don't have them.
+  jobType: z.string().trim().optional(),
+  workModel: z.string().trim().optional(),
+  location: z.string().trim().max(120).optional(),
+  openings: z.number().int().min(1, "รับอย่างน้อย 1 อัตรา").max(999).optional(),
   email: z.string().trim().email("กรุณากรอกอีเมลให้ถูกต้อง"),
   phone: required("กรุณากรอกเบอร์โทรศัพท์"),
   postById: z.string().min(1),

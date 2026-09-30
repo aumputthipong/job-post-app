@@ -4,12 +4,13 @@ import { DeletePostButton, JobPostForm } from "@/components/post-form";
 import { EmptyState, ErrorState, Loading } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { useJobPost } from "@/lib/data";
+import { useJobPost, useUser } from "@/lib/data";
 
 export default function EditJob() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: job, loading, error } = useJobPost(id);
   const { user } = useAuth();
+  const { data: profile } = useUser(user?.uid);
 
   if (error) return <ErrorState error={error} />;
   if (loading) return <Loading />;
@@ -20,12 +21,22 @@ export default function EditJob() {
     <JobPostForm
       initial={job}
       initialImages={postImages(job)}
+      company={
+        profile?.companyName
+          ? {
+              name: profile.companyName,
+              location: profile.companyLocation ?? "",
+              email: profile.companyEmail ?? "",
+              phone: profile.companyPhone ?? "",
+            }
+          : undefined
+      }
       submitLabel="บันทึก"
       onSubmit={async (data) => {
         await api.updatePost("find", id, data);
         router.back();
       }}
-      footer={<DeletePostButton kind="find" id={id} />}
+      footer={(allowLeave) => <DeletePostButton kind="find" id={id} onBeforeLeave={allowLeave} />}
     />
   );
 }

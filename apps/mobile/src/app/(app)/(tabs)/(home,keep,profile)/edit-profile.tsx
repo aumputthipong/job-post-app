@@ -19,6 +19,10 @@ const FIELDS = [
   "bachelor",
   "master",
   "doctoral",
+  "companyName",
+  "companyLocation",
+  "companyEmail",
+  "companyPhone",
 ] as const;
 type Field = (typeof FIELDS)[number];
 
@@ -66,14 +70,21 @@ function ProfileForm({ profile }: { profile: UserDoc }) {
 
   return (
     <FormScrollView>
-      <FormSection title="ข้อมูลทั่วไป">
-        <TextField label="ชื่อจริง" {...field("firstName")} autoCapitalize="words" />
-        <TextField label="นามสกุล" {...field("lastName")} autoCapitalize="words" />
+      <FormSection title="ข้อมูลทั่วไป" icon="person-outline">
+        <TextField label="ชื่อจริง" required {...field("firstName")} autoCapitalize="words" />
+        <TextField label="นามสกุล" required {...field("lastName")} autoCapitalize="words" />
         <TextField label="อาชีพ / ตำแหน่ง" placeholder="เช่น Graphic Designer" {...field("job")} autoCapitalize="words" />
         <TextField label="เกี่ยวกับฉัน" placeholder="แนะนำตัวสั้นๆ" {...field("aboutme")} multiline autoCapitalize="sentences" />
       </FormSection>
 
-      <FormSection title="ช่องทางติดต่อ">
+      <FormSection title="ข้อมูลบริษัท" icon="business-outline" description="ไม่บังคับ · ใช้กรอกให้อัตโนมัติเมื่อลงประกาศงาน">
+        <TextField label="ชื่อบริษัท / หน่วยงาน" placeholder="เช่น บริษัท ไทยเทค จำกัด" {...field("companyName")} autoCapitalize="words" />
+        <TextField label="ที่ตั้ง" placeholder="เช่น สาทร กรุงเทพมหานคร" {...field("companyLocation")} autoCapitalize="sentences" />
+        <TextField label="อีเมลฝ่ายบุคคล" placeholder="hr@company.com" {...field("companyEmail")} keyboardType="email-address" />
+        <TextField label="เบอร์ติดต่อบริษัท" placeholder="02X-XXX-XXXX" {...field("companyPhone")} keyboardType="phone-pad" maxLength={10} />
+      </FormSection>
+
+      <FormSection title="ช่องทางติดต่อ" icon="call-outline">
         <Text className="mb-2 font-medium text-text">อีเมล</Text>
         <Text className="mb-5 text-base text-text-subtle">{profile.email} (ใช้เข้าสู่ระบบ แก้ไขที่นี่ไม่ได้)</Text>
         <TextField label="เบอร์โทรศัพท์" placeholder="08X-XXX-XXXX" {...field("phone")} keyboardType="phone-pad" maxLength={10} />
@@ -81,7 +92,7 @@ function ProfileForm({ profile }: { profile: UserDoc }) {
         <TextField label="Facebook" placeholder="ชื่อหรือลิงก์" {...field("facebook")} />
       </FormSection>
 
-      <FormSection title="การศึกษา">
+      <FormSection title="การศึกษา" icon="school-outline">
         <TextField label="ปริญญาตรี" placeholder="สาขา / มหาวิทยาลัย" {...field("bachelor")} autoCapitalize="words" />
         <TextField label="ปริญญาโท" {...field("master")} autoCapitalize="words" />
         <TextField label="ปริญญาเอก" {...field("doctoral")} autoCapitalize="words" />

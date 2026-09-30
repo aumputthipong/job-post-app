@@ -45,6 +45,11 @@ const users = [
     aboutme: "ดูแลการรับสมัครงานของบริษัทมา 10 ปี",
     phone: "0812345678",
     imageUrl: "https://i.pravatar.cc/300?u=somchai",
+    // Fills in the company step of a new job post.
+    companyName: "บริษัท ไทยเทค จำกัด",
+    companyLocation: "สาทร กรุงเทพมหานคร",
+    companyEmail: "hr@thaitech.example.test",
+    companyPhone: "021234567",
   },
   {
     uid: "user-malee",
@@ -77,6 +82,12 @@ const jobPosts = [
     category: "งานไอที",
     employmentType: "รายเดือน",
     wage: "35000",
+    // The fields from the step-by-step form; the other seeded posts are the older shape.
+    wageMax: "50000",
+    jobType: "งานเต็มเวลา",
+    workModel: "ไฮบริด",
+    location: "สาทร กรุงเทพมหานคร",
+    openings: 2,
     detail: "พัฒนาเว็บและแอปด้วย React / React Native ทำงานแบบ hybrid",
     attributes: ["มีประสบการณ์ React 1 ปีขึ้นไป", "สื่อสารภาษาอังกฤษได้"],
     welfareBenefits: ["ประกันสุขภาพ", "Work from home 2 วัน/สัปดาห์"],
