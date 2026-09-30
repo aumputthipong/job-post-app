@@ -62,7 +62,7 @@ export default function HireDetail() {
             <Fact icon={CATEGORY_ICONS[hire.category] ?? "pricetag-outline"} label="หมวดหมู่" value={hire.category} />
             <View className="flex-row items-center">
               <View className="h-9 w-9 items-center justify-center rounded-xl bg-surface">
-                <Ionicons name="star-outline" size={18} color={colors.secondary.DEFAULT} />
+                <Ionicons name="star-outline" size={18} color={colors.primary.DEFAULT} />
               </View>
               <View className="ml-3 flex-1">
                 <Text className="text-xs text-text-subtle">รีวิว</Text>

@@ -72,7 +72,7 @@ export default function Login() {
             <Text className="text-text-muted">ยังไม่มีบัญชีใช่ไหม? </Text>
             <Link href="/register" replace asChild>
               <TouchableOpacity>
-                <Text className="font-bold text-primary underline">สมัครที่นี่</Text>
+                <Text className="font-bold text-primary-dark underline">สมัครที่นี่</Text>
               </TouchableOpacity>
             </Link>
           </View>

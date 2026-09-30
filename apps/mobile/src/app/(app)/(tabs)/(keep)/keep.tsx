@@ -29,7 +29,7 @@ export default function Keep() {
           renderItem={({ item }) => <JobCard job={item} />}
           ListHeaderComponent={<View className="h-2" />}
           ListEmptyComponent={
-            <EmptyState icon="bookmark-outline" message="คุณยังไม่ได้บันทึกงานใดๆ ไว้ แตะ ☆ ในหน้ารายละเอียดงานเพื่อบันทึก" />
+            <EmptyState icon="bookmark-outline" message="ยังไม่มีงานที่บันทึกไว้ กด บันทึกงาน ในหน้ารายละเอียดเพื่อเก็บไว้ดูทีหลัง" action={{ label: "ไปดูประกาศงาน", href: "/jobs" }} />
           }
           contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}
           {...hideTabBar}

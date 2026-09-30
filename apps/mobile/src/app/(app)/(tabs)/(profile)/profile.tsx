@@ -51,26 +51,28 @@ export default function Profile() {
     ]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      <View className="px-5 pb-3 pt-5">
-        <Text className="text-2xl font-bold text-text">โปรไฟล์</Text>
-      </View>
-
-      {error ? (
-        <ErrorState error={error} />
-      ) : loading ? (
-        <Loading />
-      ) : !profile ? (
-        <EmptyState icon="person-outline" message="ไม่พบโปรไฟล์ของคุณ" />
+    // The orange runs from the status bar into a band behind the profile card.
+    <SafeAreaView className="flex-1 bg-primary" edges={["top"]}>
+      {error || loading || !profile ? (
+        <View className="flex-1 bg-background">
+          <View className="bg-primary px-5 pb-4 pt-5">
+            <Text className="text-2xl font-bold text-surface">โปรไฟล์</Text>
+          </View>
+          {error ? <ErrorState error={error} /> : loading ? <Loading /> : <EmptyState icon="person-outline" message="ไม่พบโปรไฟล์ของคุณ" />}
+        </View>
       ) : (
-        <ScrollView contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}>
+        <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}>
+          <View className="rounded-b-[32px] bg-primary px-5 pb-20 pt-5">
+            <Text className="text-2xl font-bold text-surface">โปรไฟล์</Text>
+          </View>
+          <View className="-mt-16" />
           <ProfileCard
             user={profile}
             avatarAction={
               <TouchableOpacity
                 onPress={changePhoto}
                 disabled={uploading}
-                className="absolute bottom-0 right-0 h-9 w-9 items-center justify-center rounded-full border-2 border-surface bg-secondary"
+                className="absolute bottom-0 right-0 h-9 w-9 items-center justify-center rounded-full border-2 border-surface bg-primary"
                 accessibilityLabel="เปลี่ยนรูปโปรไฟล์"
               >
                 {uploading ? <ActivityIndicator size="small" color={colors.onPrimary} /> : <Ionicons name="camera" size={16} color={colors.onPrimary} />}
@@ -104,8 +106,8 @@ function MenuRow({ href, icon, title }: { href: Href; icon: React.ComponentProps
   return (
     <Link href={href} asChild>
       <TouchableOpacity className="flex-row items-center p-4" activeOpacity={0.7}>
-        <View className="h-9 w-9 items-center justify-center rounded-xl bg-secondary-soft">
-          <Ionicons name={icon} size={20} color={colors.secondary.DEFAULT} />
+        <View className="h-9 w-9 items-center justify-center rounded-xl bg-primary-soft">
+          <Ionicons name={icon} size={20} color={colors.primary.DEFAULT} />
         </View>
         <Text className="ml-3 flex-1 text-base font-semibold text-text">{title}</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.border.strong} />

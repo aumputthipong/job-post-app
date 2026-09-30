@@ -15,7 +15,7 @@ export function DetailCard({ title, icon, children }: { title: string; icon: Ico
   return (
     <View className="mx-4 mt-3 rounded-card border border-border bg-surface p-5">
       <View className="mb-3 flex-row items-center">
-        <Ionicons name={icon} size={20} color={colors.secondary.DEFAULT} />
+        <Ionicons name={icon} size={20} color={colors.primary.DEFAULT} />
         <Text className="ml-2 text-lg font-bold text-text">{title}</Text>
       </View>
       {children}
@@ -28,8 +28,8 @@ export function Badges({ items }: { items: { label: string; tone?: "new" }[] }) 
   return (
     <View className="mt-3 flex-row flex-wrap">
       {items.map(({ label, tone }) => (
-        <View key={label} className={`mb-1.5 mr-2 rounded-md px-2.5 py-1 ${tone === "new" ? "bg-success-soft" : "bg-secondary-soft"}`}>
-          <Text className={`text-xs font-semibold ${tone === "new" ? "text-success" : "text-secondary"}`} numberOfLines={1}>
+        <View key={label} className={`mb-1.5 mr-2 rounded-md px-2.5 py-1 ${tone === "new" ? "bg-success-soft" : "bg-primary-tint"}`}>
+          <Text className={`text-xs font-semibold ${tone === "new" ? "text-success" : "text-primary-dark"}`} numberOfLines={1}>
             {label}
           </Text>
         </View>
@@ -39,18 +39,18 @@ export function Badges({ items }: { items: { label: string; tone?: "new" }[] }) 
 }
 
 export function FactPanel({ children }: { children: ReactNode }) {
-  return <View className="mt-4 gap-3 rounded-2xl bg-background p-4">{children}</View>;
+  return <View className="mt-4 gap-3 rounded-2xl bg-primary-soft p-4">{children}</View>;
 }
 
 export function Fact({ icon, label, value, strong }: { icon: IconName; label: string; value: string; strong?: boolean }) {
   return (
     <View className="flex-row items-center">
       <View className="h-9 w-9 items-center justify-center rounded-xl bg-surface">
-        <Ionicons name={icon} size={18} color={colors.secondary.DEFAULT} />
+        <Ionicons name={icon} size={18} color={colors.primary.DEFAULT} />
       </View>
       <View className="ml-3 flex-1">
         <Text className="text-xs text-text-subtle">{label}</Text>
-        <Text className={strong ? "text-base font-bold text-primary" : "text-base text-text"}>{value}</Text>
+        <Text className={strong ? "text-base font-bold text-primary-dark" : "text-base text-text"}>{value}</Text>
       </View>
     </View>
   );

@@ -1,5 +1,6 @@
 import type { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
+import { colors } from "./colors";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
@@ -33,6 +34,26 @@ export const CATEGORY_ICONS: Record<string, IconName> = {
   งานทั่วไป: "briefcase-outline",
   อื่นๆ: "ellipsis-horizontal-outline",
 };
+
+type Pastel = keyof typeof colors.pastel;
+
+/** Each category keeps one pastel wherever it shows as a tile, so it becomes recognisable. */
+const CATEGORY_PASTELS: Record<string, Pastel> = {
+  งานบัญชี: "sky",
+  งานทรัพยากรบุคคล: "lilac",
+  งานธนาคาร: "mint",
+  งานสุขภาพ: "rose",
+  งานก่อสร้าง: "butter",
+  งานออกแบบ: "peach",
+  งานไอที: "sky",
+  งานการศึกษา: "lilac",
+  งานอาหาร: "peach",
+  งานธรรมชาติ: "mint",
+  งานทั่วไป: "butter",
+  อื่นๆ: "rose",
+};
+
+export const categoryPastel = (category: string) => colors.pastel[CATEGORY_PASTELS[category] ?? "peach"];
 
 /** How often the wage is paid; stored in the legacy `employmentType` field. */
 export const EMPLOYMENT_TYPES = ["รายเดือน", "รายวัน", "รายชั่วโมง", "ต่อชิ้นงาน"];

@@ -44,7 +44,7 @@ export default function Notifications() {
               <ActivityIndicator color={colors.primary.DEFAULT} />
             ) : unread ? (
               <TouchableOpacity onPress={markAll} hitSlop={8}>
-                <Text className="font-semibold text-primary">อ่านทั้งหมด</Text>
+                <Text className="font-semibold text-primary-dark">อ่านทั้งหมด</Text>
               </TouchableOpacity>
             ) : null,
         }}
@@ -61,7 +61,7 @@ export default function Notifications() {
           ListHeaderComponent={
             <Link href="/notification-settings" asChild>
               <TouchableOpacity className="mx-4 my-3 flex-row items-center rounded-card bg-surface p-4" activeOpacity={0.8}>
-                <Ionicons name="options-outline" size={20} color={colors.secondary.DEFAULT} />
+                <Ionicons name="options-outline" size={20} color={colors.primary.DEFAULT} />
                 <Text className="ml-3 flex-1 text-text">เลือกหมวดงานที่อยากรับแจ้งเตือน</Text>
                 <Ionicons name="chevron-forward" size={18} color={colors.border.strong} />
               </TouchableOpacity>

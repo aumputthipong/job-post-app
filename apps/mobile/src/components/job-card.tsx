@@ -42,9 +42,13 @@ export function JobCard({ job }: { job: JobPostDoc }) {
           ) : null}
         </View>
 
-        <Text className="mt-3 text-base font-bold text-primary" numberOfLines={1}>
-          {formatWage(job)}
-        </Text>
+        {/* Pay is what people scan for first, so it gets the orange label. */}
+        <View className="mt-3 flex-row items-center self-start rounded-full bg-primary-tint px-3 py-1">
+          <Ionicons name="cash-outline" size={15} color={colors.primary.dark} />
+          <Text className="ml-1.5 text-[15px] font-bold text-primary-dark" numberOfLines={1}>
+            {formatWage(job)}
+          </Text>
+        </View>
 
         {facts.length ? (
           <View className="mt-1.5 flex-row items-center">

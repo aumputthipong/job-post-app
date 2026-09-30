@@ -32,7 +32,7 @@ export default function Welcome() {
             <Text className="text-text-muted">ยังไม่มีบัญชีใช่ไหม? </Text>
             <Link href="/register" asChild>
               <TouchableOpacity>
-                <Text className="font-bold text-primary underline">สมัครสมาชิกที่นี่</Text>
+                <Text className="font-bold text-primary-dark underline">สมัครสมาชิกที่นี่</Text>
               </TouchableOpacity>
             </Link>
           </View>

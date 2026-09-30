@@ -28,9 +28,9 @@ export function ProfileCard({
       <Text className="mt-3 text-2xl font-bold text-text">{fullName(user)}</Text>
       <Text className="mt-1 text-base text-text-muted">{user.job || "ไม่ระบุตำแหน่ง"}</Text>
       {user.companyName ? (
-        <View className="mt-2 flex-row items-center rounded-full bg-secondary-soft px-3 py-1">
-          <Ionicons name="business-outline" size={14} color={colors.secondary.DEFAULT} />
-          <Text className="ml-1.5 text-sm font-semibold text-secondary" numberOfLines={1}>
+        <View className="mt-2 flex-row items-center rounded-full bg-primary-tint px-3 py-1">
+          <Ionicons name="business-outline" size={14} color={colors.primary.dark} />
+          <Text className="ml-1.5 text-sm font-semibold text-primary-dark" numberOfLines={1}>
             {user.companyName}
           </Text>
         </View>

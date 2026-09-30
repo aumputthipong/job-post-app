@@ -16,7 +16,7 @@ export function NotificationBell() {
         style={{ elevation: 2 }}
         accessibilityLabel={unread ? `การแจ้งเตือน ยังไม่อ่าน ${unread} รายการ` : "การแจ้งเตือน"}
       >
-        <Ionicons name={unread ? "notifications" : "notifications-outline"} size={24} color={colors.secondary.DEFAULT} />
+        <Ionicons name={unread ? "notifications" : "notifications-outline"} size={24} color={colors.primary.DEFAULT} />
         {unread ? (
           <View className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full border-2 border-background bg-danger px-1">
             <Text className="text-[10px] font-bold text-surface">{unread > 99 ? "99+" : unread}</Text>
