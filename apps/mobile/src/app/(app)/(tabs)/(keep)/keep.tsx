@@ -1,8 +1,7 @@
 import { FlatList, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { JobCard } from "@/components/job-card";
 import { useHideTabBarOnScroll, useTabBarHeight } from "@/components/tab-bar";
-import { EmptyState, ErrorState, Loading } from "@/components/ui";
+import { EmptyState, ErrorState, Loading, TabHeader } from "@/components/ui";
 import { useAuth } from "@/lib/auth-context";
 import { useFavoriteIds, useJobPosts } from "@/lib/data";
 
@@ -16,8 +15,8 @@ export default function Keep() {
   const hideTabBar = useHideTabBarOnScroll(!jobs.loading && !favorites.loading && !error);
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      <Text className="px-6 pb-2 pt-5 text-2xl font-bold text-text">บันทึกไว้</Text>
+    <View className="flex-1 bg-background">
+      <TabHeader title="บันทึกไว้" />
       {error ? (
         <ErrorState error={error} />
       ) : jobs.loading || favorites.loading ? (
@@ -27,7 +26,13 @@ export default function Keep() {
           data={saved}
           keyExtractor={(job) => job.id}
           renderItem={({ item }) => <JobCard job={item} />}
-          ListHeaderComponent={<View className="h-2" />}
+          ListHeaderComponent={
+            saved.length ? (
+              <Text className="px-4 py-3 text-[15px] text-text-muted">
+                บันทึกไว้ <Text className="font-bold text-text">{saved.length}</Text> ตำแหน่ง
+              </Text>
+            ) : null
+          }
           ListEmptyComponent={
             <EmptyState icon="bookmark-outline" message="ยังไม่มีงานที่บันทึกไว้ กด บันทึกงาน ในหน้ารายละเอียดเพื่อเก็บไว้ดูทีหลัง" action={{ label: "ไปดูประกาศงาน", href: "/jobs" }} />
           }
@@ -35,6 +40,6 @@ export default function Keep() {
           {...hideTabBar}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }

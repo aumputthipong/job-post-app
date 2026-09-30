@@ -51,19 +51,19 @@ export default function Profile() {
     ]);
 
   return (
-    // The orange runs from the status bar into a band behind the profile card.
-    <SafeAreaView className="flex-1 bg-primary" edges={["top"]}>
+    // The navy runs from the status bar into a band behind the profile card.
+    <SafeAreaView className="flex-1 bg-secondary" edges={["top"]}>
       {error || loading || !profile ? (
         <View className="flex-1 bg-background">
-          <View className="bg-primary px-5 pb-4 pt-5">
+          <View className="bg-secondary px-5 pb-4 pt-3">
             <Text className="text-2xl font-bold text-surface">โปรไฟล์</Text>
           </View>
           {error ? <ErrorState error={error} /> : loading ? <Loading /> : <EmptyState icon="person-outline" message="ไม่พบโปรไฟล์ของคุณ" />}
         </View>
       ) : (
         <ScrollView style={{ backgroundColor: colors.background }} contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}>
-          <View className="rounded-b-[32px] bg-primary px-5 pb-20 pt-5">
-            <Text className="text-2xl font-bold text-surface">โปรไฟล์</Text>
+          <View className="bg-secondary px-5 pb-20 pt-3">
+            <Text className="text-[22px] font-bold leading-8 text-surface">โปรไฟล์</Text>
           </View>
           <View className="-mt-16" />
           <ProfileCard
@@ -86,13 +86,13 @@ export default function Profile() {
               </TouchableOpacity>
             </Link>
           </ProfileCard>
-          <View className="mx-4 mt-3 overflow-hidden rounded-card border border-border bg-surface">
+          <View className="mt-3 bg-surface">
             <MenuRow href="/my-posts" icon="documents-outline" title="โพสต์ของฉัน" />
             <View className="ml-16 h-px bg-border" />
             <MenuRow href="/notification-settings" icon="notifications-outline" title="ตั้งค่าการแจ้งเตือน" />
           </View>
           <ProfileDetails user={profile} editable />
-          <TouchableOpacity onPress={confirmSignOut} className="mx-4 mb-4 flex-row items-center justify-center rounded-2xl border border-border bg-surface py-4">
+          <TouchableOpacity onPress={confirmSignOut} className="mx-4 my-6 flex-row items-center justify-center rounded-2xl border border-border-strong bg-surface py-4">
             <Ionicons name="log-out-outline" size={20} color={colors.danger.DEFAULT} />
             <Text className="ml-2 text-base font-semibold text-danger">ออกจากระบบ</Text>
           </TouchableOpacity>
@@ -106,8 +106,8 @@ function MenuRow({ href, icon, title }: { href: Href; icon: React.ComponentProps
   return (
     <Link href={href} asChild>
       <TouchableOpacity className="flex-row items-center p-4" activeOpacity={0.7}>
-        <View className="h-9 w-9 items-center justify-center rounded-xl bg-primary-soft">
-          <Ionicons name={icon} size={20} color={colors.primary.DEFAULT} />
+        <View className="h-9 w-9 items-center justify-center rounded-xl bg-secondary-soft">
+          <Ionicons name={icon} size={20} color={colors.secondary.DEFAULT} />
         </View>
         <Text className="ml-3 flex-1 text-base font-semibold text-text">{title}</Text>
         <Ionicons name="chevron-forward" size={20} color={colors.border.strong} />

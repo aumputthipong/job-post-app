@@ -52,22 +52,36 @@ export function SearchBar({
   placeholder: string;
 }) {
   return (
-    <View className="mx-4 my-3 h-[50px] flex-row items-center rounded-xl border border-border bg-surface px-4">
-      <Ionicons name="search" size={20} color={colors.text.muted} />
-      <TextInput
-        className="ml-2 flex-1 text-base text-text"
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={colors.placeholder}
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
-      {value ? (
-        <TouchableOpacity onPress={() => onChangeText("")}>
-          <Ionicons name="close-circle" size={20} color={colors.placeholder} />
-        </TouchableOpacity>
-      ) : null}
+    // Sits on a navy strip that carries on from the header, as the job boards' results pages do.
+    <View className="bg-secondary px-4 pb-4 pt-1">
+      <View className="h-[50px] flex-row items-center rounded-xl bg-surface px-4">
+        <Ionicons name="search" size={20} color={colors.text.muted} />
+        <TextInput
+          className="ml-2 flex-1 text-base text-text"
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={colors.placeholder}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        {value ? (
+          <TouchableOpacity onPress={() => onChangeText("")} accessibilityLabel="ล้างคำค้นหา">
+            <Ionicons name="close-circle" size={20} color={colors.placeholder} />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+/** The navy band that opens a tab's root screen, where the other screens have a navy header. */
+export function TabHeader({ title, children }: { title: string; children?: React.ReactNode }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <View className="bg-secondary px-5 pb-4" style={{ paddingTop: insets.top + 12 }}>
+      <Text className="text-[22px] font-bold leading-8 text-surface">{title}</Text>
+      {children}
     </View>
   );
 }
@@ -160,7 +174,7 @@ export function Bullets({ items, empty = "ไม่ระบุ" }: { items?: st
     <View>
       {items.map((item, i) => (
         <View key={i} className="mb-2 flex-row items-start">
-          <View className="mr-3 mt-2 h-1.5 w-1.5 rounded-full bg-primary" />
+          <View className="mr-3 mt-2.5 h-1.5 w-1.5 rounded-full bg-secondary" />
           <Text className="flex-1 text-base text-text">{item}</Text>
         </View>
       ))}
